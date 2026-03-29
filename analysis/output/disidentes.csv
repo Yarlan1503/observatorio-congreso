@@ -1,0 +1,11 @@
+rank,person_id,nombre,partido,disidencia_pct,total_votaciones,votos_disidentes
+1,P352,Martínez y Hernández Ifigenia Martha,Morena,100.0,10,10
+2,P281,Becerra Moreno Monica,PAN,61.5,52,32
+3,P29,Armendáriz Guerra Carmen Patricia,Morena,55.8,52,29
+4,P59,Armenta Oliveros Magaly,Morena,55.8,52,29
+5,P34,Gómez Urrutia Napoleón,Morena,53.8,52,28
+6,P274,Villegas Canché Freyda Marybel,Morena,50.0,30,15
+7,P427,Villatoro Osorio Jorge Luis,PVEM,49.0,51,25
+8,P386,De Los Santos Flores Casandra Prisilla,PVEM,43.1,51,22
+9,P284,Quiñones Garrido Claudia,PAN,40.4,52,21
+10,P38,Oseguera Kernion Adrián,Morena,38.5,52,20

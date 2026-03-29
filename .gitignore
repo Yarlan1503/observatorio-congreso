@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# SQLite (base de datos con datos personales — se regenera con scraper)
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.db.bak
+
+# Caché del scraper (HTML descargado — se regenera)
+cache/
+
+# Herramientas de linting/formatting
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/

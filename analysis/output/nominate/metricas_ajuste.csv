@@ -1,0 +1,8 @@
+legislatura,n_legisladores,n_votaciones,classification_rate,apre,gmp,beta,w,iteraciones,convergio,lopsided_threshold
+LX,222,11,0.9961,0.9846,0.9939,30.0,1.0,100,False,0.975
+LXI,484,33,0.9787,0.8665,0.9518,30.0,0.63,100,False,0.975
+LXII,496,21,0.9851,0.913,0.9787,30.0,0.58,100,False,0.975
+LXIII,578,140,0.9814,0.8921,0.9547,30.0,0.6,100,False,0.975
+LXIV,495,22,0.9784,0.9092,0.9685,30.0,0.83,100,False,0.975
+LXV,522,80,0.9952,0.986,0.9879,30.0,1.0,100,False,0.975
+LXVI,526,109,0.9933,0.9709,0.989,30.0,1.0,100,False,0.975
