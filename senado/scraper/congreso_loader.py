@@ -1,12 +1,11 @@
-"""congreso_loader.py — Carga datos al schema unificado de congreso.db.
+"""congreso_loader.py — Carga datos al schema unificado de congress.db.
 
 Schema unificado con prefijos de ID:
     VE_S (vote_event), Y_S (motion), V_S (vote),
     MB (membership), P (person)
 
-Usa el parser legacy (``parse_legacy_votacion``) y transformers
-(``transformar_votacion_legacy``) para obtener ``SenadoVotacionCompleta``
-y lo convierte al schema unificado via ``CongresoLoader``.
+Recibe ``CongresoVotacionRecord`` (construido por cli.py a partir de
+``parse_legacy_votacion``) y lo inserta en el schema unificado.
 
 Idempotente: INSERT OR IGNORE para no duplicar datos.
 Transaccional: toda una votación se inserta en una sola transacción.
@@ -84,8 +83,7 @@ class CongresoVotoRecord:
 class CongresoVotacionRecord:
     """Registro de votación para el schema unificado.
 
-    Estructura que recibe ``CongresoLoader.upsert_votacion`` después
-    de la transformación via ``transformar_votacion_legacy``.
+    Estructura que recibe ``CongresoLoader.upsert_votacion``.
     """
 
     senado_id: int  # ID original del portal (1-4690)

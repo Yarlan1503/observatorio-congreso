@@ -1,9 +1,10 @@
 """
-cli.py — CLI unificado para el scraper del Senado (LX-LXV) → congreso.db.
+cli.py — CLI para scraping de votaciones nominales del Senado (LX-LXV).
 
-Scraper legacy que lee del portal de votaciones del Senado
-(https://www.senado.gob.mx/informacion/votaciones/vota/{id})
-y escribe en el schema Popolo-Graph de congress.db.
+Portal: https://www.senado.gob.mx/informacion/votaciones/vota/{id}
+Rango de IDs: 1 a 4690
+
+Escribe en el schema Popolo-Graph de congress.db.
 
 Uso:
     python -m scraper.senado --range 1 4690
@@ -12,10 +13,14 @@ Uso:
 """
 
 import argparse
+import hashlib
 import logging
 import sys
+import time
 from pathlib import Path
 from typing import Optional
+
+import httpx
 
 # Configuración de logging
 logging.basicConfig(
@@ -51,12 +56,19 @@ SENADO_LEGACY_HEADERS = {
 
 
 # =============================================================================
+# URL template para votaciones legacy
+# =============================================================================
+
+SENADO_LEGACY_URL_TEMPLATE = (
+    "https://www.senado.gob.mx/informacion/votaciones/vota/{id}"
+)
+
+
+# =============================================================================
 # Imports del scraper del Senado
 # =============================================================================
 
-from .client import SenadoClient
 from .parsers.legacy import parse_legacy_votacion
-
 from .models import SenVotacionDetail, SenVotoNominal
 
 
@@ -68,15 +80,6 @@ from .congreso_loader import (
     CongresoLoader,
     CongresoVotacionRecord,
     CongresoVotoRecord,
-)
-
-
-# =============================================================================
-# URL template para votaciones legacy
-# =============================================================================
-
-SENADO_LEGACY_URL_TEMPLATE = (
-    "https://www.senado.gob.mx/informacion/votaciones/vota/{id}"
 )
 
 
@@ -114,12 +117,99 @@ def _parse_fecha_iso(fecha: str) -> str:
 
 
 # =============================================================================
+# Cliente HTTP standalone con headers legacy
+# =============================================================================
+
+
+class SenateClientWithLegacyHeaders:
+    """Cliente HTTP del Senado con headers específicos para el portal legacy.
+
+    Portal: https://www.senado.gob.mx/informacion/votaciones/vota/{id}
+    Sistema legacy (LX-LXV).
+    """
+
+    def __init__(
+        self,
+        use_cache: bool = True,
+        delay: float = 2.0,
+        cache_dir: Optional[Path] = None,
+    ):
+        """Inicializa el cliente.
+
+        Args:
+            use_cache: Si True, usa caché file-based.
+            delay: Delay mínimo entre requests en segundos.
+            cache_dir: Directorio de caché. Si None, usa CACHE_DIR.
+        """
+        self.use_cache = use_cache
+        self.delay = delay
+        self.cache_dir = cache_dir or CACHE_DIR
+        self._last_request_time = 0.0
+
+        # Crear directorio de caché si es necesario
+        if self.use_cache:
+            self.cache_dir.mkdir(parents=True, exist_ok=True)
+
+        # Sesión HTTP con headers legacy
+        self._session = httpx.Client(
+            headers=SENADO_LEGACY_HEADERS,
+            timeout=30.0,
+            follow_redirects=True,
+        )
+
+    def _cache_path(self, url: str) -> Path:
+        """Genera path SHA256 para caché de una URL."""
+        h = hashlib.sha256(url.encode()).hexdigest()
+        return self.cache_dir / f"{h}.html"
+
+    def _rate_limit(self) -> None:
+        """Aplica delay mínimo entre requests."""
+        elapsed = time.time() - self._last_request_time
+        if elapsed < self.delay:
+            time.sleep(self.delay - elapsed)
+        self._last_request_time = time.time()
+
+    def get_html(self, url: str) -> str:
+        """Obtiene HTML de una URL con caché opcional.
+
+        Args:
+            url: URL a fetchear.
+
+        Returns:
+            Contenido HTML como string.
+        """
+        cache_path = self._cache_path(url)
+
+        # Intentar leer de caché
+        if self.use_cache and cache_path.exists():
+            logger.debug(f"Cache hit: {url}")
+            return cache_path.read_text(encoding="utf-8")
+
+        # Fetch con rate limiting
+        self._rate_limit()
+        logger.debug(f"Fetching: {url}")
+        response = self._session.get(url)
+        response.raise_for_status()
+        html = response.text
+
+        # Guardar en caché
+        if self.use_cache:
+            cache_path.write_text(html, encoding="utf-8")
+
+        return html
+
+    def close(self) -> None:
+        """Cierra la sesión HTTP."""
+        self._session.close()
+
+
+# =============================================================================
 # Pipeline principal
 # =============================================================================
 
 
 class SenadoCongresoPipeline:
-    """Pipeline que scraper votaciones del Senado legacy y escribe en congreso.db.
+    """Pipeline que scraper votaciones del Senado legacy y escribe en congress.db.
 
     Transforma los datos del formato interno del scraper del Senado
     (SenVotacionDetail, SenVotoNominal) al formato CongresoVotacionRecord
@@ -256,10 +346,6 @@ class SenadoCongresoPipeline:
     ) -> CongresoVotacionRecord:
         """Transforma datos del parser legacy al formato CongresoVotacionRecord.
 
-        Convierte:
-        - SenVotacionDetail → CongresoVotacionRecord
-        - list[SenVotoNominal] → list[CongresoVotoRecord]
-
         Args:
             votacion_id: ID de la votación en el portal.
             detail: Datos parseados de la votación.
@@ -395,39 +481,6 @@ class SenadoCongresoPipeline:
 
 
 # =============================================================================
-# Cliente HTTP con headers legacy
-# =============================================================================
-
-
-class SenateClientWithLegacyHeaders(SenadoClient):
-    """Cliente HTTP del Senado con headers específicos para el portal legacy.
-
-    El portal legacy (LX-LXV) usa los headers definidos en SENADO_LEGACY_HEADERS.
-    """
-
-    def __init__(
-        self,
-        use_cache: bool = True,
-        delay: float = 2.0,
-        cache_dir: Optional[Path] = None,
-    ):
-        """Inicializa el cliente.
-
-        Args:
-            use_cache: Si True, usa caché file-based.
-            delay: Delay mínimo entre requests en segundos.
-            cache_dir: Directorio de caché. Si None, usa CACHE_DIR.
-        """
-        super().__init__(
-            use_cache=use_cache,
-            delay=delay,
-            cache_dir=cache_dir or CACHE_DIR,
-        )
-        # Reemplazar headers con los del portal legacy
-        self._session.headers.update(SENADO_LEGACY_HEADERS)
-
-
-# =============================================================================
 # CLI principal
 # =============================================================================
 
@@ -435,7 +488,7 @@ class SenateClientWithLegacyHeaders(SenadoClient):
 def main() -> None:
     """Entry point del CLI."""
     parser = argparse.ArgumentParser(
-        description="Scraper del Senado (LX-LXV) → congreso.db",
+        description="Scraper del Senado (LX-LXV) → congress.db",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Ejemplos:

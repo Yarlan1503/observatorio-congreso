@@ -1,7 +1,10 @@
 """
-scraper/senado — Scraper del portal del Senado LXVI.
+scraper/senado — Scraper del portal del Senado (sistema legacy LX-LXV).
+
+Portal: https://www.senado.gob.mx/informacion/votaciones/vota/{id}
+Rango: IDs 1 a 4690
 """
 
-from .client import SenadoClient
+from .cli import SenadoCongresoPipeline, SenateClientWithLegacyHeaders
 
-__all__ = ["SenadoClient"]
+__all__ = ["SenadoCongresoPipeline", "SenateClientWithLegacyHeaders"]
