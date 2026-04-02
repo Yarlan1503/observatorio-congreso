@@ -28,11 +28,11 @@ from pathlib import Path
 PROJECT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_DIR))
 
-from scraper.client import SITLClient
-from scraper.config import DB_PATH, LEGISLATURAS
-from scraper.legislatura import url_curricula
-from scraper.parsers.diputado import parse_diputado
-from scraper.transformers import normalizar_nombre
+from diputados.scraper.client import SITLClient
+from diputados.scraper.config import DB_PATH, LEGISLATURAS
+from diputados.scraper.legislatura import url_curricula
+from diputados.scraper.parsers.diputado import parse_diputado
+from diputados.scraper.utils.text_utils import normalize_name
 
 # --- Logging ---
 logging.basicConfig(

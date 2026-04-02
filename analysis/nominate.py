@@ -36,44 +36,9 @@ from scipy.stats import norm
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Constantes y mapeos
+# Constantes y mapeos (centralizados en db.constants)
 # ---------------------------------------------------------------------------
-
-# Mapeo de normalización de vote.group → org_id canónico
-# (replicado de covotacion.py para evitar dependencia cruzada)
-_NAME_TO_ORG: dict[str | None, str] = {
-    "O01": "O01",
-    "O02": "O02",
-    "O03": "O03",
-    "O04": "O04",
-    "O05": "O05",
-    "O06": "O06",
-    "O07": "O07",
-    "O11": "O11",
-    "Morena": "O01",
-    "PT": "O02",
-    "PVEM": "O03",
-    None: "O11",
-}
-
-# Mapeo de org_id → nombre corto para reportes
-_ORG_TO_SHORT: dict[str, str] = {
-    "O01": "MORENA",
-    "O02": "PT",
-    "O03": "PVEM",
-    "O04": "PAN",
-    "O05": "PRI",
-    "O06": "MC",
-    "O07": "PRD",
-    "O11": "Independientes",
-}
-
-# Partidos reconocidos (excluye instituciones y coaliciones)
-_PARTY_ORG_IDS: set[str] = {"O01", "O02", "O03", "O04", "O05", "O06", "O07", "O11"}
-
-# Floor de probabilidad para evitar log(0) = -inf en el log-likelihood.
-# Consistente con implementaciones de referencia (R wnominate package).
-_P_FLOOR: float = 1e-15
+from db.constants import _NAME_TO_ORG, _PARTY_ORG_IDS, _P_FLOOR
 
 _SEED = 42
 

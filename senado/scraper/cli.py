@@ -1,0 +1,516 @@
+"""
+cli.py — CLI unificado para el scraper del Senado (LX-LXV) → congreso.db.
+
+Scraper legacy que lee del portal de votaciones del Senado
+(https://www.senado.gob.mx/informacion/votaciones/vota/{id})
+y escribe en el schema Popolo-Graph de congress.db.
+
+Uso:
+    python -m scraper.senado --range 1 4690
+    python -m scraper.senado --test-id 1234
+    python -m scraper.senado --init-schema
+"""
+
+import argparse
+import logging
+import sys
+from pathlib import Path
+from typing import Optional
+
+# Configuración de logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%H:%M:%S",
+)
+logger = logging.getLogger(__name__)
+
+
+# =============================================================================
+# Paths y configuración
+# =============================================================================
+
+PROJECT_DIR: Path = Path(__file__).resolve().parent.parent.parent
+DB_PATH: Path = PROJECT_DIR / "db" / "congreso.db"
+CACHE_DIR: Path = PROJECT_DIR / "cache" / "senado"
+
+
+# =============================================================================
+# Headers HTTP para el portal legacy del Senado
+# =============================================================================
+
+SENADO_LEGACY_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+    ),
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "es-MX,es;q=0.9,en;q=0.8",
+    "Referer": "https://www.senado.gob.mx/informacion/votaciones/",
+}
+
+
+# =============================================================================
+# Imports del scraper del Senado
+# =============================================================================
+
+from .client import SenadoClient
+from .parsers.legacy import parse_legacy_votacion
+
+from .models import SenVotacionDetail, SenVotoNominal
+
+
+# =============================================================================
+# Imports del loader de congreso.db
+# =============================================================================
+
+from .congreso_loader import (
+    CongresoLoader,
+    CongresoVotacionRecord,
+    CongresoVotoRecord,
+)
+
+
+# =============================================================================
+# URL template para votaciones legacy
+# =============================================================================
+
+SENADO_LEGACY_URL_TEMPLATE = (
+    "https://www.senado.gob.mx/informacion/votaciones/vota/{id}"
+)
+
+
+# =============================================================================
+# Helpers de fecha
+# =============================================================================
+
+
+def _parse_fecha_iso(fecha: str) -> str:
+    """Convierte fecha de formato dd/mm/yyyy a yyyy-mm-dd.
+
+    El portal del Senado usa formato dd/mm/yyyy pero la BD espera ISO.
+
+    Args:
+        fecha: Fecha en formato dd/mm/yyyy (ej: "31/03/2026").
+
+    Returns:
+        Fecha en formato yyyy-mm-dd (ej: "2026-03-31").
+        Retorna cadena vacía si el formato no es reconocido.
+    """
+    import datetime
+
+    if not fecha:
+        return ""
+
+    for fmt in ("%d/%m/%Y", "%d-%m-%Y", "%Y-%m-%d", "%d/%m/%y"):
+        try:
+            dt = datetime.datetime.strptime(fecha, fmt)
+            return dt.strftime("%Y-%m-%d")
+        except ValueError:
+            continue
+
+    logger.warning(f"Formato de fecha no reconocido: '{fecha}', usando cadena vacía")
+    return ""
+
+
+# =============================================================================
+# Pipeline principal
+# =============================================================================
+
+
+class SenadoCongresoPipeline:
+    """Pipeline que scraper votaciones del Senado legacy y escribe en congreso.db.
+
+    Transforma los datos del formato interno del scraper del Senado
+    (SenVotacionDetail, SenVotoNominal) al formato CongresoVotacionRecord
+    antes de insertar en la BD via CongresoLoader.
+    """
+
+    # ID de la organización del Senado en la BD Popolo-Graph
+    SENADO_ORG_ID = "O09"  # "Senado de la República"
+
+    def __init__(
+        self,
+        use_cache: bool = True,
+        delay: float = 2.0,
+        db_path: Optional[str] = None,
+    ):
+        """Inicializa el pipeline.
+
+        Args:
+            use_cache: Si True, usa caché file-based para los requests.
+            delay: Delay mínimo entre requests en segundos.
+            db_path: Path a la BD. Si None, usa DB_PATH por defecto.
+        """
+        self.client = SenateClientWithLegacyHeaders(use_cache=use_cache, delay=delay)
+        self.db_path = db_path or str(DB_PATH)
+        self.loader = CongresoLoader(db_path=self.db_path)
+
+    def scrape_one(self, votacion_id: int) -> dict:
+        """Procesa un solo ID para testing.
+
+        Args:
+            votacion_id: ID de la votación en el portal del Senado.
+
+        Returns:
+            Dict con estadísticas del procesamiento.
+        """
+        url = SENADO_LEGACY_URL_TEMPLATE.format(id=votacion_id)
+        logger.info(f"Scrapeando votacion {votacion_id}: {url}")
+
+        try:
+            # 1. Fetch HTML
+            html = self.client.get_html(url)
+            if not html or len(html) < 100:
+                logger.warning(f"HTML vacío o muy corto para ID {votacion_id}")
+                return {"status": "empty_html", "votacion_id": votacion_id}
+
+            # 2. Parsear
+            detail, votos = parse_legacy_votacion(html, votacion_id)
+            logger.info(
+                f"  Legislature: {detail.periodo}, "
+                f"Fecha: {detail.fecha}, "
+                f"Votos: pro={detail.pro_count}, contra={detail.contra_count}, "
+                f"abst={detail.abstention_count}"
+            )
+
+            # 3. Transformar a formato CongresoVotacionRecord
+            votacion_record = self._transform_to_congreso_record(
+                votacion_id, detail, votos
+            )
+
+            # 4. Upsert con el loader
+            stats = self.loader.upsert_votacion(votacion_record)
+            stats["status"] = "success"
+            stats["votacion_id"] = votacion_id
+
+            logger.info(
+                f"  ✓ Insertado: VE={stats['votacion_id']}, "
+                f"votos={stats['votos']}, "
+                f"personas_nuevas={stats['personas_nuevas']}"
+            )
+            return stats
+
+        except Exception as e:
+            logger.error(f"Error procesando votacion {votacion_id}: {e}")
+            return {"status": "error", "votacion_id": votacion_id, "error": str(e)}
+
+    def scrape_range(self, start: int, end: int) -> dict:
+        """Itera IDs de start a end, procesando cada votación.
+
+        Args:
+            start: ID inicial (inclusive).
+            end: ID final (inclusive).
+
+        Returns:
+            Dict con estadísticas agregadas del procesamiento.
+        """
+        total = end - start + 1
+        logger.info(f"Iniciando scrapeo de range [{start}, {end}] ({total} IDs)")
+
+        stats_agg = {
+            "total": total,
+            "exitosos": 0,
+            "errores": 0,
+            "ya_existen": 0,
+            "votos_insertados": 0,
+            "personas_nuevas": 0,
+        }
+
+        errores = []
+
+        for i, votacion_id in enumerate(range(start, end + 1), start=1):
+            if i % 100 == 0 or i == 1 or i == total:
+                logger.info(f"Procesando {votacion_id} ({i}/{total})")
+
+            result = self.scrape_one(votacion_id)
+
+            if result.get("status") == "success":
+                stats_agg["exitosos"] += 1
+                stats_agg["votos_insertados"] += result.get("votos", 0)
+                stats_agg["personas_nuevas"] += result.get("personas_nuevas", 0)
+            elif result.get("status") == "error":
+                error_msg = result.get("error", "")
+                # Verificar si fue por duplicado
+                if "ya existe" in error_msg.lower() or "duplicate" in error_msg.lower():
+                    stats_agg["ya_existen"] += 1
+                else:
+                    stats_agg["errores"] += 1
+                    errores.append(result)
+                    if len(errores) <= 5:
+                        logger.error(f"  ✗ Error ID {votacion_id}: {error_msg}")
+
+        logger.info(
+            f"Completado: {stats_agg['exitosos']} exitosos, "
+            f"{stats_agg['ya_existen']} ya existían, "
+            f"{stats_agg['errores']} errores"
+        )
+
+        return stats_agg
+
+    def _transform_to_congreso_record(
+        self,
+        votacion_id: int,
+        detail: SenVotacionDetail,
+        votos: list[SenVotoNominal],
+    ) -> CongresoVotacionRecord:
+        """Transforma datos del parser legacy al formato CongresoVotacionRecord.
+
+        Convierte:
+        - SenVotacionDetail → CongresoVotacionRecord
+        - list[SenVotoNominal] → list[CongresoVotoRecord]
+
+        Args:
+            votacion_id: ID de la votación en el portal.
+            detail: Datos parseados de la votación.
+            votos: Lista de votos nominales.
+
+        Returns:
+            CongresoVotacionRecord listo para insertar en congress.db.
+        """
+        # --- Fecha ---
+        fecha_iso = _parse_fecha_iso(detail.fecha)
+
+        # --- Convertir votos ---
+        votos_records: list[CongresoVotoRecord] = []
+        personas_nuevas: list[dict] = []
+        membresias_nuevas: list[dict] = []
+
+        # Track de nombres ya procesados
+        nombres_procesados: set[str] = set()
+
+        for voto in votos:
+            nombre = voto.nombre.strip()
+            grupo = voto.grupo_parlamentario.strip()
+
+            # Solo agregar personas y membresías nuevas (una vez por persona)
+            if nombre and nombre not in nombres_procesados:
+                nombres_procesados.add(nombre)
+
+                # Infierir género del nombre
+                genero = self._inferir_genero(nombre)
+
+                personas_nuevas.append(
+                    {
+                        "nombre": nombre,
+                        "genero": genero,
+                    }
+                )
+
+                # Membresía solo si hay grupo
+                if grupo:
+                    membresias_nuevas.append(
+                        {
+                            "persona_id": nombre,  # El loader resolverá por nombre
+                            "organizacion_id": grupo,
+                            "rol": "senador",
+                            "start_date": fecha_iso,
+                        }
+                    )
+
+            votos_records.append(
+                CongresoVotoRecord(
+                    nombre=nombre,
+                    grupo_parlamentario=grupo,
+                    voto=voto.voto,  # Raw: PRO/CONTRA/ABSTENCIÓN
+                )
+            )
+
+        return CongresoVotacionRecord(
+            senado_id=votacion_id,
+            legislature=detail.periodo or "",  # LX, LXI, etc.
+            fecha_iso=fecha_iso,
+            descripcion=detail.descripcion,
+            pro_count=detail.pro_count,
+            contra_count=detail.contra_count,
+            abstention_count=detail.abstention_count,
+            votos=votos_records,
+            voto_personas_nuevas=personas_nuevas,
+            voto_membresias_nuevas=membresias_nuevas,
+        )
+
+    @staticmethod
+    def _inferir_genero(nombre: str) -> Optional[str]:
+        """Infiere el género de un legislador a partir del nombre.
+
+        Args:
+            nombre: Nombre completo del legislador.
+
+        Returns:
+            "M", "F" o ``None``.
+        """
+        if not nombre:
+            return None
+
+        # Nombres femeninos comunes en México
+        nombres_femeninos = {
+            "maría",
+            "ana",
+            "patricia",
+            "leticia",
+            "verónica",
+            "gabriela",
+            "cristina",
+            "mónica",
+            "silvia",
+            "luz",
+            "rosa",
+            "carmen",
+            "margarita",
+            "elena",
+            "sara",
+            "laura",
+            "andrea",
+            "valentina",
+            "sofia",
+            "diana",
+            "cecilia",
+            "beatriz",
+            "isabel",
+            "raquel",
+            "susana",
+            "minerva",
+            "nora",
+            "claudia",
+            "guadalupe",
+            "alejandra",
+            "nayeli",
+            "antonia",
+            "mariana",
+            "irene",
+            "adela",
+            "ramona",
+        }
+
+        # Strip prefijo "Sen. " si existe
+        nombre_limpio = nombre.replace("Sen.", "").replace("sen.", "").strip()
+        nombre_lower = nombre_limpio.lower()
+
+        partes = nombre_lower.replace(",", "").split()
+        for parte in partes:
+            if parte in nombres_femeninos:
+                return "F"
+
+        return None
+
+
+# =============================================================================
+# Cliente HTTP con headers legacy
+# =============================================================================
+
+
+class SenateClientWithLegacyHeaders(SenadoClient):
+    """Cliente HTTP del Senado con headers específicos para el portal legacy.
+
+    El portal legacy (LX-LXV) usa los headers definidos en SENADO_LEGACY_HEADERS.
+    """
+
+    def __init__(
+        self,
+        use_cache: bool = True,
+        delay: float = 2.0,
+        cache_dir: Optional[Path] = None,
+    ):
+        """Inicializa el cliente.
+
+        Args:
+            use_cache: Si True, usa caché file-based.
+            delay: Delay mínimo entre requests en segundos.
+            cache_dir: Directorio de caché. Si None, usa CACHE_DIR.
+        """
+        super().__init__(
+            use_cache=use_cache,
+            delay=delay,
+            cache_dir=cache_dir or CACHE_DIR,
+        )
+        # Reemplazar headers con los del portal legacy
+        self._session.headers.update(SENADO_LEGACY_HEADERS)
+
+
+# =============================================================================
+# CLI principal
+# =============================================================================
+
+
+def main() -> None:
+    """Entry point del CLI."""
+    parser = argparse.ArgumentParser(
+        description="Scraper del Senado (LX-LXV) → congreso.db",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Ejemplos:
+  python -m scraper.senado --range 1 4690
+  python -m scraper.senado --test-id 1234
+  python -m scraper.senado --init-schema
+        """,
+    )
+    parser.add_argument(
+        "--range",
+        type=int,
+        nargs=2,
+        metavar=("START", "END"),
+        help="Rango de IDs a procesar (inicio y fin inclusivos)",
+    )
+    parser.add_argument(
+        "--test-id",
+        type=int,
+        help="Procesar un solo ID para testing",
+    )
+    parser.add_argument(
+        "--init-schema",
+        action="store_true",
+        help="Inicializar schema de congress.db si no existe",
+    )
+    parser.add_argument(
+        "--no-cache",
+        action="store_true",
+        help="Desactivar caché de requests HTTP",
+    )
+    parser.add_argument(
+        "--delay",
+        type=float,
+        default=2.0,
+        help="Delay entre requests en segundos (default: 2.0)",
+    )
+
+    args = parser.parse_args()
+
+    # Validar argumentos
+    if not args.range and not args.test_id and not args.init_schema:
+        parser.error("Se requiere --range, --test-id o --init-schema")
+
+    if args.range and args.range[0] > args.range[1]:
+        parser.error(f"Rango inválido: start={args.range[0]} > end={args.range[1]}")
+
+    # Inicializar pipeline
+    use_cache = not args.no_cache
+    pipeline = SenadoCongresoPipeline(use_cache=use_cache, delay=args.delay)
+
+    # Ejecutar acción
+    if args.init_schema:
+        logger.info("Inicializando schema de congress.db...")
+        pipeline.loader.init_schema()
+        print("Schema inicializado correctamente.")
+        return
+
+    if args.test_id:
+        logger.info(f"Testeando ID: {args.test_id}")
+        result = pipeline.scrape_one(args.test_id)
+        print(f"Resultado: {result}")
+        return
+
+    if args.range:
+        start, end = args.range
+        logger.info(f"Iniciando scrapeo de [{start}, {end}]...")
+        result = pipeline.scrape_range(start, end)
+        print(f"\nResumen:")
+        print(f"  Total IDs:        {result['total']}")
+        print(f"  Exitosos:         {result['exitosos']}")
+        print(f"  Ya existían:      {result['ya_existen']}")
+        print(f"  Errores:          {result['errores']}")
+        print(f"  Votos insertados: {result['votos_insertados']}")
+        print(f"  Personas nuevas:  {result['personas_nuevas']}")
+
+
+if __name__ == "__main__":
+    main()

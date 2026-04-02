@@ -20,43 +20,23 @@ import math
 from collections import defaultdict
 from itertools import permutations, combinations
 
+from db.constants import (
+    _NAME_TO_ORG,
+    _ORG_ID_TO_NAME,
+    _PARTY_ORG_IDS,
+    TOTAL_SEATS,
+    MIN_VOTES,
+)
+
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "db", "congreso.db")
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "output")
 
 # --- Constantes ---
 
-GROUP_TO_ORG = {
-    "Morena": "O01",
-    "PT": "O02",
-    "PVEM": "O03",
-    "PAN": "O04",
-    "PRI": "O05",
-    "MC": "O06",
-    "PRD": "O07",
-    "Independientes": "O11",
-    "O01": "O01",
-    "O02": "O02",
-    "O03": "O03",
-    "O04": "O04",
-    "O05": "O05",
-    "O06": "O06",
-    "O07": "O07",
-    "O11": "O11",
-}
-
-ORG_SHORT_NAME = {
-    "O01": "Morena",
-    "O02": "PT",
-    "O03": "PVEM",
-    "O04": "PAN",
-    "O05": "PRI",
-    "O06": "MC",
-    "O07": "PRD",
-    "O11": "Independientes",
-}
-
-PARTY_ORGS = ["O01", "O02", "O03", "O04", "O05", "O06", "O07", "O11"]
-TOTAL_SEATS = 500
+# Alias para compatibilidad interna
+GROUP_TO_ORG = _NAME_TO_ORG
+ORG_SHORT_NAME = _ORG_ID_TO_NAME
+PARTY_ORGS = list(_PARTY_ORG_IDS)
 
 
 # --- Helpers ---
@@ -556,7 +536,7 @@ def analyze_close_votes(conn, analyses, threshold=10):
 # --- Disidentes ---
 
 
-def find_top_dissidents(conn, min_votes=10):
+def find_top_dissidents(conn, min_votes=MIN_VOTES):
     """
     Encuentra los legisladores que más votaron diferente a su partido.
 

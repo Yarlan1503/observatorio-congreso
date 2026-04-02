@@ -23,31 +23,9 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 
+from db.constants import _NAME_TO_ORG, _ORG_ID_TO_NAME, _PARTY_ORG_IDS, MIN_VOTES
+
 logger = logging.getLogger(__name__)
-
-# ---------------------------------------------------------------------------
-# Mapeo de normalización de vote.group → org_id canónico
-# ---------------------------------------------------------------------------
-_NAME_TO_ORG: dict[str | None, str] = {
-    # IDs canónicos (ya normalizados)
-    "O01": "O01",
-    "O02": "O02",
-    "O03": "O03",
-    "O04": "O04",
-    "O05": "O05",
-    "O06": "O06",
-    "O07": "O07",
-    "O11": "O11",
-    # Nombres de texto encontrados en vote.group
-    "Morena": "O01",
-    "PT": "O02",
-    "PVEM": "O03",
-    # NULL → Independientes
-    None: "O11",
-}
-
-# Partidos que se incluyen en org_map (excluye instituciones y coaliciones)
-_PARTY_ORG_IDS: set[str] = {"O01", "O02", "O03", "O04", "O05", "O06", "O07", "O11"}
 
 
 # ---------------------------------------------------------------------------
@@ -168,7 +146,7 @@ def get_primary_party(votes_df: pd.DataFrame) -> dict[str, str]:
 # ---------------------------------------------------------------------------
 def build_covotacion_matrix(
     votes_df: pd.DataFrame,
-    min_votes: int = 10,
+    min_votes: int = MIN_VOTES,
 ) -> tuple[np.ndarray, list[str], dict[tuple[int, int], int]]:
     """Construir la matriz NxN de co-votación entre legisladores.
 
@@ -289,23 +267,6 @@ def build_graph(
     # Lookup de nombres
     name_lookup = dict(zip(persons_df["id"], persons_df["nombre"]))
 
-    # Construir lookup de nombre de partido (org_id → nombre)
-    # Re-usamos org_map si está disponible; si no, usamos los IDs directamente
-    # El caller debe proveer party_map como voter_id → party_id
-    # Necesitamos org_map para nombres de partido — lo derivamos de party_map
-    # Build a reverse map from org_map if available, but we don't have it here.
-    # Instead, use a simple mapping from the known parties
-    _org_names: dict[str, str] = {
-        "O01": "Morena",
-        "O02": "PT",
-        "O03": "PVEM",
-        "O04": "PAN",
-        "O05": "PRI",
-        "O06": "MC",
-        "O07": "PRD",
-        "O11": "Independientes",
-    }
-
     G = nx.Graph()
 
     # Agregar nodos
@@ -315,7 +276,7 @@ def build_graph(
             leg_id,
             nombre=name_lookup.get(leg_id, leg_id),
             party_id=pid,
-            party_name=_org_names.get(pid, pid),
+            party_name=_ORG_ID_TO_NAME.get(pid, pid),
         )
 
     # Agregar aristas (solo si peso > 0, sin diagonal)

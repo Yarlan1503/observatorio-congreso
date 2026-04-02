@@ -1,9 +1,9 @@
-"""
-scraper — Scraper del SITL/INFOPAL para el Observatorio del Congreso.
+"""scraper - Paquete de backward compatibility.
 
-Obtiene votaciones nominales de la Cámara de Diputados desde el
-Sistema de Información para la Estadística Parlamentaria (INFOPAL).
+Los scrapers fueron reorganizados en:
+- diputados/scraper/ (antes scraper/)
+- senado/scraper/ (antes scraper/senado/)
 
-Arquitectura por capas:
-    client → parsers → models → transformers → loader → pipeline
+Este paquete raíz existe solo para backward compatibility de imports
+que aún referencian el path antiguo.
 """

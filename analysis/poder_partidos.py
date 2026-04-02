@@ -1,6 +1,6 @@
 """
 poder_partidos.py — Índices de Poder Shapley-Shubik y Banzhaf
-Observatorio del Congreso de la Unión (LXVI Legislatura, Cámara de Diputados)
+Observatorio del Congreso de la Unión (LXVI Legislature, Cámara de Diputados)
 
 Calcula índices de poder legislativo para cada partido basándose en:
 - Shapley-Shubik: poder marginal promedio en todas las permutaciones
@@ -16,43 +16,16 @@ from pathlib import Path
 
 import pandas as pd
 
+from db.constants import _NAME_TO_ORG, _ORG_ID_TO_NAME, _PARTY_ORG_IDS
+
 DB_PATH = Path(__file__).parent.parent / "db" / "congreso.db"
 OUTPUT_DIR = Path(__file__).parent / "output"
 OUTPUT_DIR.mkdir(exist_ok=True)
 
-# --- Normalización de grupos ---
-
-GROUP_TO_ORG = {
-    "Morena": "O01",
-    "PT": "O02",
-    "PVEM": "O03",
-    "PAN": "O04",
-    "PRI": "O05",
-    "MC": "O06",
-    "PRD": "O07",
-    "Independientes": "O11",
-    "O01": "O01",
-    "O02": "O02",
-    "O03": "O03",
-    "O04": "O04",
-    "O05": "O05",
-    "O06": "O06",
-    "O07": "O07",
-    "O11": "O11",
-}
-
-PARTY_ORGS = {"O01", "O02", "O03", "O04", "O05", "O06", "O07", "O11"}
-
-ORG_SHORT_NAME = {
-    "O01": "Morena",
-    "O02": "PT",
-    "O03": "PVEM",
-    "O04": "PAN",
-    "O05": "PRI",
-    "O06": "MC",
-    "O07": "PRD",
-    "O11": "Independientes",
-}
+# Alias para compatibilidad interna
+GROUP_TO_ORG = _NAME_TO_ORG
+ORG_SHORT_NAME = _ORG_ID_TO_NAME
+PARTY_ORGS = set(_PARTY_ORG_IDS)
 
 
 # --- Funciones de datos ---

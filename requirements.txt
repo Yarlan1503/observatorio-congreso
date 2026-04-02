@@ -20,3 +20,6 @@ matplotlib>=3.8
 
 # Export (scripts secundarios)
 polars>=0.20
+
+# Testing
+pytest>=8.0
