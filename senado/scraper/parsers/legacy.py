@@ -9,6 +9,19 @@ Estructura:
     - Metadata en divs con classes específicas (panel-heading, col-sm-12, etc.)
     - Tabla agregada por partido (primera tabla)
     - Tabla de votos nominales (segunda tabla, con SENADOR (A) en header)
+
+LIMITACIÓN CONOCIDA — Tabla agregada incompleta:
+    El portal del Senado en formato legacy (LX-LXV) NO incluye todos los partidos
+    en la tabla de desglose por partido. Investigado en votaciones LXIV-LXV:
+    - Partidos mostrados: PRI, PAN, PRD, PVEM, PT, SIN GRUPO
+    - Partidos OMITIDOS: MORENA, Movimiento Ciudadano
+    - Los senadores de MORENA/MC SÍ aparecen en la tabla nominal con su voto,
+      pero la tabla agregada no tiene filas para estos partidos.
+    - Verificado en IDs: 3500-3900 (LXIV), 4045-4500 (LXV) — consistente.
+    - El campo "Total" de la fila resumen (128) sí incluye todos los senadores,
+      pero las filas de partido individuales solo cubren un subconjunto.
+    - Consecuencia: los counts por partido estarán incompletos para legislaturas
+      LXIV y LXV. Los votos nominales son correctos.
 """
 
 import re
