@@ -420,8 +420,12 @@ class SenadoCongresoPipeline:
 
             # 4. Upsert con el loader
             stats = self.loader.upsert_votacion(votacion_record)
-            stats["status"] = "success"
+            stats["status"] = stats.get("status", "success")
             stats["votacion_id"] = votacion_id
+
+            if stats["status"] == "already_exists":
+                logger.info(f"  ⊘ Ya existe: VE={stats['votacion_id']}")
+                return stats
 
             logger.info(
                 f"  ✓ Insertado: VE={stats['votacion_id']}, "
@@ -465,23 +469,18 @@ class SenadoCongresoPipeline:
 
                 result = self.scrape_one(votacion_id)
 
-                if result.get("status") == "success":
+                if result.get("status") == "already_exists":
+                    stats_agg["ya_existen"] += 1
+                elif result.get("status") == "success":
                     stats_agg["exitosos"] += 1
                     stats_agg["votos_insertados"] += result.get("votos", 0)
                     stats_agg["personas_nuevas"] += result.get("personas_nuevas", 0)
                 elif result.get("status") == "error":
                     error_msg = result.get("error", "")
-                    # Verificar si fue por duplicado
-                    if (
-                        "ya existe" in error_msg.lower()
-                        or "duplicate" in error_msg.lower()
-                    ):
-                        stats_agg["ya_existen"] += 1
-                    else:
-                        stats_agg["errores"] += 1
-                        errores.append(result)
-                        if len(errores) <= 5:
-                            logger.error(f"  ✗ Error ID {votacion_id}: {error_msg}")
+                    stats_agg["errores"] += 1
+                    errores.append(result)
+                    if len(errores) <= 5:
+                        logger.error(f"  ✗ Error ID {votacion_id}: {error_msg}")
 
         finally:
             # Cerrar sesión al final del batch

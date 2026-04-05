@@ -248,7 +248,11 @@ CREATE TABLE vote_event (
     -- Tipo de mayoría requerida para aprobación (copiado de motion)
     requirement TEXT CHECK(
         requirement IN ('mayoria_simple', 'mayoria_calificada', 'unanime', NULL)
-    )
+    ),
+
+    -- ID original del portal de origen (senado.gob.mx ID o SITL ID)
+    -- Nullable para backward compatibility; usado para deduplicación
+    source_id TEXT
 );
 
 -- ============================================================
@@ -417,8 +421,9 @@ CREATE TABLE evento_politico (
 CREATE INDEX idx_membership_person ON membership(person_id);
 CREATE INDEX idx_membership_org ON membership(org_id);
 
--- Índices sobre vote_event (consultas por iniciativa)
+-- Índices sobre vote_event (consultas por iniciativa y source_id)
 CREATE INDEX idx_vote_event_motion ON vote_event(motion_id);
+CREATE INDEX idx_vote_event_source ON vote_event(source_id);
 
 -- Índices sobre vote (consultas por votante y por evento)
 CREATE INDEX idx_vote_voter ON vote(voter_id);

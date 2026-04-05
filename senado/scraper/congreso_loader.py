@@ -342,6 +342,7 @@ class CongresoLoader:
         """Inserta votación completa. Retorna estadísticas.
 
         Proceso (dentro de una transacción):
+        0. Verificar unicidad por source_id (deduplicación)
         1. Generar IDs: VE_S* para vote_event, Y_S* para motion
         2. INSERT OR IGNORE personas nuevas con IDs P*
         3. INSERT OR IGNORE membresías nuevas con IDs MB*
@@ -361,7 +362,8 @@ class CongresoLoader:
                 "motion_id": "Y_S00001",
                 "votos": 118,
                 "personas_nuevas": 5,
-                "membresias_nuevas": 3
+                "membresias_nuevas": 3,
+                "status": "success" | "already_exists"
             }``
         """
         conn = self._get_conn()
@@ -373,7 +375,24 @@ class CongresoLoader:
             "personas_nuevas": 0,
             "membresias_nuevas": 0,
             "counts": 0,
+            "status": "",
         }
+
+        # --- 0. Deduplicación por source_id ---
+        existing_ve = conn.execute(
+            "SELECT id FROM vote_event WHERE source_id = ?",
+            (str(votacion.senado_id),),
+        ).fetchone()
+
+        if existing_ve:
+            logger.info(
+                f"Votación senado_id={votacion.senado_id} ya existe "
+                f"(vote_event={existing_ve[0]}), saltando."
+            )
+            conn.close()
+            stats["status"] = "already_exists"
+            stats["votacion_id"] = existing_ve[0]
+            return stats
 
         # Cache local: nombre → persona_id (P*)
         _persona_ids: dict[str, str] = {}
@@ -464,8 +483,8 @@ class CongresoLoader:
             conn.execute(
                 """INSERT OR IGNORE INTO vote_event
                    (id, motion_id, start_date, organization_id, result,
-                    voter_count, legislatura)
-                   VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                    voter_count, legislatura, source_id)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
                 (
                     vote_event_id,
                     motion_id,
@@ -476,6 +495,7 @@ class CongresoLoader:
                     + votacion.contra_count
                     + votacion.abstention_count,
                     votacion.legislature or "",
+                    str(votacion.senado_id),
                 ),
             )
 
@@ -532,6 +552,7 @@ class CongresoLoader:
 
             stats["votacion_id"] = vote_event_id
             stats["motion_id"] = motion_id
+            stats["status"] = "success"
 
             conn.execute("COMMIT")
             logger.info(
