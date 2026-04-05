@@ -113,11 +113,15 @@ def _normalize_voto(voto_text: str) -> str:
     mayúsculas/minúsculas. Retorna el valor RAW (PRO/CONTRA/ABSTENCIÓN)
     sin transformar para que transformers.py:voto_to_option() lo procese.
 
+    También separa conceptos compuestos como "AUSENTECOMISIÓN OFICIAL":
+    - "AUSENTE" → voto ausente (no participó)
+    - "COMISIÓN OFICIAL" → metadata, se ignora
+
     Args:
         voto_text: Texto del voto extraído del HTML.
 
     Returns:
-        Voto normalizado (PRO, CONTRA o ABSTENCIÓN) - valor RAW.
+        Voto normalizado (PRO, CONTRA, ABSTENCIÓN, AUSENTE) - valor RAW.
     """
     text = voto_text.strip().upper()
 
@@ -135,6 +139,11 @@ def _normalize_voto(voto_text: str) -> str:
         return "CONTRA"
     if "ABSTEN" in text:
         return "ABSTENCIÓN"
+
+    # "AUSENTE" puede aparecer solo o seguido de metadata
+    # (ej: "AUSENTECOMISIÓN OFICIAL" — celda con <br> entre ambos conceptos)
+    if "AUSENTE" in text:
+        return "AUSENTE"
 
     return voto_text.strip()
 

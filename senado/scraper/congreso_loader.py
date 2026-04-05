@@ -129,12 +129,13 @@ class CongresoLoader:
         PRO → a_favor
         CONTRA → en_contra
         ABSTENCIÓN (o variantes) → abstencion
+        AUSENTE → ausente
 
         Args:
-            voto: Sentido del voto del portal (PRO, CONTRA, ABSTENCIÓN).
+            voto: Sentido del voto del portal (PRO, CONTRA, ABSTENCIÓN, AUSENTE).
 
         Returns:
-            Opción en formato BD (a_favor, en_contra, abstencion).
+            Opción en formato BD (a_favor, en_contra, abstencion, ausente).
         """
         s = voto.strip().upper()
 
@@ -150,6 +151,8 @@ class CongresoLoader:
             return "en_contra"
         if "ABSTENCION" in sin_acentos or "ABSTEN" in sin_acentos:
             return "abstencion"
+        if "AUSENTE" in sin_acentos:
+            return "ausente"
 
         logger.warning(f"Sentido de voto no reconocido: '{voto}', usando 'abstencion'")
         return "abstencion"
