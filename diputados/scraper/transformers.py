@@ -57,6 +57,7 @@ class VoteEventPopolo:
     result: str  # "aprobada", "rechazada", "empate"
     sitl_id: int
     voter_count: int
+    source_id: str = ""  # ID original para deduplicación (SITL ID)
     legislatura: str = "LXVI"  # Legislatura a la que pertenece
     # Datos de motion (se insertan/actualizan junto con el vote_event)
     motion_text: str = ""
@@ -480,6 +481,10 @@ _PARTY_FULL_NAMES: dict[str, str] = {
     "PARTIDO ENCUENTRO SOCIAL": "PES",
     "SP": "SP",
     "SIN PARTIDO": "SP",
+    # Alias: el SITL LXVI usa "IND" en URLs pero "INDEPENDIENTE" en el
+    # HTML del desglose. Sin esta entrada, get_or_create_organization()
+    # crearía una org duplicada.
+    "INDEPENDIENTE": "IND",
 }
 
 
@@ -601,6 +606,7 @@ def transformar_votacion(
         result=resultado,
         sitl_id=votacion.sitl_id,
         voter_count=voter_count,
+        source_id=str(votacion.sitl_id),
         legislatura=legislatura,
         motion_text=titulo,
         motion_clasificacion=clasificacion,
@@ -622,6 +628,18 @@ def transformar_votacion(
     vote_ids = get_next_id_batch(conn, "vote", camara="D", count=total_nominales)
     _vote_id_idx = 0
 
+    # Pre-allocar IDs para persons y memberships.
+    # IMPORTANTE: No podemos usar siguiente_person_id() en el loop porque
+    # consulta MAX(id) en la BD y las personas aún no están insertadas.
+    # Todas las llamadas retornarían el mismo ID (ej: P00001).
+    # Pre-allocamos el máximo posible (total_nominales) y usamos un índice.
+    _person_id_pool = get_next_id_batch(conn, "person", count=total_nominales)
+    _person_id_idx = 0
+    _membership_id_pool = get_next_id_batch(
+        conn, "membership", camara="D", count=total_nominales
+    )
+    _membership_id_idx = 0
+
     # Cache de nombres ya procesados en esta votación (evitar duplicar persona)
     _personas_creadas: dict[str, str] = {}  # nombre_norm → person_id
 
@@ -639,8 +657,9 @@ def transformar_votacion(
                 person_id = match_persona_por_nombre(voto.nombre, conn)
 
             if person_id is None:
-                # Crear nueva persona
-                person_id = siguiente_person_id(conn)
+                # Crear nueva persona (usar pool pre-allocado)
+                person_id = _person_id_pool[_person_id_idx]
+                _person_id_idx += 1
 
                 identifiers = {}
                 if voto.diputado_sitl_id:
@@ -658,11 +677,11 @@ def transformar_votacion(
                     )
                 )
 
-                # Crear membership al partido
+                # Crear membership al partido (usar pool pre-allocado)
                 if org_id:
                     new_memberships.append(
                         MembershipPopolo(
-                            id=siguiente_membership_id(conn),
+                            id=_membership_id_pool[_membership_id_idx],
                             person_id=person_id,
                             org_id=org_id,
                             rol="diputado",
@@ -671,6 +690,7 @@ def transformar_votacion(
                             end_date=None,
                         )
                     )
+                    _membership_id_idx += 1
 
                 _personas_creadas[nombre_norm] = person_id
             else:
@@ -692,7 +712,7 @@ def transformar_votacion(
                     if not existing_membership and not already_added:
                         new_memberships.append(
                             MembershipPopolo(
-                                id=siguiente_membership_id(conn),
+                                id=_membership_id_pool[_membership_id_idx],
                                 person_id=person_id,
                                 org_id=org_id,
                                 rol="diputado",
@@ -701,6 +721,7 @@ def transformar_votacion(
                                 end_date=None,
                             )
                         )
+                        _membership_id_idx += 1
                         logger.debug(
                             f"Nueva membership {partido_nombre} para {person_id} "
                             f"(votó con partido diferente al de su membership original)"

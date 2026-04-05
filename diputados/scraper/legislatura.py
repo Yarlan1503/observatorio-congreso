@@ -34,9 +34,21 @@ def _suffix(leg: str) -> str:
     return sfx
 
 
+# Legislaturas LXIV+ no tienen sistema.htm — retornar base URL como fallback
+_SISTEMA_HTM_LEGISLATURAS = {"LX", "LXI", "LXII", "LXIII"}
+
+
 def url_sistema(leg: str) -> str:
-    """URL base del sistema INFOPAL para una legislatura."""
-    return f"{_base(leg)}/sistema.htm"
+    """URL base del sistema INFOPAL para una legislatura.
+
+    LX-LXIII: subdominio propio con sistema.htm disponible.
+    LXIV-LXVI: mismo dominio con path prefix; sistema.htm no existe,
+    así que se retorna la base URL como fallback.
+    """
+    base = _base(leg)
+    if leg in _SISTEMA_HTM_LEGISLATURAS:
+        return f"{base}/sistema.htm"
+    return base
 
 
 def url_votaciones_por_periodo(leg: str, periodo: int) -> str:

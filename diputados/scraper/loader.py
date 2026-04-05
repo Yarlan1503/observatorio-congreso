@@ -108,8 +108,8 @@ class Loader:
             # 2. Vote Event
             conn.execute(
                 """INSERT OR IGNORE INTO vote_event
-                   (id, motion_id, start_date, organization_id, result, sitl_id, voter_count, legislatura, requirement)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                   (id, motion_id, start_date, organization_id, result, sitl_id, voter_count, legislatura, requirement, source_id)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 (
                     ve.id,
                     ve.motion_id,
@@ -120,6 +120,7 @@ class Loader:
                     ve.voter_count,
                     ve.legislatura,
                     ve.motion_requirement,
+                    ve.source_id,
                 ),
             )
 

@@ -1,5 +1,6 @@
 # Scraping
 curl_cffi>=0.15.0
+httpx>=0.27
 beautifulsoup4>=4.12
 lxml>=5.0
 

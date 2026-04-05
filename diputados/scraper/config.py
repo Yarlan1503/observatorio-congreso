@@ -8,9 +8,10 @@ usados por todos los módulos del scraper.
 from pathlib import Path
 
 # --- Paths del proyecto ---
-PROJECT_DIR: Path = Path(__file__).resolve().parent.parent
-DB_PATH: Path = PROJECT_DIR / "db" / "congreso.db"
-CACHE_DIR: Path = PROJECT_DIR / "cache"
+# parent.parent.parent: scraper/ → diputados/ → observatorio-congreso/
+PROJECT_ROOT: Path = Path(__file__).resolve().parent.parent.parent
+DB_PATH: Path = PROJECT_ROOT / "db" / "congreso.db"
+CACHE_DIR: Path = PROJECT_ROOT / "cache"
 
 # --- URL base del SITL ---
 BASE_URL: str = "https://sitl.diputados.gob.mx"
