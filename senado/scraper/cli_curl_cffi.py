@@ -1,15 +1,17 @@
 """
-cli.py — CLI para scraping de votaciones nominales del Senado (LX-LXV).
+cli_curl_cffi.py — CLI para scraping de votaciones nominales del Senado.
 
-Portal: https://www.senado.gob.mx/informacion/votaciones/vota/{id}
-Rango de IDs: 1 a 4690
+Portal LXVI: https://www.senado.gob.mx/66/votacion/{id}
+AJAX endpoint: /66/app/votaciones/functions/viewTableVot.php
+Rango de IDs: 1 a 5070+ (LX-LXVI)
 
-Escribe en el schema Popolo-Graph de congress.db.
+Escribe en el schema Popolo-Graph de congreso.db.
 
 Uso:
-    python -m scraper.senado --range 1 4690
-    python -m scraper.senado --test-id 1234
-    python -m scraper.senado --init-schema
+    python -m senado.scraper --range 1 5070
+    python -m senado.scraper --test-id 1
+    python -m senado.scraper --test-id 5065
+    python -m senado.scraper --init-schema
 """
 
 import argparse
@@ -20,6 +22,7 @@ import sys
 import time
 from pathlib import Path
 from typing import Optional
+from urllib.parse import urlencode
 
 from curl_cffi.requests import Session
 
@@ -60,25 +63,15 @@ BASE_BACKOFF = 2.0  # segundos
 
 
 # =============================================================================
-# Headers HTTP para el portal legacy del Senado
+# URLs del portal LXVI
 # =============================================================================
 
-SENADO_LEGACY_HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
-        "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
-    ),
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Language": "es-MX,es;q=0.9,en;q=0.8",
-    "Referer": "https://www.senado.gob.mx/informacion/votaciones/",
-}
+LXVI_VOTACION_URL_TEMPLATE = "https://www.senado.gob.mx/66/votacion/{id}"
 
+LXVI_AJAX_URL = "https://www.senado.gob.mx/66/app/votaciones/functions/viewTableVot.php"
 
-# =============================================================================
-# URL template para votaciones legacy
-# =============================================================================
-
-SENADO_LEGACY_URL_TEMPLATE = (
+# Legacy URL (mantenida para referencia/fallback)
+LEGACY_VOTACION_URL_TEMPLATE = (
     "https://www.senado.gob.mx/informacion/votaciones/vota/{id}"
 )
 
@@ -87,7 +80,7 @@ SENADO_LEGACY_URL_TEMPLATE = (
 # Imports del scraper del Senado
 # =============================================================================
 
-from .parsers.legacy import parse_legacy_votacion
+from .parsers.lxvi_portal import parse_lxvi_votacion
 from .models import SenCountPorPartido, SenVotacionDetail, SenVotoNominal
 
 
@@ -136,17 +129,20 @@ def _parse_fecha_iso(fecha: str) -> str:
 
 
 # =============================================================================
-# Cliente HTTP standalone con headers legacy
+# Cliente HTTP para el portal LXVI
 # =============================================================================
 
 
-class SenateClientWithLegacyHeaders:
-    """Cliente HTTP del Senado con headers específicos para el portal legacy.
+class SenadoLXVIClient:
+    """Cliente HTTP del Senado para el portal LXVI (/66/votacion/).
 
-    Portal: https://www.senado.gob.mx/informacion/votaciones/vota/{id}
-    Sistema legacy (LX-LXV).
+    Portal: https://www.senado.gob.mx/66/votacion/{id}
+    AJAX: POST /66/app/votaciones/functions/viewTableVot.php
 
     Usa curl_cffi con impersonate="chrome" para evadir WAF Incapsula.
+    Flujo:
+    1. GET página principal (cookies + metadata HTML)
+    2. POST AJAX endpoint (tabla de votos nominales)
     """
 
     def __init__(
@@ -182,14 +178,15 @@ class SenateClientWithLegacyHeaders:
         """
         session = Session(
             impersonate="chrome",  # TLS fingerprint de Chrome latest
-            headers=SENADO_LEGACY_HEADERS,
         )
 
         # Cargar cookies persistidas si existen
         if COOKIE_PATH.exists():
             try:
                 with open(COOKIE_PATH, "rb") as f:
-                    session.cookies.update(pickle.load(f))
+                    cookies_dict = pickle.load(f)
+                for name, value in cookies_dict.items():
+                    self._session.cookies.set(name, value)
                 logger.debug("Cookies cargadas desde disco")
             except Exception as e:
                 logger.warning(f"Error cargando cookies: {e}")
@@ -197,11 +194,16 @@ class SenateClientWithLegacyHeaders:
         return session
 
     def _save_cookies(self) -> None:
-        """Persiste cookies de la sesión actual a disco."""
+        """Persiste cookies de la sesión actual a disco.
+
+        Extrae cookies como dict simple (no pickle de objeto CookieJar)
+        para evitar problemas de serialización con curl_cffi.
+        """
         try:
             COOKIE_PATH.parent.mkdir(parents=True, exist_ok=True)
+            cookies_dict = dict(self._session.cookies)
             with open(COOKIE_PATH, "wb") as f:
-                pickle.dump(self._session.cookies, f)
+                pickle.dump(cookies_dict, f)
             logger.debug("Cookies guardadas en disco")
         except Exception as e:
             logger.warning(f"Error guardando cookies: {e}")
@@ -226,8 +228,6 @@ class SenateClientWithLegacyHeaders:
             return True
 
         # Criterio 2: Página pequeña CON marcadores de bloqueo real
-        # NOTA: Páginas grandes pueden tener scripts de Incapsula (tracking)
-        #       sin ser bloqueos. Solo bloqueos reales son páginas pequeñas.
         if len(html) < WAF_MAX_SIZE:
             html_lower = html.lower()
             for marker in WAF_MARKERS:
@@ -259,9 +259,9 @@ class SenateClientWithLegacyHeaders:
             pass
         self._session = self._create_session()
 
-    def _cache_path(self, url: str) -> Path:
-        """Genera path SHA256 para caché de una URL."""
-        h = hashlib.sha256(url.encode()).hexdigest()
+    def _cache_path(self, key: str) -> Path:
+        """Genera path SHA256 para caché basado en una key."""
+        h = hashlib.sha256(key.encode()).hexdigest()
         return self.cache_dir / f"{h}.html"
 
     def _rate_limit(self) -> None:
@@ -271,49 +271,58 @@ class SenateClientWithLegacyHeaders:
             time.sleep(self.delay - elapsed)
         self._last_request_time = time.time()
 
-    def get_html(self, url: str) -> str:
-        """Obtiene HTML de una URL con caché opcional y anti-WAF.
+    def _decode_response(self, content: bytes) -> str:
+        """Decodifica bytes de respuesta a string.
+
+        El servidor declara UTF-8 en meta charset pero algunos CDN
+        envían headers con charset=ISO-8859-1. Probar UTF-8 primero.
 
         Args:
-            url: URL a fetchear.
+            content: Bytes de la respuesta HTTP.
 
         Returns:
-            Contenido HTML como string (decodificado de iso-8859-1).
+            String decodificado.
+        """
+        try:
+            return content.decode("utf-8")
+        except UnicodeDecodeError:
+            logger.debug("UTF-8 decode failed, using iso-8859-1 fallback")
+            return content.decode("iso-8859-1")
+
+    def _fetch_with_retry(self, method: str, url: str, **kwargs) -> str:
+        """Ejecuta un request HTTP con reintentos anti-WAF.
+
+        Args:
+            method: 'GET' o 'POST'.
+            url: URL a fetchear.
+            **kwargs: Argumentos adicionales para session.get/post.
+
+        Returns:
+            Contenido HTML decodificado.
 
         Raises:
             RuntimeError: Si se agotan los reintentos por WAF.
-            Exception: Si hay error de red no recuperable.
         """
-        cache_path = self._cache_path(url)
-
-        # Intentar leer de caché
-        if self.use_cache and cache_path.exists():
-            logger.debug(f"Cache hit: {url}")
-            return cache_path.read_text(encoding="utf-8")
-
-        # Fetch con rate limiting y anti-WAF
-        self._rate_limit()
-
         for attempt in range(MAX_RETRIES):
             try:
-                logger.debug(f"Fetching: {url} (intento {attempt + 1})")
-                response = self._session.get(
-                    url,
-                    timeout=30.0,
-                    http_version="v1",  # Workaround error 92 HTTP/2 stream 0
-                )
+                logger.debug(f"{method}: {url} (intento {attempt + 1})")
 
-                # Decodificar: el servidor declara UTF-8 en meta charset
-                # pero algunos CDN envían headers con charset=ISO-8859-1.
-                # Probar UTF-8 primero (lo que realmente envía), con
-                # fallback a ISO-8859-1 para compatibilidad legacy.
-                try:
-                    html = response.content.decode("utf-8")
-                except UnicodeDecodeError:
-                    html = response.content.decode("iso-8859-1")
-                    logger.debug(
-                        f"UTF-8 decode failed, using iso-8859-1 fallback for {url}"
+                if method.upper() == "POST":
+                    response = self._session.post(
+                        url,
+                        timeout=30.0,
+                        http_version="v1",
+                        **kwargs,
                     )
+                else:
+                    response = self._session.get(
+                        url,
+                        timeout=30.0,
+                        http_version="v1",
+                        **kwargs,
+                    )
+
+                html = self._decode_response(response.content)
 
                 # Verificar si es bloqueo WAF
                 if self._is_waf_response(html, response.status_code):
@@ -330,16 +339,15 @@ class SenateClientWithLegacyHeaders:
                 if response.status_code != 200:
                     response.raise_for_status()
 
-                # Guardar cookies y caché
+                # Guardar cookies
                 self._save_cookies()
-
-                if self.use_cache:
-                    cache_path.write_text(html, encoding="utf-8")
 
                 return html
 
             except KeyboardInterrupt:
                 logger.warning("Interrumpido por usuario")
+                raise
+            except RuntimeError:
                 raise
             except Exception as e:
                 if "curl" in str(type(e).__name__).lower():
@@ -351,6 +359,76 @@ class SenateClientWithLegacyHeaders:
                 raise
 
         raise RuntimeError(f"Falló después de {MAX_RETRIES} intentos: {url}")
+
+    def get_votacion(self, senado_id: int) -> tuple[str, str]:
+        """Obtiene la página principal y la tabla AJAX de una votación.
+
+        Args:
+            senado_id: ID de la votación en el portal.
+
+        Returns:
+            Tuple de (page_html, ajax_html).
+
+        Raises:
+            RuntimeError: Si se agotan los reintentos por WAF.
+        """
+        page_url = LXVI_VOTACION_URL_TEMPLATE.format(id=senado_id)
+
+        # --- Cache ---
+        cache_page = self._cache_path(f"lxvi_page_{senado_id}")
+        cache_ajax = self._cache_path(f"lxvi_ajax_{senado_id}")
+
+        page_html = ""
+        ajax_html = ""
+
+        if self.use_cache and cache_page.exists() and cache_ajax.exists():
+            logger.debug(f"Cache hit: votacion {senado_id}")
+            return cache_page.read_text(encoding="utf-8"), cache_ajax.read_text(
+                encoding="utf-8"
+            )
+
+        # --- 1. GET página principal (cookies + metadata) ---
+        self._rate_limit()
+        page_html = self._fetch_with_retry("GET", page_url)
+
+        if not page_html or len(page_html) < 100:
+            logger.warning(f"HTML vacío o muy corto para ID {senado_id}")
+
+        # Guardar cache de página
+        if self.use_cache:
+            cache_page.write_text(page_html, encoding="utf-8")
+
+        # --- 2. POST AJAX endpoint (tabla de votos) ---
+        self._rate_limit()
+
+        ajax_headers = {
+            "X-Requested-With": "XMLHttpRequest",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Referer": page_url,
+        }
+
+        ajax_data = urlencode(
+            {
+                "action": "ajax",
+                "cell": "1",
+                "order": "DESC",
+                "votacion": str(senado_id),
+                "q": "",
+            }
+        )
+
+        ajax_html = self._fetch_with_retry(
+            "POST",
+            LXVI_AJAX_URL,
+            headers=ajax_headers,
+            data=ajax_data.encode("utf-8"),
+        )
+
+        # Guardar cache de AJAX
+        if self.use_cache:
+            cache_ajax.write_text(ajax_html, encoding="utf-8")
+
+        return page_html, ajax_html
 
     def close(self) -> None:
         """Cierra la sesión HTTP y persiste cookies."""
@@ -367,7 +445,7 @@ class SenateClientWithLegacyHeaders:
 
 
 class SenadoCongresoPipeline:
-    """Pipeline que scraper votaciones del Senado legacy y escribe en congress.db.
+    """Pipeline que scraper votaciones del Senado (portal LXVI) y escribe en congreso.db.
 
     Transforma los datos del formato interno del scraper del Senado
     (SenVotacionDetail, SenVotoNominal) al formato CongresoVotacionRecord
@@ -390,7 +468,7 @@ class SenadoCongresoPipeline:
             delay: Delay mínimo entre requests en segundos.
             db_path: Path a la BD. Si None, usa DB_PATH por defecto.
         """
-        self.client = SenateClientWithLegacyHeaders(use_cache=use_cache, delay=delay)
+        self.client = SenadoLXVIClient(use_cache=use_cache, delay=delay)
         self.db_path = db_path or str(DB_PATH)
         self.loader = CongresoLoader(db_path=self.db_path)
 
@@ -403,23 +481,30 @@ class SenadoCongresoPipeline:
         Returns:
             Dict con estadísticas del procesamiento.
         """
-        url = SENADO_LEGACY_URL_TEMPLATE.format(id=votacion_id)
-        logger.info(f"Scrapeando votacion {votacion_id}: {url}")
+        logger.info(
+            f"Scrapeando votacion {votacion_id}: {LXVI_VOTACION_URL_TEMPLATE.format(id=votacion_id)}"
+        )
 
         try:
-            # 1. Fetch HTML
-            html = self.client.get_html(url)
-            if not html or len(html) < 100:
+            # 1. Fetch HTML (página + AJAX)
+            page_html, ajax_html = self.client.get_votacion(votacion_id)
+
+            if not page_html or len(page_html) < 100:
                 logger.warning(f"HTML vacío o muy corto para ID {votacion_id}")
                 return {"status": "empty_html", "votacion_id": votacion_id}
 
+            if not ajax_html or len(ajax_html) < 50:
+                logger.warning(f"AJAX vacío o muy corto para ID {votacion_id}")
+                return {"status": "empty_ajax", "votacion_id": votacion_id}
+
             # 2. Parsear
-            detail, votos = parse_legacy_votacion(html, votacion_id)
+            detail, votos = parse_lxvi_votacion(page_html, ajax_html, votacion_id)
             logger.info(
                 f"  Legislature: {detail.periodo}, "
                 f"Fecha: {detail.fecha}, "
                 f"Votos: pro={detail.pro_count}, contra={detail.contra_count}, "
                 f"abst={detail.abstention_count}, "
+                f"senadores={len(votos)}, "
                 f"partidos={len(detail.counts_por_partido)}"
             )
 
@@ -510,7 +595,7 @@ class SenadoCongresoPipeline:
         detail: SenVotacionDetail,
         votos: list[SenVotoNominal],
     ) -> CongresoVotacionRecord:
-        """Transforma datos del parser legacy al formato CongresoVotacionRecord.
+        """Transforma datos del parser LXVI al formato CongresoVotacionRecord.
 
         Args:
             votacion_id: ID de la votación en el portal.
@@ -518,7 +603,7 @@ class SenadoCongresoPipeline:
             votos: Lista de votos nominales.
 
         Returns:
-            CongresoVotacionRecord listo para insertar en congress.db.
+            CongresoVotacionRecord listo para insertar en congreso.db.
         """
         # --- Fecha ---
         fecha_iso = _parse_fecha_iso(detail.fecha)
@@ -666,13 +751,14 @@ class SenadoCongresoPipeline:
 def main() -> None:
     """Entry point del CLI."""
     parser = argparse.ArgumentParser(
-        description="Scraper del Senado (LX-LXV) → congress.db",
+        description="Scraper del Senado (LX-LXVI) → congreso.db",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Ejemplos:
-  python -m scraper.senado --range 1 4690
-  python -m scraper.senado --test-id 1234
-  python -m scraper.senado --init-schema
+  python -m senado.scraper --range 1 5070
+  python -m senado.scraper --test-id 1
+  python -m senado.scraper --test-id 5065
+  python -m senado.scraper --init-schema
         """,
     )
     parser.add_argument(
@@ -690,7 +776,7 @@ Ejemplos:
     parser.add_argument(
         "--init-schema",
         action="store_true",
-        help="Inicializar schema de congress.db si no existe",
+        help="Inicializar schema de congreso.db si no existe",
     )
     parser.add_argument(
         "--no-cache",
@@ -719,7 +805,7 @@ Ejemplos:
 
     # Ejecutar acción
     if args.init_schema:
-        logger.info("Inicializando schema de congress.db...")
+        logger.info("Inicializando schema de congreso.db...")
         pipeline.loader.init_schema()
         print("Schema inicializado correctamente.")
         return
@@ -728,6 +814,7 @@ Ejemplos:
         logger.info(f"Testeando ID: {args.test_id}")
         result = pipeline.scrape_one(args.test_id)
         print(f"Resultado: {result}")
+        pipeline.client.close()
         return
 
     if args.range:
