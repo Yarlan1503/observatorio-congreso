@@ -54,14 +54,18 @@ def normalize_party(group_value: str | None) -> str:
 # ---------------------------------------------------------------------------
 # Función 2: load_data
 # ---------------------------------------------------------------------------
-def load_data(db_path: str) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, str]]:
+def load_data(
+    db_path: str, camara: str | None = None
+) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, str]]:
     """Cargar votos, personas y organizaciones desde la base de datos.
 
     Lee las tablas vote, person y organization de la BD SQLite,
-    normaliza los partidos en los votos y retorna tres estructuras:
+    normaliza los partidos en los votos y retorna tres estructuras.
 
     Args:
         db_path: ruta al archivo SQLite (congreso.db).
+        camara: Filtrar por cámara. Si 'D', solo vote_events de Diputados.
+            Si 'S', solo vote_events de Senado. Si None, todos.
 
     Returns:
         Tupla con:
@@ -80,11 +84,26 @@ def load_data(db_path: str) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, str]]
 
     conn = sqlite3.connect(str(path))
     try:
-        # Votos
-        votes_df = pd.read_sql_query(
-            'SELECT voter_id, vote_event_id, option, "group" FROM vote',
-            conn,
-        )
+        # Determinar filtro de cámara
+        camara_filter = ""
+        params: tuple = ()
+        if camara == "D":
+            camara_filter = " WHERE ve.organization_id = 'O08'"
+        elif camara == "S":
+            camara_filter = " WHERE ve.organization_id = 'O09'"
+
+        # Votos (con filtro de cámara si se especifica)
+        if camara_filter:
+            votes_query = (
+                f'SELECT v.voter_id, v.vote_event_id, v.option, v."group" '
+                f"FROM vote v "
+                f"JOIN vote_event ve ON v.vote_event_id = ve.id"
+                f"{camara_filter}"
+            )
+        else:
+            votes_query = 'SELECT voter_id, vote_event_id, option, "group" FROM vote'
+
+        votes_df = pd.read_sql_query(votes_query, conn, params=params)
         # Normalizar partido
         votes_df["party_id"] = votes_df["group"].map(normalize_party)
         votes_df = votes_df[["voter_id", "vote_event_id", "option", "party_id"]]
@@ -106,10 +125,11 @@ def load_data(db_path: str) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, str]]
                 org_map[row["id"]] = row["nombre"]
 
         logger.info(
-            "Datos cargados: %d votos, %d personas, %d organizaciones",
+            "Datos cargados: %d votos, %d personas, %d organizaciones (camara=%s)",
             len(votes_df),
             len(persons_df),
             len(org_map),
+            camara or "todas",
         )
     finally:
         conn.close()

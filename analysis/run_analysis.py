@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """
-Análisis de grafos de co-votación - LXVI Legislatura
+Análisis de grafos de co-votación
 Ejecuta: python -m analysis.run_analysis
 O: python analysis/run_analysis.py
+O: python analysis/run_analysis.py --camara diputados
+O: python analysis/run_analysis.py --camara senado
 """
 
 import sys
@@ -21,9 +23,13 @@ DB_PATH = PROJECT_ROOT / "db" / "congreso.db"
 OUTPUT_DIR = Path(__file__).parent / "output"
 OUTPUT_DIR.mkdir(exist_ok=True)
 
+# Mapa de argumento de cámara a filtro
+CAMARA_MAP = {"diputados": "D", "senado": "S"}
 
-def main():
-    logger.info("=== ANÁLISIS DE CO-VOTACIÓN LXVI LEGISLATURA ===")
+
+def main(camara: str | None = None):
+    camara_label = camara or "todas las cámaras"
+    logger.info(f"=== ANÁLISIS DE CO-VOTACIÓN ({camara_label.upper()}) ===")
     logger.info(f"BD: {DB_PATH}")
     logger.info(f"Output: {OUTPUT_DIR}")
 
@@ -39,7 +45,7 @@ def main():
     )
 
     logger.info("Cargando datos...")
-    votes_df, persons_df, org_map = load_data(str(DB_PATH))
+    votes_df, persons_df, org_map = load_data(str(DB_PATH), camara=camara)
     logger.info(f"  Votos: {len(votes_df)} registros")
     logger.info(f"  Personas: {len(persons_df)}")
     logger.info(f"  Organizaciones: {len(org_map)} partidos")
@@ -233,4 +239,16 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Análisis de co-votación")
+    parser.add_argument(
+        "--camara",
+        choices=["diputados", "senado"],
+        default=None,
+        help="Filtrar por cámara (diputados o senado)",
+    )
+    args = parser.parse_args()
+
+    camara_filter = CAMARA_MAP.get(args.camara) if args.camara else None
+    main(camara=camara_filter)

@@ -26,6 +26,9 @@ from db.constants import (
     _PARTY_ORG_IDS,
     TOTAL_SEATS,
     MIN_VOTES,
+    CAMARA_DIPUTADOS_ID,
+    CAMARA_SENADO_ID,
+    get_total_seats,
 )
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "db", "congreso.db")
@@ -64,14 +67,41 @@ def pct(value, total):
 # --- Datos ---
 
 
-def get_vote_events_with_results(conn):
-    """Retorna lista de vote_event_ids con resultado (VE03-VE54)."""
+def get_vote_events_with_results(conn, camara: str | None = None):
+    """Retorna lista de vote_event_ids con resultado.
+
+    Args:
+        conn: Conexión SQLite.
+        camara: Si 'D', solo Diputados. Si 'S', solo Senado. Si None, todas.
+
+    Returns:
+        Lista de vote_event IDs ordenados.
+    """
     cur = conn.cursor()
-    cur.execute("""
-        SELECT id FROM vote_event
-        WHERE result IS NOT NULL
-        ORDER BY id
-    """)
+    if camara == "D":
+        cur.execute(
+            """
+            SELECT id FROM vote_event
+            WHERE result IS NOT NULL AND organization_id = ?
+            ORDER BY id
+        """,
+            (CAMARA_DIPUTADOS_ID,),
+        )
+    elif camara == "S":
+        cur.execute(
+            """
+            SELECT id FROM vote_event
+            WHERE result IS NOT NULL AND organization_id = ?
+            ORDER BY id
+        """,
+            (CAMARA_SENADO_ID,),
+        )
+    else:
+        cur.execute("""
+            SELECT id FROM vote_event
+            WHERE result IS NOT NULL
+            ORDER BY id
+        """)
     return [row[0] for row in cur.fetchall()]
 
 
@@ -377,19 +407,30 @@ def calc_banzhaf(weights, quota):
 # --- Tabla comparativa ---
 
 
-def build_comparison_table(conn, empirical_power):
+def build_comparison_table(
+    conn, empirical_power, camara: str | None = None, db_path: str = DB_PATH
+):
     """
     Construye tabla comparativa: partido × nominal × shapley × banzhaf × empirico.
 
-    Usa poder para mayoría simple (quota basada en TOTAL_SEATS = 500).
+    Usa poder para mayoría simple (quota basada en total de asientos de la cámara).
+
+    Args:
+        conn: Conexión SQLite.
+        empirical_power: Dict de poder empírico.
+        camara: 'D' para Diputados, 'S' para Senado, None para default.
+        db_path: Ruta a la BD para calcular asientos dinámicos.
     """
     seats = get_seat_counts(conn)
 
     # Solo partidos con escaños en votaciones
     active_seats = {org: cnt for org, cnt in seats.items() if cnt > 0}
 
-    # Quota para mayoría simple: más de la mitad de 500 = 251
-    quota_simple = math.floor(TOTAL_SEATS / 2) + 1  # 251
+    # Calcular total de asientos dinámicamente
+    total_seats = get_total_seats(db_path, camara or "D")
+
+    # Quota para mayoría simple: más de la mitad
+    quota_simple = math.floor(total_seats / 2) + 1
 
     ss = calc_shapley_shubik(active_seats, quota_simple)
     bz = calc_banzhaf(active_seats, quota_simple)
@@ -397,7 +438,7 @@ def build_comparison_table(conn, empirical_power):
     comparison = []
     for org in sorted(active_seats.keys(), key=lambda x: active_seats[x], reverse=True):
         seat_count = active_seats[org]
-        nominal = seat_count / TOTAL_SEATS
+        nominal = seat_count / total_seats if total_seats > 0 else 0
         shapley = ss.get(org, 0)
         banzhaf_val = bz.get(org, 0)
         empirico = empirical_power.get(org, 0)
@@ -414,7 +455,7 @@ def build_comparison_table(conn, empirical_power):
             }
         )
 
-    return comparison, quota_simple
+    return comparison, quota_simple, total_seats
 
 
 # --- Análisis Reforma Judicial ---
@@ -1094,11 +1135,20 @@ def print_all_results(
 # --- Main ---
 
 
-def main():
+def main(camara: str | None = None):
+    """Ejecuta análisis de poder empírico.
+
+    Args:
+        camara: 'D' para Diputados, 'S' para Senado, None para todas.
+    """
     conn = sqlite3.connect(DB_PATH)
 
-    # Obtener votaciones con resultado (VE03-VE54)
-    vote_events = get_vote_events_with_results(conn)
+    # Obtener votaciones con resultado
+    vote_events = get_vote_events_with_results(conn, camara=camara)
+    if not vote_events:
+        print("No se encontraron votaciones con resultado.")
+        conn.close()
+        return
     print(
         f"Votaciones con resultado: {len(vote_events)} ({vote_events[0]}-{vote_events[-1]})"
     )
@@ -1110,7 +1160,9 @@ def main():
     empirical_power = calc_empirical_power(analyses)
 
     # Tabla comparativa
-    comparison, quota_simple = build_comparison_table(conn, empirical_power)
+    comparison, quota_simple, total_seats = build_comparison_table(
+        conn, empirical_power, camara=camara
+    )
 
     # Análisis Reforma Judicial
     reforma_analyses = analyze_reforma_judicial(conn, ["VE04", "VE05"])
