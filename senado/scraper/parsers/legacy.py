@@ -234,6 +234,9 @@ def parse_legacy_votacion(
         "INDEPENDIENTE",
     )
 
+    # Textos que NO son partidos (filas resumen)
+    NO_PARTIDOS = {"TOTAL", "TOTALES", "SUMA", "SUBTOTAL", "PRESENTES"}
+
     counts_por_partido: list[SenCountPorPartido] = []
 
     # Primera tabla: buscar la que tiene "Presentes:" en el header
@@ -255,6 +258,10 @@ def parse_legacy_votacion(
 
                 # Verificar si es fila de partido (primera columna es partido)
                 partido = cell_texts[0].upper().strip()
+
+                # Excluir filas resumen (TOTAL, PRESENTES, etc.)
+                if partido in NO_PARTIDOS:
+                    continue
 
                 # Detectar partido: ya sea conocido o un string corto
                 # que parece una abreviatura (letras, sin números)
