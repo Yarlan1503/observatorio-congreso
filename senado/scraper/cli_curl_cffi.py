@@ -303,8 +303,17 @@ class SenateClientWithLegacyHeaders:
                     http_version="v1",  # Workaround error 92 HTTP/2 stream 0
                 )
 
-                # Decodificar manualmente como iso-8859-1
-                html = response.content.decode("iso-8859-1")
+                # Decodificar: el servidor declara UTF-8 en meta charset
+                # pero algunos CDN envían headers con charset=ISO-8859-1.
+                # Probar UTF-8 primero (lo que realmente envía), con
+                # fallback a ISO-8859-1 para compatibilidad legacy.
+                try:
+                    html = response.content.decode("utf-8")
+                except UnicodeDecodeError:
+                    html = response.content.decode("iso-8859-1")
+                    logger.debug(
+                        f"UTF-8 decode failed, using iso-8859-1 fallback for {url}"
+                    )
 
                 # Verificar si es bloqueo WAF
                 if self._is_waf_response(html, response.status_code):
