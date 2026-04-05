@@ -29,24 +29,6 @@ DEFAULT_HEADERS: dict[str, str] = {
 # --- ID de la Cámara de Diputados en la BD ---
 CAMARA_DIPUTADOS_ID: str = "O08"
 
-# --- Mapa partido → ID de organización en la BD Popolo-Graph ---
-PARTY_SITL_MAP: dict[str, str | None] = {
-    "MORENA": "O01",
-    "PAN": "O04",
-    "PVEM": "O03",
-    "PT": "O02",
-    "PRI": "O05",
-    "MC": "O06",
-    "PRD": "O07",
-    "IND": "O11",  # Independientes
-    # Nuevas organizaciones (LX-LXIV):
-    "CONV": "O12",  # Convergencia
-    "NA": "O13",  # Nueva Alianza
-    "ALT": "O14",  # Alternativa Socialdemócrata
-    "PES": "O15",  # Partido Encuentro Social
-    "SP": "O16",  # Sin Partido
-}
-
 # --- Mapa partido → SITL partidot ID (para URLs) ---
 # Verificado contra HTML real: listados_votacionesnplxvi.php?partidot=14 (MORENA), etc.
 PARTY_SITL_IDS: dict[str, int] = {

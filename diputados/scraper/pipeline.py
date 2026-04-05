@@ -170,13 +170,14 @@ class ScraperPipeline:
 
             logger.debug(f"    {party_name}: {len(nominal.votos)} votos")
 
-        # 3. Transformar (conexión temporal para búsqueda de IDs)
+        # 3. Transformar (conexión para lookup de IDs + creación de orgs)
         conn = sqlite3.connect(str(DB_PATH))
         conn.execute("PRAGMA foreign_keys = ON")
         try:
             votacion_completa = transformar_votacion(
                 votacion, desglose, nominales, conn, self.legislatura
             )
+            conn.commit()  # Persist orgs created by get_or_create_organization()
         finally:
             conn.close()
 

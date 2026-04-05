@@ -44,44 +44,34 @@ def create_database():
 
 
 def populate_organizations(conn):
-    """Poblar la tabla organization con partidos, instituciones y coaliciones."""
+    """Poblar la tabla organization con instituciones y coaliciones.
+
+    Los partidos políticos NO se siembran aquí — los loaders los crean
+    dinámicamente al momento del scraping via get_or_create_organization().
+    """
     organizations = [
-        ("O01", "Morena", "partido", "2014-01-01", None),
-        ("O02", "Partido del Trabajo (PT)", "partido", "1990-12-08", None),
+        # Instituciones (estáticas)
+        ("O08", "Cámara de Diputados", "Diputados", "institucion", None, None),
+        ("O09", "Senado de la República", "Senado", "institucion", None, None),
+        # Coaliciones (seed data, se actualiza manualmente si cambia)
         (
-            "O03",
-            "Partido Verde Ecologista de México (PVEM)",
-            "partido",
-            "1993-01-01",
+            "O10",
+            "Sigamos Haciendo Historia",
+            "Sigamos Haciendo Historia",
+            "coalicion",
+            "2024-01-01",
             None,
         ),
-        ("O04", "Partido Acción Nacional (PAN)", "partido", "1939-09-17", None),
-        (
-            "O05",
-            "Partido Revolucionario Institucional (PRI)",
-            "partido",
-            "1929-03-04",
-            None,
-        ),
-        ("O06", "Movimiento Ciudadano (MC)", "partido", "2011-07-31", None),
-        (
-            "O07",
-            "Partido de la Revolución Democrática (PRD)",
-            "partido",
-            "1989-05-05",
-            None,
-        ),
-        ("O08", "Cámara de Diputados", "institucion", None, None),
-        ("O09", "Senado de la República", "institucion", None, None),
-        ("O10", "Sigamos Haciendo Historia", "coalicion", "2024-01-01", None),
     ]
 
     conn.executemany(
-        "INSERT INTO organization (id, nombre, clasificacion, fundacion, disolucion) "
-        "VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO organization (id, nombre, abbr, clasificacion, fundacion, disolucion) "
+        "VALUES (?, ?, ?, ?, ?, ?)",
         organizations,
     )
-    print(f"[init] Insertadas {len(organizations)} organizaciones")
+    print(
+        f"[init] Insertadas {len(organizations)} organizaciones (instituciones + coaliciones)"
+    )
 
 
 def populate_areas(conn):

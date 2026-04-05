@@ -24,7 +24,7 @@ from .models import (
     VotoNominal,
     DesglosePartido,
 )
-from .config import PARTY_SITL_MAP, CAMARA_DIPUTADOS_ID
+from .config import CAMARA_DIPUTADOS_ID
 from .legislatura import url_estadistico
 from .utils.text_utils import normalize_name
 
@@ -36,6 +36,7 @@ _db_module_path = str(Path(__file__).resolve().parent.parent.parent / "db")
 if _db_module_path not in sys.path:
     sys.path.insert(0, _db_module_path)
 from id_generator import next_id, get_next_id_batch
+from db.helpers import get_or_create_organization
 
 logger = logging.getLogger(__name__)
 
@@ -482,41 +483,45 @@ _PARTY_FULL_NAMES: dict[str, str] = {
 }
 
 
-def _partido_to_org_id(partido_nombre: str) -> Optional[str]:
-    """Convierte nombre de partido a ID de organización en la BD.
+def _partido_to_org_id(partido_nombre: str, conn: sqlite3.Connection) -> Optional[str]:
+    """Convierte nombre de partido a ID de organización via BD lookup/create.
 
     Soporta tanto nombres cortos ("MORENA", "PAN") como nombres completos
     del SITL ("Movimiento Regeneración Nacional", "Partido Acción Nacional").
 
+    Usa get_or_create_organization() para crear la org dinámicamente
+    si no existe. Los partidos ya no están hardcodeados en init_db.
+
     Args:
-        partido_nombre: Nombre del partido.
+        partido_nombre: Nombre del partido (corto o completo).
+        conn: Conexión activa a SQLite.
 
     Returns:
-        ID de organización (ej: "O01") o None si no se encuentra.
+        ID de organización (ej: "O01") o None si no se puede resolver.
+        NOTE: La conexión debe ser commiteada después para persistir
+        las orgs creadas.
     """
     nombre_up = partido_nombre.upper().strip()
     nombre_norm = normalize_name(nombre_up)
 
-    # Match directo contra nombres cortos
-    if nombre_up in PARTY_SITL_MAP:
-        return PARTY_SITL_MAP[nombre_up]
+    # Normalize to standard abbreviation using _PARTY_FULL_NAMES
+    short_name = nombre_up  # default: use input as-is
 
-    # Match contra nombres completos normalizados
-    for full_name, short_name in _PARTY_FULL_NAMES.items():
+    # Match against known full names
+    for full_name, sn in _PARTY_FULL_NAMES.items():
         if normalize_name(full_name) == nombre_norm:
-            return PARTY_SITL_MAP.get(short_name)
+            short_name = sn
+            break
 
-    # Match parcial (ej: "MORENA/PT" o "PT-MORENA")
-    for key, org_id in PARTY_SITL_MAP.items():
-        if key in nombre_up:
-            return org_id
+    # Partial match (fallback): substring
+    if short_name == nombre_up:
+        for full_name, sn in _PARTY_FULL_NAMES.items():
+            if normalize_name(full_name) in nombre_norm:
+                short_name = sn
+                break
 
-    # Buscar por substring normalizado
-    for full_name, short_name in _PARTY_FULL_NAMES.items():
-        if normalize_name(full_name) in nombre_norm:
-            return PARTY_SITL_MAP.get(short_name)
-
-    return None
+    # Get or create org in DB (creates if doesn't exist)
+    return get_or_create_organization(short_name, conn)
 
 
 # ============================================================
@@ -622,7 +627,7 @@ def transformar_votacion(
 
     for nominal in nominales:
         partido_nombre = nominal.partido_nombre
-        org_id = _partido_to_org_id(partido_nombre)
+        org_id = _partido_to_org_id(partido_nombre, conn)
 
         for voto in nominal.votos:
             nombre_norm = normalize_name(voto.nombre)
@@ -748,7 +753,7 @@ def transformar_votacion(
     _count_id_idx = 0
 
     for partido in desglose.partidos:
-        org_id = _partido_to_org_id(partido.partido_nombre)
+        org_id = _partido_to_org_id(partido.partido_nombre, conn)
         # Usar el org_id directamente (IND → O11, otros → O01-O07, None no debería ocurrir)
 
         valores = {

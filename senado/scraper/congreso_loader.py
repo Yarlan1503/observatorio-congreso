@@ -23,6 +23,7 @@ _db_module_path = str(Path(__file__).resolve().parent.parent.parent / "db")
 if _db_module_path not in sys.path:
     sys.path.insert(0, _db_module_path)
 from id_generator import next_id, get_next_id_batch
+from db.helpers import get_or_create_organization
 
 logger = logging.getLogger(__name__)
 
@@ -256,88 +257,6 @@ class CongresoLoader:
         )
         return memb_id, True
 
-    def get_or_create_organization(self, org_ref: str, conn: sqlite3.Connection) -> str:
-        """Busca organización por abbr o ID. Si no existe, crea nueva.
-
-        Resolución en orden:
-        1. Buscar por ID directo (O01, O09, etc.)
-        2. Buscar por abbr (MORENA, PAN, etc.)
-        3. Buscar por nombre exacto
-        4. Buscar por abbr case-insensitive (morena → MORENA)
-        5. Crear nueva organización (último recurso)
-
-        Args:
-            org_ref: Abreviatura (MORENA, PAN) o ID (O09) de la organización.
-            conn: Conexión activa a SQLite.
-
-        Returns:
-            ID de la organización (existente o nueva).
-        """
-        if not org_ref or not org_ref.strip():
-            return None
-
-        org_ref = org_ref.strip()
-
-        # 1. Buscar por ID directo
-        row = conn.execute(
-            "SELECT id FROM organization WHERE id = ?",
-            (org_ref,),
-        ).fetchone()
-        if row:
-            return row[0]
-
-        # 2. Buscar por abbr exacto
-        row = conn.execute(
-            "SELECT id FROM organization WHERE abbr = ?",
-            (org_ref,),
-        ).fetchone()
-        if row:
-            return row[0]
-
-        # 3. Buscar por nombre exacto
-        row = conn.execute(
-            "SELECT id FROM organization WHERE nombre = ?",
-            (org_ref,),
-        ).fetchone()
-        if row:
-            return row[0]
-
-        # 4. Buscar por abbr case-insensitive
-        row = conn.execute(
-            "SELECT id FROM organization WHERE UPPER(abbr) = UPPER(?)",
-            (org_ref,),
-        ).fetchone()
-        if row:
-            return row[0]
-
-        # 5. Crear nueva organización
-        # Si empieza con "O" seguido de dígitos, es un ID canónico
-        if org_ref.startswith("O") and len(org_ref) > 1 and org_ref[1:].isdigit():
-            org_id = org_ref
-            nombre = org_ref
-            abbr = None
-        else:
-            # Generar nuevo ID secuencial para org
-            # Buscar el máximo O## existente
-            max_row = conn.execute(
-                "SELECT MAX(CAST(SUBSTR(id, 2) AS INTEGER)) FROM organization WHERE id LIKE 'O%'"
-            ).fetchone()
-            next_num = (max_row[0] if max_row[0] is not None else 0) + 1
-            org_id = f"O{next_num:02d}"
-            nombre = org_ref
-            abbr = org_ref
-
-        clasificacion = "institucion" if org_ref == SENADO_ORG_ID else "partido"
-
-        conn.execute(
-            """INSERT OR IGNORE INTO organization
-               (id, nombre, abbr, clasificacion)
-               VALUES (?, ?, ?, ?)""",
-            (org_id, nombre, abbr, clasificacion),
-        )
-        logger.info(f"Organización creada: {org_id} ({nombre}, abbr={abbr})")
-        return org_id
-
     # ---- Upsert principal ----
 
     def upsert_votacion(self, votacion: CongresoVotacionRecord) -> dict:
@@ -441,7 +360,7 @@ class CongresoLoader:
                     continue
 
                 # Resolver org_id — crear si no existe
-                org_id = self.get_or_create_organization(org_abbr, conn)
+                org_id = get_or_create_organization(org_abbr, conn)
 
                 # start_date: usar la fecha de la votación como default
                 start_date = memb_data.get("start_date", votacion.fecha_iso)
@@ -480,7 +399,7 @@ class CongresoLoader:
 
             # --- 4. Vote_event ---
             # Asegurar que la organización del Senado exista
-            self.get_or_create_organization(SENADO_ORG_ID, conn)
+            get_or_create_organization(SENADO_ORG_ID, conn)
 
             conn.execute(
                 """INSERT OR IGNORE INTO vote_event
@@ -532,7 +451,7 @@ class CongresoLoader:
                     )
                 else:
                     # Normalizar: si es texto de partido, resolver a org_id
-                    group_id = self.get_or_create_organization(group_id.strip(), conn)
+                    group_id = get_or_create_organization(group_id.strip(), conn)
 
                 conn.execute(
                     """INSERT OR IGNORE INTO vote
@@ -653,7 +572,7 @@ class CongresoLoader:
                 partido = cp["partido"]
 
                 # Resolver partido a org_id
-                org_id = self.get_or_create_organization(partido, conn)
+                org_id = get_or_create_organization(partido, conn)
 
                 options = [
                     ("a_favor", cp.get("a_favor", 0)),

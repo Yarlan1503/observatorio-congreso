@@ -33,6 +33,11 @@ def main(camara: str | None = None):
     logger.info(f"BD: {DB_PATH}")
     logger.info(f"Output: {OUTPUT_DIR}")
 
+    # --- PRE-LOAD: Initialize constants from DB (dynamic party mappings) ---
+    from db.constants import init_constants_from_db
+
+    init_constants_from_db(str(DB_PATH))
+
     # --- FASE 1: Carga de datos y construcción del grafo ---
     # IMPORTAR al inicio de la función para evitar circular imports:
     from analysis.covotacion import (
