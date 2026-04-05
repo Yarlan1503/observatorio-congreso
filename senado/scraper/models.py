@@ -7,7 +7,21 @@ Cada modelo representa una entidad extraída del HTML del portal.
 Todos usan dataclass para mantener consistencia con los parsers.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+
+
+@dataclass
+class SenCountPorPartido:
+    """Conteo de votos desglosado por partido político.
+
+    Extraído de la primera tabla HTML del portal legacy que muestra
+    el desglose por grupo parlamentario.
+    """
+
+    partido: str  # Abreviatura del partido (PRI, PAN, MORENA, etc.)
+    a_favor: int = 0
+    en_contra: int = 0
+    abstencion: int = 0
 
 
 @dataclass
@@ -30,7 +44,7 @@ class SenVotacionDetail:
     """Detalle de una votación del Senado (sin votos nominales).
 
     Incluye metadata extraída del HTML: fecha, legislature, ejercicio,
-    descripción y conteos agregados.
+    descripción, conteos agregados y desglose por partido.
     """
 
     fecha: str  # Formato dd/mm/yyyy (portal legacy)
@@ -40,3 +54,4 @@ class SenVotacionDetail:
     pro_count: int
     contra_count: int
     abstention_count: int
+    counts_por_partido: list[SenCountPorPartido] = field(default_factory=list)

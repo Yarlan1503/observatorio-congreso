@@ -88,7 +88,7 @@ SENADO_LEGACY_URL_TEMPLATE = (
 # =============================================================================
 
 from .parsers.legacy import parse_legacy_votacion
-from .models import SenVotacionDetail, SenVotoNominal
+from .models import SenCountPorPartido, SenVotacionDetail, SenVotoNominal
 
 
 # =============================================================================
@@ -419,7 +419,8 @@ class SenadoCongresoPipeline:
                 f"  Legislature: {detail.periodo}, "
                 f"Fecha: {detail.fecha}, "
                 f"Votos: pro={detail.pro_count}, contra={detail.contra_count}, "
-                f"abst={detail.abstention_count}"
+                f"abst={detail.abstention_count}, "
+                f"partidos={len(detail.counts_por_partido)}"
             )
 
             # 3. Transformar a formato CongresoVotacionRecord
@@ -567,6 +568,17 @@ class SenadoCongresoPipeline:
                 )
             )
 
+        # --- Build counts_por_partido ---
+        counts_por_partido = [
+            {
+                "partido": cp.partido,
+                "a_favor": cp.a_favor,
+                "en_contra": cp.en_contra,
+                "abstencion": cp.abstencion,
+            }
+            for cp in detail.counts_por_partido
+        ]
+
         return CongresoVotacionRecord(
             senado_id=votacion_id,
             legislature=detail.periodo or "",  # LX, LXI, etc.
@@ -578,6 +590,7 @@ class SenadoCongresoPipeline:
             votos=votos_records,
             voto_personas_nuevas=personas_nuevas,
             voto_membresias_nuevas=membresias_nuevas,
+            counts_por_partido=counts_por_partido,
         )
 
     @staticmethod

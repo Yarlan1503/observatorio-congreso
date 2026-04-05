@@ -65,6 +65,8 @@ class CongresoVotacionRecord:
     votos: list[CongresoVotoRecord] = field(default_factory=list)
     voto_personas_nuevas: list[dict] = field(default_factory=list)
     voto_membresias_nuevas: list[dict] = field(default_factory=list)
+    counts_por_partido: list[dict] = field(default_factory=list)
+    # Each dict: {"partido": str, "a_favor": int, "en_contra": int, "abstencion": int}
 
 
 # ============================================================
@@ -631,8 +633,9 @@ class CongresoLoader:
     ) -> int:
         """Inserta conteos por partido en la tabla count.
 
-        Lee los conteos de CongresoVotacionRecord y los inserta
-        en la tabla count con los org_ids canónicos.
+        Si hay counts_por_partido en la votación, inserta un registro
+        por cada combinación partido × tipo de voto. Si no hay desglose
+        (datos legacy incompletos), inserta totales globales sin group_id.
 
         Args:
             vote_event_id: ID del vote_event.
@@ -642,11 +645,34 @@ class CongresoLoader:
         Returns:
             Número de counts insertados.
         """
-        # Los conteos por partido no vienen en CongresoVotacionRecord
-        # directamente (el parser legacy no extrae desglose por partido
-        # de forma estructurada). Insertamos totales globales.
         counts_inserted = 0
 
+        # --- Counts por partido (desglose granular) ---
+        if votacion.counts_por_partido:
+            for cp in votacion.counts_por_partido:
+                partido = cp["partido"]
+
+                # Resolver partido a org_id
+                org_id = self.get_or_create_organization(partido, conn)
+
+                options = [
+                    ("a_favor", cp.get("a_favor", 0)),
+                    ("en_contra", cp.get("en_contra", 0)),
+                    ("abstencion", cp.get("abstencion", 0)),
+                ]
+
+                for option, value in options:
+                    if value > 0:
+                        count_id = next_id(conn, "count")
+                        conn.execute(
+                            """INSERT OR IGNORE INTO count
+                               (id, vote_event_id, option, value, group_id)
+                               VALUES (?, ?, ?, ?, ?)""",
+                            (count_id, vote_event_id, option, value, org_id),
+                        )
+                        counts_inserted += 1
+
+        # --- Totales globales (siempre insertar para verificación) ---
         totals = [
             ("a_favor", votacion.pro_count),
             ("en_contra", votacion.contra_count),

@@ -16,7 +16,7 @@ from typing import Optional
 
 from bs4 import BeautifulSoup
 
-from ..models import SenVotacionDetail, SenVotoNominal
+from ..models import SenCountPorPartido, SenVotacionDetail, SenVotoNominal
 
 
 # =============================================================================
@@ -218,6 +218,24 @@ def parse_legacy_votacion(
     # -------------------------------------------------------------------------
     tables = soup.find_all("table")
 
+    # Lista de partidos conocidos (expandida para cubrir LX-LXV)
+    PARTIDOS_CONOCIDOS = (
+        "PRI",
+        "PAN",
+        "PRD",
+        "PVEM",
+        "PT",
+        "MC",
+        "MORENA",
+        "PANAL",
+        "CONVERGENCIA",
+        "NUEVA ALIANZA",
+        "SIN GRUPO",
+        "INDEPENDIENTE",
+    )
+
+    counts_por_partido: list[SenCountPorPartido] = []
+
     # Primera tabla: buscar la que tiene "Presentes:" en el header
     if len(tables) >= 1:
         primera_tabla = tables[0]
@@ -236,19 +254,38 @@ def parse_legacy_votacion(
                 cell_texts = [c.get_text(strip=True) for c in cells]
 
                 # Verificar si es fila de partido (primera columna es partido)
-                partido = cell_texts[0].upper()
-                if partido in ("PRI", "PAN", "PRD", "PVEM", "PT", "SIN GRUPO"):
-                    # Columnas: Partido | A Favor | En Contra | Abstención | Comisión Oficial | Total
-                    try:
-                        a_favor = int(cell_texts[1]) if cell_texts[1].isdigit() else 0
-                        en_contra = int(cell_texts[2]) if cell_texts[2].isdigit() else 0
-                        abst = int(cell_texts[3]) if cell_texts[3].isdigit() else 0
+                partido = cell_texts[0].upper().strip()
 
-                        pro_count += a_favor
-                        contra_count += en_contra
-                        abstention_count += abst
-                    except (ValueError, IndexError):
-                        pass
+                # Detectar partido: ya sea conocido o un string corto
+                # que parece una abreviatura (letras, sin números)
+                is_partido = partido in PARTIDOS_CONOCIDOS or (
+                    len(partido) <= 20 and partido.isalpha()
+                )
+
+                if not is_partido:
+                    continue
+
+                # Columnas: Partido | A Favor | En Contra | Abstención | Comisión Oficial | Total
+                try:
+                    a_favor = int(cell_texts[1]) if cell_texts[1].isdigit() else 0
+                    en_contra = int(cell_texts[2]) if cell_texts[2].isdigit() else 0
+                    abst = int(cell_texts[3]) if cell_texts[3].isdigit() else 0
+
+                    pro_count += a_favor
+                    contra_count += en_contra
+                    abstention_count += abst
+
+                    # Guardar desglose por partido
+                    counts_por_partido.append(
+                        SenCountPorPartido(
+                            partido=partido,
+                            a_favor=a_favor,
+                            en_contra=en_contra,
+                            abstencion=abst,
+                        )
+                    )
+                except (ValueError, IndexError):
+                    pass
 
     # -------------------------------------------------------------------------
     # 6. Extraer votos nominales — buscar tabla con "SENADOR" en headers
@@ -325,6 +362,7 @@ def parse_legacy_votacion(
         pro_count=pro_count,
         contra_count=contra_count,
         abstention_count=abstention_count,
+        counts_por_partido=counts_por_partido,
     )
 
     return detail, votos
