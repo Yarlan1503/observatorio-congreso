@@ -1,8 +1,8 @@
 """congreso_loader.py — Carga datos al schema unificado de congress.db.
 
 Schema unificado con prefijos de ID:
-    VE_S (vote_event), Y_S (motion), V_S (vote),
-    MB (membership), P (person)
+    VE_S (vote_event Senado), Y_S (motion Senado), V_S (vote Senado),
+    M_S (membership Senado), P (person global)
 
 Recibe ``CongresoVotacionRecord`` (construido por cli.py a partir de
 ``parse_legacy_votacion``) y lo inserta en el schema unificado.
@@ -13,52 +13,21 @@ Transaccional: toda una votación se inserta en una sola transacción.
 
 import logging
 import sqlite3
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
+# ID generator compartido entre cámaras
+_db_module_path = str(Path(__file__).resolve().parent.parent.parent / "db")
+if _db_module_path not in sys.path:
+    sys.path.insert(0, _db_module_path)
+from id_generator import next_id, get_next_id_batch
+
 logger = logging.getLogger(__name__)
 
 
-# ============================================================
-# ID Prefijos para el schema unificado
-# ============================================================
-
-ID_PREFIXES = {
-    "vote_event": "VE_S",
-    "motion": "Y_S",
-    "vote": "V_S",
-    "membership": "MB",
-    "person": "P",
-}
-
 SENADO_ORG_ID = "O09"  # "Senado de la República"
-
-
-# ============================================================
-# Contadores de IDs
-# ============================================================
-
-
-@dataclass
-class CongresoIdCounters:
-    """Contadores para generar IDs con prefijo en el schema unificado."""
-
-    vote_event: int = 0
-    motion: int = 0
-    person: int = 0
-    membership: int = 0
-    vote: int = 0
-
-    def next_id(self, entity_type: str) -> str:
-        """Genera el siguiente ID para un tipo de entidad dado."""
-        prefix = ID_PREFIXES.get(entity_type)
-        if not prefix:
-            raise ValueError(f"Tipo de entidad desconocido: {entity_type}")
-
-        count = getattr(self, entity_type) + 1
-        setattr(self, entity_type, count)
-        return f"{prefix}{count:05d}"
 
 
 # ============================================================
@@ -116,8 +85,6 @@ class CongresoLoader:
 
     def __init__(self, db_path: str = "db/congreso.db"):
         self.db_path = self._resolve_db_path(db_path)
-        self._counters = CongresoIdCounters()
-        self._init_counters_from_db()
 
     def _resolve_db_path(self, db_path: str) -> Path:
         """Resuelve el path de la BD.
@@ -149,33 +116,6 @@ class CongresoLoader:
         conn.execute("PRAGMA foreign_keys = ON")
         conn.execute("PRAGMA journal_mode = WAL")
         return conn
-
-    def _init_counters_from_db(self) -> None:
-        """Inicializa contadores desde los IDs existentes en BD."""
-        conn = self._get_conn()
-        try:
-            tables_prefixes = [
-                ("vote_event", "vote_event"),
-                ("motion", "motion"),
-                ("person", "person"),
-                ("membership", "membership"),
-                ("vote", "vote"),
-            ]
-
-            for table, entity_type in tables_prefixes:
-                try:
-                    row = conn.execute(
-                        f"SELECT id FROM {table} ORDER BY LENGTH(id) DESC, id DESC LIMIT 1"
-                    ).fetchone()
-                    if row:
-                        prefix = ID_PREFIXES[entity_type]
-                        num_str = row[0][len(prefix) :].lstrip("0") or "0"
-                        num = int(num_str)
-                        setattr(self._counters, entity_type, num)
-                except Exception:
-                    pass  # Tabla vacía o no existe
-        finally:
-            conn.close()
 
     # ---- Helpers de mapeo ----
 
@@ -241,7 +181,7 @@ class CongresoLoader:
         """Busca persona por nombre. Si no existe, crea nueva con ID P*.
 
         Busca por ``nombre`` exacto. Si no existe, inserta con un nuevo
-        ID P* secuencial.
+        ID P* secuencial global (compartido entre Diputados y Senado).
 
         Args:
             nombre: Nombre completo del legislador.
@@ -259,7 +199,7 @@ class CongresoLoader:
         if row:
             return row[0], False
 
-        person_id = self._counters.next_id("person")
+        person_id = next_id(conn, "person")
         conn.execute(
             """INSERT OR IGNORE INTO person
                (id, nombre, genero)
@@ -275,11 +215,13 @@ class CongresoLoader:
         rol: str,
         start_date: str,
         conn: sqlite3.Connection,
+        label: str = "",
+        end_date: Optional[str] = None,
     ) -> tuple[str, bool]:
         """Crea membership si no existe.
 
         Busca una membresía existente por person_id + org_id + rol.
-        Si no existe, inserta con ID MB* secuencial.
+        Si no existe, inserta con ID M_S* secuencial.
 
         Args:
             person_id: ID de la persona.
@@ -287,6 +229,8 @@ class CongresoLoader:
             rol: Rol (ej: "senador").
             start_date: Fecha de inicio en formato ISO.
             conn: Conexión activa a SQLite.
+            label: Descripción legible del cargo (ej: "Senador, Guanajuato").
+            end_date: Fecha de fin (None = vigente).
 
         Returns:
             Tuple de (ID de la membresía, True si fue creada nueva).
@@ -301,12 +245,12 @@ class CongresoLoader:
         if row:
             return row[0], False
 
-        memb_id = self._counters.next_id("membership")
+        memb_id = next_id(conn, "membership", camara="S")
         conn.execute(
             """INSERT OR IGNORE INTO membership
-               (id, person_id, org_id, rol, start_date)
-               VALUES (?, ?, ?, ?, ?)""",
-            (memb_id, person_id, org_id, rol, start_date),
+               (id, person_id, org_id, rol, label, start_date, end_date)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (memb_id, person_id, org_id, rol, label, start_date, end_date),
         )
         return memb_id, True
 
@@ -402,6 +346,7 @@ class CongresoLoader:
             "votos": 0,
             "personas_nuevas": 0,
             "membresias_nuevas": 0,
+            "counts": 0,
         }
 
         # Cache local: nombre → persona_id (P*)
@@ -411,8 +356,8 @@ class CongresoLoader:
             conn.execute("BEGIN TRANSACTION")
 
             # --- Generar IDs para vote_event y motion ---
-            motion_id = self._counters.next_id("motion")
-            vote_event_id = self._counters.next_id("vote_event")
+            motion_id = next_id(conn, "motion", camara="S")
+            vote_event_id = next_id(conn, "vote_event", camara="S")
 
             # --- 1. Personas nuevas ---
             for persona_data in votacion.voto_personas_nuevas:
@@ -453,9 +398,17 @@ class CongresoLoader:
 
                 # start_date: usar la fecha de la votación como default
                 start_date = memb_data.get("start_date", votacion.fecha_iso)
+                label = memb_data.get("label", f"Senador, {org_abbr}")
+                end_date = memb_data.get("end_date")
 
                 _, was_created = self.get_or_create_membership(
-                    persona_id, org_id, rol, start_date, conn
+                    persona_id,
+                    org_id,
+                    rol,
+                    start_date,
+                    conn,
+                    label=label,
+                    end_date=end_date,
                 )
                 if was_created:
                     stats["membresias_nuevas"] += 1
@@ -519,8 +472,19 @@ class CongresoLoader:
                     )
                     continue
 
-                vote_id = self._counters.next_id("vote")
+                vote_id = next_id(conn, "vote", camara="S")
                 option = self._voto_to_option(voto.voto)
+
+                # Resolver vote.group: buscar org_id via membership
+                # Si el parser no proporciona grupo (vacío), buscar membership
+                group_id = voto.grupo_parlamentario
+                if not group_id or group_id.strip() == "":
+                    group_id = self._resolve_group_from_membership(
+                        persona_id, votacion.fecha_iso, conn
+                    )
+                else:
+                    # Normalizar: si es texto de partido, resolver a org_id
+                    group_id = self.get_or_create_organization(group_id.strip(), conn)
 
                 conn.execute(
                     """INSERT OR IGNORE INTO vote
@@ -531,10 +495,14 @@ class CongresoLoader:
                         vote_event_id,
                         persona_id,
                         option,
-                        voto.grupo_parlamentario,
+                        group_id,
                     ),
                 )
                 stats["votos"] += 1
+
+            # --- 6. Counts ---
+            counts_inserted = self._insert_counts(vote_event_id, votacion, conn)
+            stats["counts"] = counts_inserted
 
             stats["votacion_id"] = vote_event_id
             stats["motion_id"] = motion_id
@@ -555,6 +523,101 @@ class CongresoLoader:
             conn.close()
 
         return stats
+
+    # ---- Resolver vote.group desde memberships ----
+
+    def _resolve_group_from_membership(
+        self,
+        person_id: str,
+        fecha_iso: str,
+        conn: sqlite3.Connection,
+    ) -> Optional[str]:
+        """Resuelve el org_id de un legislador via su membership activa.
+
+        Busca la membership más cercana en fecha para un senador.
+        Si no encuentra, busca la membership más reciente (fallback).
+
+        Args:
+            person_id: ID de la persona.
+            fecha_iso: Fecha de la votación (YYYY-MM-DD).
+            conn: Conexión activa a SQLite.
+
+        Returns:
+            org_id del partido o None si no se puede resolver.
+        """
+        # Buscar membership activa en la fecha de la votación
+        row = conn.execute(
+            """SELECT org_id FROM membership
+               WHERE person_id = ? AND rol = 'senador'
+               AND start_date <= ?
+               AND (end_date IS NULL OR end_date >= ?)
+               ORDER BY start_date DESC
+               LIMIT 1""",
+            (person_id, fecha_iso, fecha_iso),
+        ).fetchone()
+
+        if row:
+            return row[0]
+
+        # Fallback: buscar la membership más cercana (anterior o posterior)
+        row = conn.execute(
+            """SELECT org_id, ABS(julianday(start_date) - julianday(?)) as diff
+               FROM membership
+               WHERE person_id = ? AND rol = 'senador'
+               ORDER BY diff ASC
+               LIMIT 1""",
+            (fecha_iso, person_id),
+        ).fetchone()
+
+        if row:
+            return row[0]
+
+        return None
+
+    # ---- Insertar counts ----
+
+    def _insert_counts(
+        self,
+        vote_event_id: str,
+        votacion: "CongresoVotacionRecord",
+        conn: sqlite3.Connection,
+    ) -> int:
+        """Inserta conteos por partido en la tabla count.
+
+        Lee los conteos de CongresoVotacionRecord y los inserta
+        en la tabla count con los org_ids canónicos.
+
+        Args:
+            vote_event_id: ID del vote_event.
+            votacion: Registro de votación con conteos.
+            conn: Conexión activa a SQLite.
+
+        Returns:
+            Número de counts insertados.
+        """
+        # Los conteos por partido no vienen en CongresoVotacionRecord
+        # directamente (el parser legacy no extrae desglose por partido
+        # de forma estructurada). Insertamos totales globales.
+        counts_inserted = 0
+
+        totals = [
+            ("a_favor", votacion.pro_count),
+            ("en_contra", votacion.contra_count),
+            ("abstencion", votacion.abstention_count),
+        ]
+
+        for option, value in totals:
+            if value > 0:
+                count_id = next_id(conn, "count")
+                conn.execute(
+                    """INSERT OR IGNORE INTO count
+                       (id, vote_event_id, option, value, group_id)
+                       VALUES (?, ?, ?, ?, ?)""",
+                    (count_id, vote_event_id, option, value, None),
+                )
+                counts_inserted += 1
+
+        return counts_inserted
 
     # ---- Integridad ----
 

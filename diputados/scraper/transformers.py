@@ -28,6 +28,15 @@ from .config import PARTY_SITL_MAP, CAMARA_DIPUTADOS_ID
 from .legislatura import url_estadistico
 from .utils.text_utils import normalize_name
 
+# ID generator compartido entre cámaras
+import sys
+from pathlib import Path
+
+_db_module_path = str(Path(__file__).resolve().parent.parent.parent / "db")
+if _db_module_path not in sys.path:
+    sys.path.insert(0, _db_module_path)
+from id_generator import next_id, get_next_id_batch
+
 logger = logging.getLogger(__name__)
 
 
@@ -148,99 +157,88 @@ def match_persona_por_nombre(nombre: str, conn: sqlite3.Connection) -> Optional[
 
 
 def siguiente_person_id(conn: sqlite3.Connection) -> str:
-    """Genera el siguiente ID disponible para person (P28, P29, etc.).
+    """Genera el siguiente ID disponible para person (P00001, etc.).
+
+    Usa el generador centralizado de IDs (db/id_generator.py).
+    Person es global (sin prefijo de cámara).
 
     Args:
         conn: Conexión activa a SQLite.
 
     Returns:
-        Siguiente ID disponible como string (ej: "P28").
+        Siguiente ID disponible como string (ej: "P00099").
     """
-    row = conn.execute(
-        "SELECT MAX(CAST(SUBSTR(id, 2) AS INTEGER)) FROM person"
-    ).fetchone()
-    max_num = row[0] if row[0] is not None else 0
-    return f"P{max_num + 1:02d}"
+    return next_id(conn, "person")
 
 
 def siguiente_vote_event_id(conn: sqlite3.Connection) -> str:
-    """Genera el siguiente ID disponible para vote_event (VE03, VE04, etc.).
+    """Genera el siguiente ID disponible para vote_event (VE_D00001, etc.).
+
+    Usa el generador centralizado con prefijo VE_D (Diputados).
 
     Args:
         conn: Conexión activa a SQLite.
 
     Returns:
-        Siguiente ID disponible como string (ej: "VE03").
+        Siguiente ID disponible como string (ej: "VE_D00001").
     """
-    row = conn.execute(
-        "SELECT MAX(CAST(SUBSTR(id, 3) AS INTEGER)) FROM vote_event"
-    ).fetchone()
-    max_num = row[0] if row[0] is not None else 0
-    return f"VE{max_num + 1:02d}"
+    return next_id(conn, "vote_event", camara="D")
 
 
 def siguiente_vote_id(conn: sqlite3.Connection) -> str:
-    """Genera el siguiente ID disponible para vote (V25, V26, etc.).
+    """Genera el siguiente ID disponible para vote (V_D00001, etc.).
+
+    Usa el generador centralizado con prefijo V_D (Diputados).
 
     Args:
         conn: Conexión activa a SQLite.
 
     Returns:
-        Siguiente ID disponible como string (ej: "V25").
+        Siguiente ID disponible como string (ej: "V_D00001").
     """
-    row = conn.execute(
-        "SELECT MAX(CAST(SUBSTR(id, 2) AS INTEGER)) FROM vote"
-    ).fetchone()
-    max_num = row[0] if row[0] is not None else 0
-    return f"V{max_num + 1:02d}"
+    return next_id(conn, "vote", camara="D")
 
 
 def siguiente_count_id(conn: sqlite3.Connection) -> str:
-    """Genera el siguiente ID disponible para count (C13, C14, etc.).
+    """Genera el siguiente ID disponible para count (C00001, etc.).
+
+    Usa el generador centralizado. Count es global.
 
     Args:
         conn: Conexión activa a SQLite.
 
     Returns:
-        Siguiente ID disponible como string (ej: "C13").
+        Siguiente ID disponible como string (ej: "C00001").
     """
-    row = conn.execute(
-        "SELECT MAX(CAST(SUBSTR(id, 2) AS INTEGER)) FROM count"
-    ).fetchone()
-    max_num = row[0] if row[0] is not None else 0
-    return f"C{max_num + 1:02d}"
+    return next_id(conn, "count")
 
 
 def siguiente_motion_id(conn: sqlite3.Connection) -> str:
-    """Genera el siguiente ID disponible para motion (Y03, Y04, etc.).
+    """Genera el siguiente ID disponible para motion (Y_D00001, etc.).
+
+    Usa el generador centralizado con prefijo Y_D (Diputados).
 
     Args:
         conn: Conexión activa a SQLite.
 
     Returns:
-        Siguiente ID disponible como string (ej: "Y03").
+        Siguiente ID disponible como string (ej: "Y_D00001").
     """
-    row = conn.execute(
-        "SELECT MAX(CAST(SUBSTR(id, 2) AS INTEGER)) FROM motion"
-    ).fetchone()
-    max_num = row[0] if row[0] is not None else 0
-    return f"Y{max_num + 1:02d}"
+    return next_id(conn, "motion", camara="D")
 
 
 def siguiente_membership_id(conn: sqlite3.Connection) -> str:
-    """Genera el siguiente ID disponible para membership (M64, M65, etc.).
+    """Genera el siguiente ID disponible para membership (M_D00001, etc.).
+
+    Usa el generador centralizado con prefijo M_D (Diputados).
 
     Args:
         conn: Conexión activa a SQLite.
 
     Returns:
-        Siguiente ID disponible como string (ej: "M64").
+        Siguiente ID disponible como string (ej: "M_D00001").
     """
-    row = conn.execute(
-        "SELECT MAX(CAST(SUBSTR(id, 2) AS INTEGER)) FROM membership"
-    ).fetchone()
-    max_num = row[0] if row[0] is not None else 0
-    return f"M{max_num + 1:02d}"
+    return next_id(conn, "membership", camara="D")
 
 
 # ============================================================
@@ -613,12 +611,11 @@ def transformar_votacion(
     new_persons: list[PersonPopolo] = []
     new_memberships: list[MembershipPopolo] = []
 
-    # Track de IDs ya generados en esta ejecución para no duplicar
-    # Usamos números enteros y formateamos con zero-padding al generar IDs
-    _next_vote_num = _get_max_vote_num(conn)
-    _next_person_num = _get_max_person_num(conn)
-    _next_membership_num = _get_max_membership_num(conn)
-    _next_count_num = _get_max_count_num(conn)
+    # Generar batches de IDs para eficiencia (pre-allocar)
+    # Contamos cuántos necesitaremos y generamos en batch
+    total_nominales = sum(len(n.votos) for n in nominales)
+    vote_ids = get_next_id_batch(conn, "vote", camara="D", count=total_nominales)
+    _vote_id_idx = 0
 
     # Cache de nombres ya procesados en esta votación (evitar duplicar persona)
     _personas_creadas: dict[str, str] = {}  # nombre_norm → person_id
@@ -638,8 +635,7 @@ def transformar_votacion(
 
             if person_id is None:
                 # Crear nueva persona
-                _next_person_num += 1
-                person_id = f"P{_next_person_num:02d}"
+                person_id = siguiente_person_id(conn)
 
                 identifiers = {}
                 if voto.diputado_sitl_id:
@@ -659,10 +655,9 @@ def transformar_votacion(
 
                 # Crear membership al partido
                 if org_id:
-                    _next_membership_num += 1
                     new_memberships.append(
                         MembershipPopolo(
-                            id=f"M{_next_membership_num:02d}",
+                            id=siguiente_membership_id(conn),
                             person_id=person_id,
                             org_id=org_id,
                             rol="diputado",
@@ -690,10 +685,9 @@ def transformar_votacion(
                         for m in new_memberships
                     )
                     if not existing_membership and not already_added:
-                        _next_membership_num += 1
                         new_memberships.append(
                             MembershipPopolo(
-                                id=f"M{_next_membership_num:02d}",
+                                id=siguiente_membership_id(conn),
                                 person_id=person_id,
                                 org_id=org_id,
                                 rol="diputado",
@@ -707,24 +701,51 @@ def transformar_votacion(
                             f"(votó con partido diferente al de su membership original)"
                         )
 
-            # Crear voto individual
-            _next_vote_num += 1
+            # Crear voto individual (usar batch ID)
             option = sentido_to_option(voto.sentido)
 
             votes.append(
                 VotePopolo(
-                    id=f"V{_next_vote_num:02d}",
+                    id=vote_ids[_vote_id_idx],
                     vote_event_id=ve_id,
                     voter_id=person_id,
                     option=option,
                     group=org_id,
                 )
             )
+            _vote_id_idx += 1
 
     # --- 4. Counts a partir del desglose ---
     counts: list[CountPopolo] = []
 
     opciones = ["a_favor", "en_contra", "abstencion", "ausente"]
+
+    # Contar cuántos counts necesitaremos para generar batch
+    count_needed = 0
+    for partido in desglose.partidos:
+        valores = {
+            "a_favor": partido.a_favor,
+            "en_contra": partido.en_contra,
+            "abstencion": partido.abstencion,
+            "ausente": partido.ausente + partido.solo_asistencia,
+        }
+        for opcion in opciones:
+            if valores[opcion] > 0:
+                count_needed += 1
+    valores_totales = {
+        "a_favor": desglose.totales.a_favor,
+        "en_contra": desglose.totales.en_contra,
+        "abstencion": desglose.totales.abstencion,
+        "ausente": desglose.totales.ausente + desglose.totales.solo_asistencia,
+    }
+    for opcion in opciones:
+        if valores_totales[opcion] > 0:
+            count_needed += 1
+
+    count_ids = (
+        get_next_id_batch(conn, "count", count=count_needed) if count_needed > 0 else []
+    )
+    _count_id_idx = 0
 
     for partido in desglose.partidos:
         org_id = _partido_to_org_id(partido.partido_nombre)
@@ -740,37 +761,31 @@ def transformar_votacion(
         for opcion in opciones:
             val = valores[opcion]
             if val > 0:
-                _next_count_num += 1
                 counts.append(
                     CountPopolo(
-                        id=f"C{_next_count_num:02d}",
+                        id=count_ids[_count_id_idx],
                         vote_event_id=ve_id,
                         option=opcion,
                         value=val,
                         group_id=org_id if org_id else "O11",
                     )
                 )
+                _count_id_idx += 1
 
     # También agregar totales globales
-    valores_totales = {
-        "a_favor": desglose.totales.a_favor,
-        "en_contra": desglose.totales.en_contra,
-        "abstencion": desglose.totales.abstencion,
-        "ausente": desglose.totales.ausente + desglose.totales.solo_asistencia,
-    }
     for opcion in opciones:
         val = valores_totales[opcion]
         if val > 0:
-            _next_count_num += 1
             counts.append(
                 CountPopolo(
-                    id=f"C{_next_count_num:02d}",
+                    id=count_ids[_count_id_idx],
                     vote_event_id=ve_id,
                     option=opcion,
                     value=val,
                     group_id=None,  # Total global sin grupo
                 )
             )
+            _count_id_idx += 1
 
     logger.info(
         f"Votación {votacion.sitl_id}: {len(votes)} votos, "
@@ -784,40 +799,3 @@ def transformar_votacion(
         new_persons=new_persons,
         new_memberships=new_memberships,
     )
-
-
-# ============================================================
-# Helpers internos para cálculo de IDs
-# ============================================================
-
-
-def _get_max_vote_num(conn: sqlite3.Connection) -> int:
-    """Obtiene el máximo número de vote ID en la BD."""
-    row = conn.execute(
-        "SELECT MAX(CAST(SUBSTR(id, 2) AS INTEGER)) FROM vote"
-    ).fetchone()
-    return row[0] if row[0] is not None else 0
-
-
-def _get_max_person_num(conn: sqlite3.Connection) -> int:
-    """Obtiene el máximo número de person ID en la BD."""
-    row = conn.execute(
-        "SELECT MAX(CAST(SUBSTR(id, 2) AS INTEGER)) FROM person"
-    ).fetchone()
-    return row[0] if row[0] is not None else 0
-
-
-def _get_max_membership_num(conn: sqlite3.Connection) -> int:
-    """Obtiene el máximo número de membership ID en la BD."""
-    row = conn.execute(
-        "SELECT MAX(CAST(SUBSTR(id, 2) AS INTEGER)) FROM membership"
-    ).fetchone()
-    return row[0] if row[0] is not None else 0
-
-
-def _get_max_count_num(conn: sqlite3.Connection) -> int:
-    """Obtiene el máximo número de count ID en la BD."""
-    row = conn.execute(
-        "SELECT MAX(CAST(SUBSTR(id, 2) AS INTEGER)) FROM count"
-    ).fetchone()
-    return row[0] if row[0] is not None else 0
