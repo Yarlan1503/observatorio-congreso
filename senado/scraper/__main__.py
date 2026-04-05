@@ -1,6 +1,6 @@
-"""Entry point para ejecutar el CLI como: python -m scraper.senado"""
+"""Entry point para ejecutar el CLI como: python -m senado.scraper"""
 
-from .cli import main
+from .cli_curl_cffi import main
 
 if __name__ == "__main__":
     main()

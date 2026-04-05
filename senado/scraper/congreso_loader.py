@@ -89,8 +89,8 @@ class CongresoLoader:
     def _resolve_db_path(self, db_path: str) -> Path:
         """Resuelve el path de la BD.
 
-        Si es relativo, se interpreta desde el workspace root
-        (/home/cachorro/Documentos/Congreso de la Union).
+        Si es relativo, se interpreta desde el directorio del proyecto
+        (3 niveles arriba de este archivo).
 
         Args:
             db_path: Path absoluto o relativo a la BD.
@@ -101,9 +101,9 @@ class CongresoLoader:
         p = Path(db_path)
         if p.is_absolute():
             return p
-        # Workspace root
-        workspace_root = Path("/home/cachorro/Documentos/Congreso de la Union")
-        return workspace_root / p
+        # Directorio del proyecto: db/ está 3 niveles arriba de senado/scraper/
+        project_root = Path(__file__).resolve().parent.parent.parent
+        return project_root / p
 
     def _get_conn(self) -> sqlite3.Connection:
         """Obtiene conexión a la BD con foreign keys y WAL mode.
@@ -257,6 +257,13 @@ class CongresoLoader:
     def get_or_create_organization(self, org_ref: str, conn: sqlite3.Connection) -> str:
         """Busca organización por abbr o ID. Si no existe, crea nueva.
 
+        Resolución en orden:
+        1. Buscar por ID directo (O01, O09, etc.)
+        2. Buscar por abbr (MORENA, PAN, etc.)
+        3. Buscar por nombre exacto
+        4. Buscar por abbr case-insensitive (morena → MORENA)
+        5. Crear nueva organización (último recurso)
+
         Args:
             org_ref: Abreviatura (MORENA, PAN) o ID (O09) de la organización.
             conn: Conexión activa a SQLite.
@@ -264,15 +271,12 @@ class CongresoLoader:
         Returns:
             ID de la organización (existente o nueva).
         """
-        # Primero buscar por abbr
-        row = conn.execute(
-            "SELECT id FROM organization WHERE abbr = ?",
-            (org_ref,),
-        ).fetchone()
-        if row:
-            return row[0]
+        if not org_ref or not org_ref.strip():
+            return None
 
-        # Buscar por ID directo
+        org_ref = org_ref.strip()
+
+        # 1. Buscar por ID directo
         row = conn.execute(
             "SELECT id FROM organization WHERE id = ?",
             (org_ref,),
@@ -280,7 +284,15 @@ class CongresoLoader:
         if row:
             return row[0]
 
-        # Buscar por nombre exacto
+        # 2. Buscar por abbr exacto
+        row = conn.execute(
+            "SELECT id FROM organization WHERE abbr = ?",
+            (org_ref,),
+        ).fetchone()
+        if row:
+            return row[0]
+
+        # 3. Buscar por nombre exacto
         row = conn.execute(
             "SELECT id FROM organization WHERE nombre = ?",
             (org_ref,),
@@ -288,14 +300,28 @@ class CongresoLoader:
         if row:
             return row[0]
 
-        # Crear nueva organización
-        # Si empieza con "O" es un ID canónico, sino es una abreviatura
-        if org_ref.startswith("O"):
+        # 4. Buscar por abbr case-insensitive
+        row = conn.execute(
+            "SELECT id FROM organization WHERE UPPER(abbr) = UPPER(?)",
+            (org_ref,),
+        ).fetchone()
+        if row:
+            return row[0]
+
+        # 5. Crear nueva organización
+        # Si empieza con "O" seguido de dígitos, es un ID canónico
+        if org_ref.startswith("O") and len(org_ref) > 1 and org_ref[1:].isdigit():
             org_id = org_ref
             nombre = org_ref
             abbr = None
         else:
-            org_id = org_ref
+            # Generar nuevo ID secuencial para org
+            # Buscar el máximo O## existente
+            max_row = conn.execute(
+                "SELECT MAX(CAST(SUBSTR(id, 2) AS INTEGER)) FROM organization WHERE id LIKE 'O%'"
+            ).fetchone()
+            next_num = (max_row[0] if max_row[0] is not None else 0) + 1
+            org_id = f"O{next_num:02d}"
             nombre = org_ref
             abbr = org_ref
 
@@ -307,7 +333,7 @@ class CongresoLoader:
                VALUES (?, ?, ?, ?)""",
             (org_id, nombre, abbr, clasificacion),
         )
-        logger.info(f"Organización creada: {org_id} ({nombre})")
+        logger.info(f"Organización creada: {org_id} ({nombre}, abbr={abbr})")
         return org_id
 
     # ---- Upsert principal ----
@@ -642,10 +668,11 @@ class CongresoLoader:
             conn.close()
 
     def init_schema(self) -> None:
-        """Verifica que el schema de congress.db exista.
+        """Verifica que el schema y datos estáticos de congress.db existan.
 
-        El schema ya existe en congreso.db (108MB, tablas verificadas).
-        Este método es para compatibilidad con el CLI y verificación.
+        Asegura que:
+        - Las tablas principales existen
+        - La organización del Senado (O09) tiene datos correctos
         """
         conn = self._get_conn()
         try:
@@ -663,6 +690,27 @@ class CongresoLoader:
                     conn.execute(f"SELECT 1 FROM {tabla} LIMIT 1")
                 except sqlite3.OperationalError:
                     logger.warning(f"Tabla '{tabla}' no existe en la BD")
+
+            # Asegurar que O09 (Senado de la República) tenga datos correctos
+            existing = conn.execute(
+                "SELECT id, nombre, abbr FROM organization WHERE id = 'O09'"
+            ).fetchone()
+            if existing:
+                if existing[1] == "O09" or existing[2] is None:
+                    conn.execute(
+                        """UPDATE organization SET nombre = 'Senado de la República', abbr = 'SENADO'
+                           WHERE id = 'O09'"""
+                    )
+                    conn.commit()
+                    logger.info("Organización O09 actualizada: Senado de la República")
+            else:
+                conn.execute(
+                    """INSERT OR IGNORE INTO organization (id, nombre, abbr, clasificacion)
+                       VALUES ('O09', 'Senado de la República', 'SENADO', 'institucion')"""
+                )
+                conn.commit()
+                logger.info("Organización O09 creada: Senado de la República")
+
             logger.info("Schema de congress.db verificado correctamente")
         finally:
             conn.close()
