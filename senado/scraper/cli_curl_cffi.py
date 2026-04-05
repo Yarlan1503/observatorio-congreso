@@ -200,10 +200,8 @@ class SenateClientWithLegacyHeaders:
         """Persiste cookies de la sesión actual a disco."""
         try:
             COOKIE_PATH.parent.mkdir(parents=True, exist_ok=True)
-            # Extraer cookies como dict serializable (curl_cffi cookies no son picklables)
-            cookies_dict = {k: v for k, v in self._session.cookies.items()}
             with open(COOKIE_PATH, "wb") as f:
-                pickle.dump(cookies_dict, f)
+                pickle.dump(self._session.cookies, f)
             logger.debug("Cookies guardadas en disco")
         except Exception as e:
             logger.warning(f"Error guardando cookies: {e}")

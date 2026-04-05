@@ -251,14 +251,13 @@ def parse_legacy_votacion(
                         pass
 
     # -------------------------------------------------------------------------
-    # 6. Extraer votos nominales de la segunda tabla
+    # 6. Extraer votos nominales — buscar tabla con "SENADOR" en headers
     # -------------------------------------------------------------------------
     votos: list[SenVotoNominal] = []
 
-    if len(tables) >= 2:
-        segunda_tabla = tables[1]
+    for tabla in tables:
         # Verificar que sea la tabla nominal (tiene SENADOR en header)
-        header_cells = segunda_tabla.find_all(["th"])
+        header_cells = tabla.find_all(["th"])
         is_nominal = False
         for th in header_cells:
             th_text = th.get_text(strip=True).upper()
@@ -266,60 +265,54 @@ def parse_legacy_votacion(
                 is_nominal = True
                 break
 
-        if is_nominal:
-            tbody = segunda_tabla.find("tbody") or segunda_tabla
-            filas = tbody.find_all("tr")
+        if not is_nominal:
+            continue
 
-            for fila in filas:
-                cells = fila.find_all("td")
-                if len(cells) < 3:
-                    continue
+        # Es la tabla nominal — extraer votos
+        tbody = tabla.find("tbody") or tabla
+        filas = tbody.find_all("tr")
 
-                # td[0]: número
-                numero_text = cells[0].get_text(strip=True)
-                try:
-                    numero = int(numero_text)
-                except ValueError:
-                    num_match = re.search(r"\d+", numero_text)
-                    numero = int(num_match.group()) if num_match else 0
+        for fila in filas:
+            cells = fila.find_all("td")
+            if len(cells) < 3:
+                continue
 
-                # td[1]: nombre (del link)
-                nombre = ""
-                link = cells[1].find("a")
-                if link:
-                    nombre = link.get_text(strip=True)
-                else:
-                    nombre = cells[1].get_text(strip=True)
+            # td[0]: número
+            numero_text = cells[0].get_text(strip=True)
+            try:
+                numero = int(numero_text)
+            except ValueError:
+                num_match = re.search(r"\d+", numero_text)
+                numero = int(num_match.group()) if num_match else 0
 
-                # Limpiar prefijo "Sen. "
-                nombre = re.sub(r"^Sen\.\s*", "", nombre, flags=re.IGNORECASE).strip()
+            # td[1]: nombre (del link)
+            nombre = ""
+            link = cells[1].find("a")
+            if link:
+                nombre = link.get_text(strip=True)
+            else:
+                nombre = cells[1].get_text(strip=True)
 
-                # td[2]: voto
-                voto_text = cells[2].get_text(strip=True)
-                voto = _normalize_voto(voto_text)
+            # Limpiar prefijo "Sen. "
+            nombre = re.sub(r"^Sen\.\s*", "", nombre, flags=re.IGNORECASE).strip()
 
-                # Grupo parlamentario: intentar extraer del link o de la celda
-                grupo_parlamentario = ""
-                if link:
-                    parent = link.parent
-                    if parent:
-                        # Buscar el partido en la misma fila
-                        grupo_text = cells[1].get_text(strip=True)
-                        # El partido puede estar después del nombre
-                        pass
+            # td[2]: voto
+            voto_text = cells[2].get_text(strip=True)
+            voto = _normalize_voto(voto_text)
 
-                # En el formato legacy, no hay columna de partido visible
-                # Se deja vacío y se resuelve en transformers.py
-                grupo_parlamentario = ""
+            # Grupo parlamentario: no disponible en formato legacy
+            grupo_parlamentario = ""
 
-                votos.append(
-                    SenVotoNominal(
-                        numero=numero,
-                        nombre=nombre,
-                        grupo_parlamentario=grupo_parlamentario,
-                        voto=voto,
-                    )
+            votos.append(
+                SenVotoNominal(
+                    numero=numero,
+                    nombre=nombre,
+                    grupo_parlamentario=grupo_parlamentario,
+                    voto=voto,
                 )
+            )
+
+        break  # Solo procesar la primera tabla nominal encontrada
 
     # -------------------------------------------------------------------------
     # 7. Construir resultado

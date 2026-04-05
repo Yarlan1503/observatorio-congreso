@@ -51,6 +51,9 @@ CREATE TABLE organization (
     -- Nombre oficial de la organización (único)
     nombre TEXT NOT NULL UNIQUE,
 
+    -- Abreviatura (MORENA, PAN, PRI, etc.)
+    abbr TEXT,
+
     -- Clasificación: partido, bancada, coalición, gobierno, institución u otro
     clasificacion TEXT NOT NULL CHECK(
         clasificacion IN (

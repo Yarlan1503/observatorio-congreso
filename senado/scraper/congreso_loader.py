@@ -310,6 +310,62 @@ class CongresoLoader:
         )
         return memb_id, True
 
+    def get_or_create_organization(self, org_ref: str, conn: sqlite3.Connection) -> str:
+        """Busca organización por abbr o ID. Si no existe, crea nueva.
+
+        Args:
+            org_ref: Abreviatura (MORENA, PAN) o ID (O09) de la organización.
+            conn: Conexión activa a SQLite.
+
+        Returns:
+            ID de la organización (existente o nueva).
+        """
+        # Primero buscar por abbr
+        row = conn.execute(
+            "SELECT id FROM organization WHERE abbr = ?",
+            (org_ref,),
+        ).fetchone()
+        if row:
+            return row[0]
+
+        # Buscar por ID directo
+        row = conn.execute(
+            "SELECT id FROM organization WHERE id = ?",
+            (org_ref,),
+        ).fetchone()
+        if row:
+            return row[0]
+
+        # Buscar por nombre exacto
+        row = conn.execute(
+            "SELECT id FROM organization WHERE nombre = ?",
+            (org_ref,),
+        ).fetchone()
+        if row:
+            return row[0]
+
+        # Crear nueva organización
+        # Si empieza con "O" es un ID canónico, sino es una abreviatura
+        if org_ref.startswith("O"):
+            org_id = org_ref
+            nombre = org_ref
+            abbr = None
+        else:
+            org_id = org_ref
+            nombre = org_ref
+            abbr = org_ref
+
+        clasificacion = "institucion" if org_ref == SENADO_ORG_ID else "partido"
+
+        conn.execute(
+            """INSERT OR IGNORE INTO organization
+               (id, nombre, abbr, clasificacion)
+               VALUES (?, ?, ?, ?)""",
+            (org_id, nombre, abbr, clasificacion),
+        )
+        logger.info(f"Organización creada: {org_id} ({nombre})")
+        return org_id
+
     # ---- Upsert principal ----
 
     def upsert_votacion(self, votacion: CongresoVotacionRecord) -> dict:
@@ -392,17 +448,8 @@ class CongresoLoader:
                     )
                     continue
 
-                # Resolver org_id por abbr
-                org_row = conn.execute(
-                    "SELECT id FROM organization WHERE abbr = ?",
-                    (org_abbr,),
-                ).fetchone()
-
-                if not org_row:
-                    # Si no hay match por abbr, usar el org_id directo
-                    org_id = org_abbr
-                else:
-                    org_id = org_row[0]
+                # Resolver org_id — crear si no existe
+                org_id = self.get_or_create_organization(org_abbr, conn)
 
                 # start_date: usar la fecha de la votación como default
                 start_date = memb_data.get("start_date", votacion.fecha_iso)
@@ -432,6 +479,9 @@ class CongresoLoader:
             )
 
             # --- 4. Vote_event ---
+            # Asegurar que la organización del Senado exista
+            self.get_or_create_organization(SENADO_ORG_ID, conn)
+
             conn.execute(
                 """INSERT OR IGNORE INTO vote_event
                    (id, motion_id, start_date, organization_id, result,
