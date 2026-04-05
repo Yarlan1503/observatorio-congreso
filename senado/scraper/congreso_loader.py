@@ -1,16 +1,17 @@
-"""congreso_loader.py — Carga datos al schema unificado de congress.db.
+"""congreso_loader.py — Carga datos al schema unificado de congreso.db.
 
 Schema unificado con prefijos de ID:
     VE_S (vote_event Senado), Y_S (motion Senado), V_S (vote Senado),
     M_S (membership Senado), P (person global)
 
 Recibe ``CongresoVotacionRecord`` (construido por cli.py a partir de
-``parse_legacy_votacion``) y lo inserta en el schema unificado.
+``parse_lxvi_votacion``) y lo inserta en el schema unificado.
 
 Idempotente: INSERT OR IGNORE para no duplicar datos.
 Transaccional: toda una votación se inserta en una sola transacción.
 """
 
+import json
 import logging
 import sqlite3
 import sys
@@ -24,6 +25,15 @@ if _db_module_path not in sys.path:
     sys.path.insert(0, _db_module_path)
 from id_generator import next_id, get_next_id_batch
 from db.helpers import get_or_create_organization
+
+from .transformers import (
+    determinar_requirement,
+    determinar_tipo_motion,
+    determinar_resultado,
+    voto_to_option,
+    match_persona_por_nombre,
+)
+from .config import SENADO_ORG_ID, LXVI_VOTACION_URL_TEMPLATE
 
 logger = logging.getLogger(__name__)
 
@@ -56,18 +66,22 @@ class CongresoVotacionRecord:
     Estructura que recibe ``CongresoLoader.upsert_votacion``.
     """
 
-    senado_id: int  # ID original del portal (1-4690)
+    senado_id: int  # ID original del portal (1-5070)
     fecha_iso: str  # yyyy-mm-dd
     descripcion: str  # Texto de la iniciativa
     pro_count: int
     contra_count: int
     abstention_count: int
-    legislature: str = ""  # LX, LXI, ..., LXV (alias para compatibilidad)
+    legislature: str = ""  # LX, LXI, ..., LXVI
     votos: list[CongresoVotoRecord] = field(default_factory=list)
     voto_personas_nuevas: list[dict] = field(default_factory=list)
     voto_membresias_nuevas: list[dict] = field(default_factory=list)
     counts_por_partido: list[dict] = field(default_factory=list)
     # Each dict: {"partido": str, "a_favor": int, "en_contra": int, "abstencion": int}
+    # New fields for Fase 1 gaps:
+    identifiers_json: str = ""  # JSON identifiers for vote_event
+    requirement: str = ""  # mayoria_simple, mayoria_calificada, etc.
+    fuente_url: str = ""  # URL fuente de la votación
 
 
 # ============================================================
@@ -92,9 +106,6 @@ class CongresoLoader:
     def _resolve_db_path(self, db_path: str) -> Path:
         """Resuelve el path de la BD.
 
-        Si es relativo, se interpreta desde el directorio del proyecto
-        (3 niveles arriba de este archivo).
-
         Args:
             db_path: Path absoluto o relativo a la BD.
 
@@ -104,99 +115,35 @@ class CongresoLoader:
         p = Path(db_path)
         if p.is_absolute():
             return p
-        # Directorio del proyecto: db/ está 3 niveles arriba de senado/scraper/
         project_root = Path(__file__).resolve().parent.parent.parent
         return project_root / p
 
     def _get_conn(self) -> sqlite3.Connection:
-        """Obtiene conexión a la BD con foreign keys y WAL mode.
-
-        Returns:
-            Conexión SQLite configurada con FK=y, WAL mode,
-            y timeout suficiente.
-        """
+        """Obtiene conexión a la BD con foreign keys y WAL mode."""
         conn = sqlite3.connect(str(self.db_path), timeout=30.0)
         conn.execute("PRAGMA foreign_keys = ON")
         conn.execute("PRAGMA journal_mode = WAL")
         return conn
-
-    # ---- Helpers de mapeo ----
-
-    @staticmethod
-    def _voto_to_option(voto: str) -> str:
-        """Convierte el sentido del voto del portal al formato de la BD.
-
-        PRO → a_favor
-        CONTRA → en_contra
-        ABSTENCIÓN (o variantes) → abstencion
-        AUSENTE → ausente
-
-        Args:
-            voto: Sentido del voto del portal (PRO, CONTRA, ABSTENCIÓN, AUSENTE).
-
-        Returns:
-            Opción en formato BD (a_favor, en_contra, abstencion, ausente).
-        """
-        s = voto.strip().upper()
-
-        # Normalizar acentos para comparación
-        import unicodedata
-
-        nfkd = unicodedata.normalize("NFKD", s)
-        sin_acentos = "".join(c for c in nfkd if not unicodedata.combining(c))
-
-        if "PRO" in sin_acentos and "ABSTEN" not in sin_acentos:
-            return "a_favor"
-        if "CONTRA" in sin_acentos:
-            return "en_contra"
-        if "ABSTENCION" in sin_acentos or "ABSTEN" in sin_acentos:
-            return "abstencion"
-        if "AUSENTE" in sin_acentos:
-            return "ausente"
-
-        logger.warning(f"Sentido de voto no reconocido: '{voto}', usando 'abstencion'")
-        return "abstencion"
-
-    @staticmethod
-    def _determinar_resultado(pro_count: int, contra_count: int) -> str:
-        """Determina el resultado de una votación.
-
-        - pro > contra → "aprobada"
-        - pro < contra → "rechazada"
-        - iguales → "empate"
-
-        Args:
-            pro_count: Votos a favor.
-            contra_count: Votos en contra.
-
-        Returns:
-            Resultado: "aprobada", "rechazada" o "empate".
-        """
-        if pro_count > contra_count:
-            return "aprobada"
-        elif pro_count < contra_count:
-            return "rechazada"
-        else:
-            return "empate"
 
     # ---- Entidades ----
 
     def get_or_create_person(
         self, nombre: str, genero: Optional[str], conn: sqlite3.Connection
     ) -> tuple[str, bool]:
-        """Busca persona por nombre. Si no existe, crea nueva con ID P*.
+        """Busca persona por nombre normalizado. Si no existe, crea nueva con ID P*.
 
-        Busca por ``nombre`` exacto. Si no existe, inserta con un nuevo
-        ID P* secuencial global (compartido entre Diputados y Senado).
+        Busca por ``normalize_name()`` para evitar duplicados por variantes
+        de acentos o espacios.
 
         Args:
             nombre: Nombre completo del legislador.
-            genero: Género ("M", "F", "NB" o ``None``).
+            genero: Género ("M", "F", "NB" o None).
             conn: Conexión activa a SQLite.
 
         Returns:
             Tuple de (ID de la persona, True si fue creada nueva).
         """
+        # Primero buscar por nombre exacto
         row = conn.execute(
             "SELECT id FROM person WHERE nombre = ?",
             (nombre,),
@@ -205,6 +152,16 @@ class CongresoLoader:
         if row:
             return row[0], False
 
+        # Segundo: buscar por nombre normalizado (variantes con acentos)
+        from utils.text_utils import normalize_name
+
+        nombre_norm = normalize_name(nombre)
+        rows = conn.execute("SELECT id, nombre FROM person").fetchall()
+        for person_id, person_nombre in rows:
+            if normalize_name(person_nombre) == nombre_norm:
+                return person_id, False
+
+        # No encontró: crear nueva
         person_id = next_id(conn, "person")
         conn.execute(
             """INSERT OR IGNORE INTO person
@@ -224,24 +181,7 @@ class CongresoLoader:
         label: str = "",
         end_date: Optional[str] = None,
     ) -> tuple[str, bool]:
-        """Crea membership si no existe.
-
-        Busca una membresía existente por person_id + org_id + rol.
-        Si no existe, inserta con ID M_S* secuencial.
-
-        Args:
-            person_id: ID de la persona.
-            org_id: ID de la organización.
-            rol: Rol (ej: "senador").
-            start_date: Fecha de inicio en formato ISO.
-            conn: Conexión activa a SQLite.
-            label: Descripción legible del cargo (ej: "Senador, Guanajuato").
-            end_date: Fecha de fin (None = vigente).
-
-        Returns:
-            Tuple de (ID de la membresía, True si fue creada nueva).
-        """
-        # Verificar si ya existe
+        """Crea membership si no existe."""
         row = conn.execute(
             """SELECT id FROM membership
                WHERE person_id = ? AND org_id = ? AND rol = ?""",
@@ -269,26 +209,17 @@ class CongresoLoader:
         0. Verificar unicidad por source_id (deduplicación)
         1. Generar IDs: VE_S* para vote_event, Y_S* para motion
         2. INSERT OR IGNORE personas nuevas con IDs P*
-        3. INSERT OR IGNORE membresías nuevas con IDs MB*
-        4. INSERT INTO vote_event y motion
+        3. INSERT OR IGNORE membresías nuevas con IDs M_S*
+        4. INSERT INTO vote_event y motion (con requirement, identifiers, fuente_url)
         5. INSERT OR IGNORE votos individuales con IDs V_S*
-        6. COMMIT
-
-        En caso de error: ROLLBACK.
+        6. INSERT counts
+        7. COMMIT
 
         Args:
-            votacion: :class:`CongresoVotacionRecord` con todos los datos.
+            votacion: CongresoVotacionRecord con todos los datos.
 
         Returns:
-            Dict con estadísticas:
-            ``{
-                "votacion_id": "VE_S00001",
-                "motion_id": "Y_S00001",
-                "votos": 118,
-                "personas_nuevas": 5,
-                "membresias_nuevas": 3,
-                "status": "success" | "already_exists"
-            }``
+            Dict con estadísticas.
         """
         conn = self._get_conn()
 
@@ -348,11 +279,7 @@ class CongresoLoader:
                 if isinstance(persona_ref, str):
                     persona_id = _persona_ids.get(persona_ref)
                     if persona_id is None:
-                        row = conn.execute(
-                            "SELECT id FROM person WHERE nombre = ?",
-                            (persona_ref,),
-                        ).fetchone()
-                        persona_id = row[0] if row else None
+                        persona_id = match_persona_por_nombre(persona_ref, conn)
                 else:
                     persona_id = persona_ref
 
@@ -382,33 +309,53 @@ class CongresoLoader:
                 if was_created:
                     stats["membresias_nuevas"] += 1
 
-            # --- 3. Motion ---
-            resultado = self._determinar_resultado(
-                votacion.pro_count, votacion.contra_count
+            # --- 3. Motion con datos dinámicos ---
+            # Determinar requirement y tipo del título
+            requirement = votacion.requirement or determinar_requirement(
+                votacion.descripcion
             )
+            clasificacion = determinar_tipo_motion(votacion.descripcion)
+            resultado = determinar_resultado(
+                votacion.pro_count, votacion.contra_count, requirement
+            )
+
+            # Fuente URL
+            fuente_url = votacion.fuente_url
+            if not fuente_url:
+                fuente_url = LXVI_VOTACION_URL_TEMPLATE.format(id=votacion.senado_id)
 
             conn.execute(
                 """INSERT OR IGNORE INTO motion
-                   (id, texto, clasificacion, requirement, result, date, legislative_session)
-                   VALUES (?, ?, 'ordinaria', 'mayoria_simple', ?, ?, ?)""",
+                   (id, texto, clasificacion, requirement, result, date, legislative_session, fuente_url)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
                 (
                     motion_id,
                     votacion.descripcion,
+                    clasificacion,
+                    requirement,
                     resultado,
                     votacion.fecha_iso,
                     votacion.legislature,
+                    fuente_url,
                 ),
             )
 
-            # --- 4. Vote_event ---
+            # --- 4. Vote_event con identifiers_json y requirement ---
             # Asegurar que la organización del Senado exista
             get_or_create_organization(SENADO_ORG_ID, conn)
+
+            # identifiers_json: formato estándar Popolo
+            identifiers = votacion.identifiers_json
+            if not identifiers:
+                identifiers = json.dumps(
+                    [{"scheme": "senado_gob_mx", "identifier": str(votacion.senado_id)}]
+                )
 
             conn.execute(
                 """INSERT OR IGNORE INTO vote_event
                    (id, motion_id, start_date, organization_id, result,
-                    voter_count, legislatura, source_id)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                    voter_count, legislatura, source_id, requirement, identifiers_json)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 (
                     vote_event_id,
                     motion_id,
@@ -420,6 +367,8 @@ class CongresoLoader:
                     + votacion.abstention_count,
                     votacion.legislature or "",
                     str(votacion.senado_id),
+                    requirement,
+                    identifiers,
                 ),
             )
 
@@ -427,14 +376,10 @@ class CongresoLoader:
             for voto in votacion.votos:
                 nombre = voto.nombre
 
-                # Resolver persona_id
+                # Resolver persona_id (por nombre normalizado)
                 persona_id = _persona_ids.get(nombre)
                 if persona_id is None:
-                    row = conn.execute(
-                        "SELECT id FROM person WHERE nombre = ?",
-                        (nombre,),
-                    ).fetchone()
-                    persona_id = row[0] if row else None
+                    persona_id = match_persona_por_nombre(nombre, conn)
 
                 if persona_id is None:
                     logger.warning(
@@ -443,17 +388,15 @@ class CongresoLoader:
                     continue
 
                 vote_id = next_id(conn, "vote", camara="S")
-                option = self._voto_to_option(voto.voto)
+                option = voto_to_option(voto.voto)
 
                 # Resolver vote.group: buscar org_id via membership
-                # Si el parser no proporciona grupo (vacío), buscar membership
                 group_id = voto.grupo_parlamentario
                 if not group_id or group_id.strip() == "":
                     group_id = self._resolve_group_from_membership(
                         persona_id, votacion.fecha_iso, conn
                     )
                 else:
-                    # Normalizar: si es texto de partido, resolver a org_id
                     group_id = get_or_create_organization(group_id.strip(), conn)
 
                 conn.execute(
@@ -483,7 +426,8 @@ class CongresoLoader:
                 f"Upsert completado: vote_event={vote_event_id}, "
                 f"motion={motion_id}, {stats['votos']} votos, "
                 f"{stats['personas_nuevas']} personas nuevas, "
-                f"{stats['membresias_nuevas']} membresías nuevas"
+                f"{stats['membresias_nuevas']} membresías nuevas, "
+                f"requirement={requirement}"
             )
 
         except Exception as e:
@@ -503,20 +447,7 @@ class CongresoLoader:
         fecha_iso: str,
         conn: sqlite3.Connection,
     ) -> Optional[str]:
-        """Resuelve el org_id de un legislador via su membership activa.
-
-        Busca la membership más cercana en fecha para un senador.
-        Si no encuentra, busca la membership más reciente (fallback).
-
-        Args:
-            person_id: ID de la persona.
-            fecha_iso: Fecha de la votación (YYYY-MM-DD).
-            conn: Conexión activa a SQLite.
-
-        Returns:
-            org_id del partido o None si no se puede resolver.
-        """
-        # Buscar membership activa en la fecha de la votación
+        """Resuelve el org_id de un legislador via su membership activa."""
         row = conn.execute(
             """SELECT org_id FROM membership
                WHERE person_id = ? AND rol = 'senador'
@@ -530,7 +461,7 @@ class CongresoLoader:
         if row:
             return row[0]
 
-        # Fallback: buscar la membership más cercana (anterior o posterior)
+        # Fallback: buscar la membership más cercana
         row = conn.execute(
             """SELECT org_id, ABS(julianday(start_date) - julianday(?)) as diff
                FROM membership
@@ -553,28 +484,12 @@ class CongresoLoader:
         votacion: "CongresoVotacionRecord",
         conn: sqlite3.Connection,
     ) -> int:
-        """Inserta conteos por partido en la tabla count.
-
-        Si hay counts_por_partido en la votación, inserta un registro
-        por cada combinación partido × tipo de voto. Si no hay desglose
-        (datos legacy incompletos), inserta totales globales sin group_id.
-
-        Args:
-            vote_event_id: ID del vote_event.
-            votacion: Registro de votación con conteos.
-            conn: Conexión activa a SQLite.
-
-        Returns:
-            Número de counts insertados.
-        """
+        """Inserta conteos por partido en la tabla count."""
         counts_inserted = 0
 
-        # --- Counts por partido (desglose granular) ---
         if votacion.counts_por_partido:
             for cp in votacion.counts_por_partido:
                 partido = cp["partido"]
-
-                # Resolver partido a org_id
                 org_id = get_or_create_organization(partido, conn)
 
                 options = [
@@ -594,7 +509,7 @@ class CongresoLoader:
                         )
                         counts_inserted += 1
 
-        # --- Totales globales (siempre insertar para verificación) ---
+        # Totales globales
         totals = [
             ("a_favor", votacion.pro_count),
             ("en_contra", votacion.contra_count),
@@ -620,7 +535,7 @@ class CongresoLoader:
         """Verifica integridad referencial de la BD.
 
         Returns:
-            ``True`` si no hay violaciones de FK, ``False`` si las hay.
+            True si no hay violaciones de FK, False si las hay.
         """
         conn = self._get_conn()
         try:
@@ -637,15 +552,9 @@ class CongresoLoader:
             conn.close()
 
     def init_schema(self) -> None:
-        """Verifica que el schema y datos estáticos de congress.db existan.
-
-        Asegura que:
-        - Las tablas principales existen
-        - La organización del Senado (O09) tiene datos correctos
-        """
+        """Verifica que el schema y datos estáticos de congress.db existan."""
         conn = self._get_conn()
         try:
-            # Verificar que las tablas principales existen
             tablas_requeridas = [
                 "vote_event",
                 "vote",
@@ -660,7 +569,6 @@ class CongresoLoader:
                 except sqlite3.OperationalError:
                     logger.warning(f"Tabla '{tabla}' no existe en la BD")
 
-            # Asegurar que O09 (Senado de la República) tenga datos correctos
             existing = conn.execute(
                 "SELECT id, nombre, abbr FROM organization WHERE id = 'O09'"
             ).fetchone()
@@ -685,11 +593,7 @@ class CongresoLoader:
             conn.close()
 
     def estadisticas(self) -> dict:
-        """Retorna conteos actuales de todas las tablas relevantes.
-
-        Returns:
-            Dict con nombre de tabla → número de registros.
-        """
+        """Retorna conteos actuales de todas las tablas relevantes."""
         conn = self._get_conn()
         try:
             tablas = [
@@ -705,7 +609,7 @@ class CongresoLoader:
                     row = conn.execute(f"SELECT COUNT(*) FROM {tabla}").fetchone()
                     stats[tabla] = row[0]
                 except sqlite3.OperationalError:
-                    stats[tabla] = -1  # Tabla no existe
+                    stats[tabla] = -1
             return stats
         finally:
             conn.close()

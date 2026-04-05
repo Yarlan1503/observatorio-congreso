@@ -26,7 +26,7 @@ from .models import (
 )
 from .config import CAMARA_DIPUTADOS_ID
 from .legislatura import url_estadistico
-from .utils.text_utils import normalize_name
+from utils.text_utils import normalize_name
 
 # ID generator compartido entre cámaras
 import sys

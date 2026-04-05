@@ -252,7 +252,10 @@ CREATE TABLE vote_event (
 
     -- ID original del portal de origen (senado.gob.mx ID o SITL ID)
     -- Nullable para backward compatibility; usado para deduplicación
-    source_id TEXT
+    source_id TEXT,
+
+    -- JSON con identificadores externos Popolo (ej: [{"scheme": "senado_gob_mx", "identifier": "1234"}])
+    identifiers_json TEXT
 );
 
 -- ============================================================
