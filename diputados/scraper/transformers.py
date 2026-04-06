@@ -20,7 +20,12 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from utils.text_utils import MESES_ES, normalize_name
+from utils.text_utils import (
+    MESES_ES,
+    determinar_requirement,
+    determinar_tipo_motion,
+    normalize_name,
+)
 
 from .config import CAMARA_DIPUTADOS_ID
 from .legislatura import url_estadistico
@@ -244,6 +249,9 @@ def siguiente_membership_id(conn: sqlite3.Connection) -> str:
 
 # ============================================================
 # Funciones de clasificación
+#
+# NOTE: determinar_tipo_motion() y determinar_requirement() están en
+# utils/text_utils.py (compartidas entre cámaras). Importarlas desde ahí.
 # ============================================================
 
 
@@ -290,56 +298,6 @@ def determinar_resultado_votacion(
             return "rechazada"
         else:
             return "empate"
-
-
-def determinar_tipo_motion(titulo: str) -> str:
-    """Infiere el tipo de motion del título.
-
-    Clasificación:
-    - 'reforma_constitucional' si contiene "CONSTITUCIÓN" o "CONSTITUCIONAL"
-    - 'ley_secundaria' si contiene "LEY" pero no "CONSTITUCIÓN"
-    - 'ordinaria' si contiene "PRESUPUESTO" o "DECRETO" con "INGRESOS/EGRESOS"
-    - 'otra' en otro caso
-
-    Args:
-        titulo: Título de la votación/motion.
-
-    Returns:
-        Clasificación del tipo de motion.
-    """
-    titulo_up = titulo.upper()
-
-    if "CONSTITUCI" in titulo_up or "CONSTITUCIONAL" in titulo_up:
-        return "reforma_constitucional"
-
-    if "LEY" in titulo_up:
-        return "ley_secundaria"
-
-    if "PRESUPUESTO" in titulo_up:
-        return "ordinaria"
-
-    if "DECRETO" in titulo_up and ("INGRESO" in titulo_up or "EGRESO" in titulo_up):
-        return "ordinaria"
-
-    return "otra"
-
-
-def determinar_requirement(titulo: str) -> str:
-    """Infiere el tipo de mayoría requerida del título.
-
-    - 'mayoria_calificada' si contiene "CONSTITUCIÓN" (reformas const. necesitan 2/3)
-    - 'mayoria_simple' en otro caso
-
-    Args:
-        titulo: Título de la votación/motion.
-
-    Returns:
-        Tipo de mayoría requerida.
-    """
-    titulo_up = titulo.upper()
-    if "CONSTITUCI" in titulo_up or "CONSTITUCIONAL" in titulo_up:
-        return "mayoria_calificada"
-    return "mayoria_simple"
 
 
 # ============================================================

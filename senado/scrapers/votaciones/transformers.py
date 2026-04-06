@@ -2,12 +2,14 @@
 transformers.py — Funciones de transformación para el scraper del Senado.
 
 Lógica de transformación separada del loader y CLI:
-- determinar_requirement(): infiere tipo de mayoría del título
-- determinar_tipo_motion(): infiere clasificación del motion
+- determinar_resultado(): determina aprobada/rechazada/empate
 - inferir_genero(): infiere género del nombre
 - parse_fecha_iso(): convierte fechas del portal a ISO
 - normalize_voto(): normaliza sentido del voto
 - match_persona_por_nombre(): búsqueda por nombre normalizado
+
+NOTE: determinar_requirement() y determinar_tipo_motion() están en
+utils/text_utils.py (compartidas entre cámaras).
 """
 
 import datetime
@@ -22,58 +24,10 @@ logger = logging.getLogger(__name__)
 
 # =============================================================================
 # Funciones de clasificación de motion
+#
+# NOTE: determinar_requirement() y determinar_tipo_motion() están en
+# utils/text_utils.py (compartidas entre cámaras). Importarlas desde ahí.
 # =============================================================================
-
-
-def determinar_requirement(titulo: str) -> str:
-    """Infiere el tipo de mayoría requerida del título/descripción.
-
-    Reglas adaptadas al Senado:
-    - 'mayoria_calificada' si contiene "CONSTITUCIÓN" o "CONSTITUCIONAL"
-    - 'mayoria_simple' en otro caso
-
-    Args:
-        titulo: Título o descripción de la votación/motion.
-
-    Returns:
-        Tipo de mayoría requerida.
-    """
-    titulo_up = titulo.upper()
-    if "CONSTITUCI" in titulo_up:
-        return "mayoria_calificada"
-    return "mayoria_simple"
-
-
-def determinar_tipo_motion(titulo: str) -> str:
-    """Infiere el tipo de motion del título/descripción.
-
-    Reglas adaptadas al Senado:
-    - 'reforma_constitucional' si contiene "CONSTITUCIÓN" o "CONSTITUCIONAL"
-    - 'ley_secundaria' si contiene "LEY" pero no "CONSTITUCIÓN"
-    - 'ordinaria' si contiene "PRESUPUESTO" o "DECRETO" con "INGRESOS/EGRESOS"
-    - 'otra' en otro caso
-
-    Args:
-        titulo: Título o descripción de la votación/motion.
-
-    Returns:
-        Clasificación del tipo de motion.
-    """
-    titulo_up = titulo.upper()
-
-    if "CONSTITUCI" in titulo_up:
-        return "reforma_constitucional"
-
-    if "LEY" in titulo_up:
-        return "ley_secundaria"
-
-    if "PRESUPUESTO" in titulo_up:
-        return "ordinaria"
-
-    if "DECRETO" in titulo_up and ("INGRESO" in titulo_up or "EGRESO" in titulo_up):
-        return "ordinaria"
-
-    return "otra"
 
 
 def determinar_resultado(
