@@ -5,13 +5,19 @@ shared between Senado and Diputados loaders/transformers.
 """
 
 import logging
+import re
 import sqlite3
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
+# Patrones bloqueados: no crear organizaciones basura.
+# "TOTAL" — etiqueta de totales que se cuela como partido.
+# Fechas DD/MM/YYYY — fechas parseadas incorrectamente como organizaciones.
+_BLOCKED_ORG_NAMES: frozenset[str] = frozenset({"TOTAL"})
+_BLOCKED_ORG_PATTERNS: list[re.Pattern] = [re.compile(r"^\d{2}/\d{2}/\d{4}$")]
 
-def get_or_create_organization(org_ref: str, conn: sqlite3.Connection) -> Optional[str]:
+
+def get_or_create_organization(org_ref: str, conn: sqlite3.Connection) -> str | None:
     """Get or create an organization by abbr, name, or ID.
 
     Resolution order:
@@ -36,24 +42,27 @@ def get_or_create_organization(org_ref: str, conn: sqlite3.Connection) -> Option
 
     org_ref = org_ref.strip()
 
+    # Block known-bad inputs (fechas parseadas, etiquetas de totales, etc.)
+    if org_ref in _BLOCKED_ORG_NAMES:
+        logger.warning(f"Organización bloqueada (nombre reservado): '{org_ref}'")
+        return None
+    for pattern in _BLOCKED_ORG_PATTERNS:
+        if pattern.match(org_ref):
+            logger.warning(f"Organización bloqueada (patrón {pattern.pattern}): '{org_ref}'")
+            return None
+
     # 1. Direct ID
-    row = conn.execute(
-        "SELECT id FROM organization WHERE id = ?", (org_ref,)
-    ).fetchone()
+    row = conn.execute("SELECT id FROM organization WHERE id = ?", (org_ref,)).fetchone()
     if row:
         return row[0]
 
     # 2. Exact abbr
-    row = conn.execute(
-        "SELECT id FROM organization WHERE abbr = ?", (org_ref,)
-    ).fetchone()
+    row = conn.execute("SELECT id FROM organization WHERE abbr = ?", (org_ref,)).fetchone()
     if row:
         return row[0]
 
     # 3. Exact nombre
-    row = conn.execute(
-        "SELECT id FROM organization WHERE nombre = ?", (org_ref,)
-    ).fetchone()
+    row = conn.execute("SELECT id FROM organization WHERE nombre = ?", (org_ref,)).fetchone()
     if row:
         return row[0]
 
@@ -72,8 +81,7 @@ def get_or_create_organization(org_ref: str, conn: sqlite3.Connection) -> Option
     else:
         # Generate sequential O## ID
         max_row = conn.execute(
-            "SELECT MAX(CAST(SUBSTR(id, 2) AS INTEGER)) "
-            "FROM organization WHERE id LIKE 'O%'"
+            "SELECT MAX(CAST(SUBSTR(id, 2) AS INTEGER)) FROM organization WHERE id LIKE 'O%'"
         ).fetchone()
         next_num = (max_row[0] if max_row[0] is not None else 0) + 1
         org_id = f"O{next_num:02d}"
