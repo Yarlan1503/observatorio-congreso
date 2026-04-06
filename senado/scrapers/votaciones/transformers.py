@@ -6,18 +6,15 @@ Lógica de transformación separada del loader y CLI:
 - inferir_genero(): infiere género del nombre
 - parse_fecha_iso(): convierte fechas del portal a ISO
 - normalize_voto(): normaliza sentido del voto
-- match_persona_por_nombre(): búsqueda por nombre normalizado
 
 NOTE: determinar_requirement() y determinar_tipo_motion() están en
-utils/text_utils.py (compartidas entre cámaras).
+utils/text_utils.py, y match_persona_por_nombre() está en utils/db_utils.py
+(compartidas entre cámaras).
 """
 
 import datetime
 import logging
-import sqlite3
 import unicodedata
-
-from utils.text_utils import normalize_name
 
 logger = logging.getLogger(__name__)
 
@@ -145,30 +142,10 @@ def voto_to_option(voto: str) -> str:
 
 # =============================================================================
 # Matching de personas
+#
+# NOTE: match_persona_por_nombre() está en utils/db_utils.py (compartida
+# entre cámaras). Importar desde ahí.
 # =============================================================================
-
-
-def match_persona_por_nombre(nombre: str, conn: sqlite3.Connection) -> str | None:
-    """Busca una persona existente por nombre normalizado.
-
-    Retorna el ID (P01, P02, etc.) si encuentra match, None si no.
-    Busca en la tabla person de congreso.db.
-
-    Args:
-        nombre: Nombre del senador a buscar.
-        conn: Conexión activa a SQLite.
-
-    Returns:
-        ID de la persona si hay match, None si no se encuentra.
-    """
-    nombre_norm = normalize_name(nombre)
-
-    rows = conn.execute("SELECT id, nombre FROM person").fetchall()
-    for person_id, person_nombre in rows:
-        if normalize_name(person_nombre) == nombre_norm:
-            return person_id
-
-    return None
 
 
 # =============================================================================

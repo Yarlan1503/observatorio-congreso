@@ -20,6 +20,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+from utils.db_utils import match_persona_por_nombre
 from utils.text_utils import (
     MESES_ES,
     determinar_requirement,
@@ -137,29 +138,8 @@ class VotacionCompleta:
 # ============================================================
 # Funciones auxiliares
 # ============================================================
-
-
-def match_persona_por_nombre(nombre: str, conn: sqlite3.Connection) -> str | None:
-    """Busca una persona existente por nombre normalizado.
-
-    Retorna el ID (P01, P02, etc.) si encuentra match, None si no.
-    Busca en la tabla person de congreso.db.
-
-    Args:
-        nombre: Nombre del diputado a buscar.
-        conn: Conexión activa a SQLite.
-
-    Returns:
-        ID de la persona si hay match, None si no se encuentra.
-    """
-    nombre_norm = normalize_name(nombre)
-
-    rows = conn.execute("SELECT id, nombre FROM person").fetchall()
-    for person_id, person_nombre in rows:
-        if normalize_name(person_nombre) == nombre_norm:
-            return person_id
-
-    return None
+# NOTE: match_persona_por_nombre() está en utils/db_utils.py (compartida
+# entre cámaras). Importar desde ahí.
 
 
 def siguiente_person_id(conn: sqlite3.Connection) -> str:

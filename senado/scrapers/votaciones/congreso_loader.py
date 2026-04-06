@@ -27,11 +27,11 @@ from id_generator import next_id
 
 from db.helpers import get_or_create_organization
 from senado.scrapers.shared.config import LXVI_VOTACION_URL_TEMPLATE, SENADO_ORG_ID
+from utils.db_utils import match_persona_por_nombre
 from utils.text_utils import determinar_requirement, determinar_tipo_motion
 
 from .transformers import (
     determinar_resultado,
-    match_persona_por_nombre,
     voto_to_option,
 )
 
