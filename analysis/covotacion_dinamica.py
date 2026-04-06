@@ -35,23 +35,23 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 
+from analysis.centralidad import (
+    add_centrality_to_graph,
+    compute_all_centrality,
+)
+from analysis.comunidades import (
+    analyze_communities,
+    detect_communities,
+    get_partition_as_attribute,
+)
 from analysis.covotacion import (
-    load_data,
-    get_primary_party,
+    _PARTY_ORG_IDS,
     build_covotacion_matrix,
     build_graph,
     compute_quantitative_metrics,
+    get_primary_party,
+    load_data,
     normalize_party,
-    _PARTY_ORG_IDS,
-)
-from analysis.comunidades import (
-    detect_communities,
-    analyze_communities,
-    get_partition_as_attribute,
-)
-from analysis.centralidad import (
-    compute_all_centrality,
-    add_centrality_to_graph,
 )
 from analysis.visualizacion import PARTY_COLORS
 
@@ -114,6 +114,8 @@ def get_time_windows(
         raise FileNotFoundError(f"Base de datos no encontrada: {db_path}")
 
     conn = sqlite3.connect(str(path))
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
     try:
         query = (
             "SELECT id, start_date FROM vote_event "
@@ -192,9 +194,7 @@ def _build_period_windows(ve_df: pd.DataFrame) -> list[dict]:
         # Periodo 1: Sep-Dic
         p1 = year_df[(year_df["month"] >= 9) & (year_df["month"] <= 12)]
         if not p1.empty:
-            windows.append(
-                _make_window(p1, f"P{len(windows) + 1} (Sep-Dic {leg_year})")
-            )
+            windows.append(_make_window(p1, f"P{len(windows) + 1} (Sep-Dic {leg_year})"))
 
         # Periodo 2: Ene-Ago del año siguiente
         p2 = year_df[(year_df["month"] >= 1) & (year_df["month"] <= 8)]
@@ -228,9 +228,7 @@ def _build_sliding_windows(
         overlap = 0
 
     if overlap >= window_size:
-        raise ValueError(
-            f"overlap ({overlap}) debe ser menor que window_size ({window_size})"
-        )
+        raise ValueError(f"overlap ({overlap}) debe ser menor que window_size ({window_size})")
 
     step = window_size - overlap
     n = len(ve_df)
@@ -283,9 +281,7 @@ def _merge_small_windows(windows: list[dict], min_events: int) -> list[dict]:
             )
             # Limpiar label excesivamente largo
             if len(prev["label"]) > 80:
-                prev["label"] = (
-                    f"P_combinado ({prev['start_date']} a {prev['end_date']})"
-                )
+                prev["label"] = f"P_combinado ({prev['start_date']} a {prev['end_date']})"
         else:
             merged.append(w.copy())
 
@@ -412,9 +408,7 @@ def build_dynamic_graphs(
             community_analysis["modularity"],
         )
 
-    logger.info(
-        "Grafos dinámicos construidos: %d de %d ventanas", len(results), len(windows)
-    )
+    logger.info("Grafos dinámicos construidos: %d de %d ventanas", len(results), len(windows))
     return results
 
 
@@ -477,9 +471,7 @@ def _compute_evolution_metrics_period(
         tamano_comunidades[label] = sorted(sizes, reverse=True)
 
         # Frontera de coalición
-        frontera_coalicion[label] = _compute_coalition_frontier(
-            graph, partition, party_map
-        )
+        frontera_coalicion[label] = _compute_coalition_frontier(graph, partition, party_map)
 
         # Disidencia: top 5 legisladores con menor co-votación intra-partido
         disidencia[label] = _compute_top_dissidents(graph, party_map, org_map)
@@ -504,9 +496,7 @@ def _compute_evolution_metrics_period(
         "num_legislators_por_periodo": num_legislators,
     }
 
-    logger.info(
-        "Métricas de evolución calculadas para %d periodos", len(dynamic_results)
-    )
+    logger.info("Métricas de evolución calculadas para %d periodos", len(dynamic_results))
     return evolution
 
 
@@ -596,9 +586,7 @@ def _compute_stability_index(
 
         use_sklearn = True
     except ImportError:
-        logger.warning(
-            "sklearn no disponible — usando fallback de coincidencia directa para ARI"
-        )
+        logger.warning("sklearn no disponible — usando fallback de coincidencia directa para ARI")
         use_sklearn = False
 
     for i in range(len(dynamic_results) - 1):
@@ -662,7 +650,6 @@ def _fallback_ari(labels_a: list[int], labels_b: list[int]) -> float:
 
     # Contar pares concordantes y discordantes
     # Usando la fórmula de Hubert-Arabie
-    from itertools import combinations
 
     # Tabla de contingencia
     classes_a = sorted(set(labels_a))
@@ -740,25 +727,19 @@ def plot_dynamic_visualizations(
 
     # 1. Heatmap de alianzas
     try:
-        files["heatmap_alianzas"] = _plot_heatmap_alianzas(
-            evolution_metrics, org_map, str(out)
-        )
+        files["heatmap_alianzas"] = _plot_heatmap_alianzas(evolution_metrics, org_map, str(out))
     except Exception as e:
         logger.error("Error generando heatmap_alianzas: %s", e)
 
     # 2. Timeline modularidad + densidad
     try:
-        files["timeline_modularidad"] = _plot_timeline_modularidad(
-            evolution_metrics, str(out)
-        )
+        files["timeline_modularidad"] = _plot_timeline_modularidad(evolution_metrics, str(out))
     except Exception as e:
         logger.error("Error generando timeline_modularidad: %s", e)
 
     # 3. Timeline disciplina partidista
     try:
-        files["timeline_disciplina"] = _plot_timeline_disciplina(
-            evolution_metrics, str(out)
-        )
+        files["timeline_disciplina"] = _plot_timeline_disciplina(evolution_metrics, str(out))
     except Exception as e:
         logger.error("Error generando timeline_disciplina: %s", e)
 
@@ -816,9 +797,7 @@ def _plot_heatmap_alianzas(
 
     matrix = np.array(data)
 
-    fig, ax = plt.subplots(
-        figsize=(max(8, len(periods) * 2.5), max(5, len(labels_y) * 0.8 + 2))
-    )
+    fig, ax = plt.subplots(figsize=(max(8, len(periods) * 2.5), max(5, len(labels_y) * 0.8 + 2)))
 
     im = ax.imshow(matrix, cmap="RdYlBu_r", aspect="auto", vmin=0.4, vmax=1.0)
 
@@ -849,9 +828,7 @@ def _plot_heatmap_alianzas(
         ax.get_yticklabels()[i].set_fontweight("bold")
     ax.set_yticklabels(labels_y, fontsize=10)
 
-    ax.set_title(
-        "Disciplina Partidista por Periodo\n(Co-votación Intra-partido)", fontsize=13
-    )
+    ax.set_title("Disciplina Partidista por Periodo\n(Co-votación Intra-partido)", fontsize=13)
     fig.colorbar(im, ax=ax, label="Co-votación promedio", shrink=0.8)
 
     plt.tight_layout()
@@ -1015,9 +992,7 @@ def _plot_serie_grafos(
         threshold = float(np.percentile(all_weights, 75))
 
         filtered_edges = [
-            (u, v, d)
-            for u, v, d in graph.edges(data=True)
-            if d.get("weight", 0) >= threshold
+            (u, v, d) for u, v, d in graph.edges(data=True) if d.get("weight", 0) >= threshold
         ]
 
         sub = nx.Graph()
@@ -1047,9 +1022,7 @@ def _plot_serie_grafos(
         # Dibujar
         fig, ax = plt.subplots(figsize=(14, 14))
 
-        nx.draw_networkx_edges(
-            sub, pos, ax=ax, alpha=0.3, width=0.5, edge_color="#999999"
-        )
+        nx.draw_networkx_edges(sub, pos, ax=ax, alpha=0.3, width=0.5, edge_color="#999999")
         nx.draw_networkx_nodes(
             sub,
             pos,
@@ -1156,9 +1129,7 @@ def _plot_sankey_comunidades(
     handles, labels = axes[0, 0].get_legend_handles_labels()
     fig.legend(handles, labels, loc="lower center", ncol=len(party_order), fontsize=8)
 
-    fig.suptitle(
-        "Composición Partidista de Comunidades por Periodo", fontsize=13, y=1.02
-    )
+    fig.suptitle("Composición Partidista de Comunidades por Periodo", fontsize=13, y=1.02)
     plt.tight_layout()
 
     filepath = Path(output_dir) / "sankey_comunidades.png"
@@ -1243,6 +1214,8 @@ def load_data_by_window(
         raise FileNotFoundError(f"Base de datos no encontrada: {db_path}")
 
     conn = sqlite3.connect(str(path))
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
     try:
         # Obtener vote_event_ids filtrados según window_type
         if window_type == "legislatura":
@@ -1359,6 +1332,8 @@ def build_windows(
         raise FileNotFoundError(f"Base de datos no encontrada: {db_path}")
 
     conn = sqlite3.connect(str(path))
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
     try:
         ve_df = pd.read_sql_query(
             "SELECT id, start_date, legislatura FROM vote_event "
@@ -1385,8 +1360,7 @@ def build_windows(
         windows = _build_cross_sliding_windows(ve_df, window_size, overlap)
     else:
         raise ValueError(
-            f"Estrategia no reconocida: {strategy}. "
-            "Usar 'legislatura', 'biennium' o 'sliding'."
+            f"Estrategia no reconocida: {strategy}. Usar 'legislatura', 'biennium' o 'sliding'."
         )
 
     # Para estrategia legislatura: mapear vote_event_id → legislatura
@@ -1514,9 +1488,7 @@ def _build_cross_sliding_windows(
         overlap = 0
 
     if overlap >= window_size:
-        raise ValueError(
-            f"overlap ({overlap}) debe ser menor que window_size ({window_size})"
-        )
+        raise ValueError(f"overlap ({overlap}) debe ser menor que window_size ({window_size})")
 
     step = window_size - overlap
     n = len(ve_df)
@@ -1573,9 +1545,7 @@ def analyze_windows(
 
     # Cargar datos una sola vez
     votes_df, persons_df, org_map = load_data(db_path)
-    logger.info(
-        "Datos cargados para análisis cross-legislatura: %d votos", len(votes_df)
-    )
+    logger.info("Datos cargados para análisis cross-legislatura: %d votos", len(votes_df))
 
     results: dict = {}
 
@@ -1706,9 +1676,7 @@ def compute_evolution_metrics(
         modularidad[label] = community_analysis["modularity"]
 
         # Frontera de coalición
-        frontera_coalicion[label] = _compute_coalition_frontier(
-            graph, partition, party_map
-        )
+        frontera_coalicion[label] = _compute_coalition_frontier(graph, partition, party_map)
 
         # Disidencia: top 5
         disidencia[label] = _compute_top_dissidents(graph, party_map, org_map)
@@ -1755,9 +1723,7 @@ def _compute_cross_stability(
 
         use_sklearn = True
     except ImportError:
-        logger.warning(
-            "sklearn no disponible — usando fallback de coincidencia directa para ARI"
-        )
+        logger.warning("sklearn no disponible — usando fallback de coincidencia directa para ARI")
         use_sklearn = False
 
     for i in range(len(sorted_items) - 1):

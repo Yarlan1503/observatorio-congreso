@@ -32,7 +32,6 @@ from diputados.scraper.client import SITLClient
 from diputados.scraper.config import DB_PATH, LEGISLATURAS
 from diputados.scraper.legislatura import url_curricula
 from diputados.scraper.parsers.diputado import parse_diputado
-from diputados.scraper.utils.text_utils import normalize_name
 
 # --- Logging ---
 logging.basicConfig(
@@ -83,23 +82,17 @@ def mapear_curul_tipo(principio_eleccion: str) -> str | None:
     # Patrones garbled del servidor LX (acentos reemplazados por espacios)
     if "mayor a relativa" in norm or "mayor a relativ" in norm:
         return "mayoria_relativa"
-    if "representaci n proporcional" in norm or (
-        "representaci" in norm and "proporcional" in norm
-    ):
+    if "representaci n proporcional" in norm or ("representaci" in norm and "proporcional" in norm):
         return "plurinominal"
 
     return None
 
 
 # --- Orden de recencia: LXVI > LXV > ... > LX ---
-_ORDERED_LEGS = sorted(
-    LEGISLATURAS.keys(), key=lambda l: LEGISLATURAS[l]["num"], reverse=True
-)
+_ORDERED_LEGS = sorted(LEGISLATURAS.keys(), key=lambda l: LEGISLATURAS[l]["num"], reverse=True)
 
 
-def _determinar_legislaturas_persona(
-    conn: sqlite3.Connection, person_id: str
-) -> list[str]:
+def _determinar_legislaturas_persona(conn: sqlite3.Connection, person_id: str) -> list[str]:
     """Determina en qué legislaturas votó una persona, ordenadas por recencia.
 
     Consulta la relación vote → vote_event para obtener las legislaturas.
@@ -135,7 +128,7 @@ def show_stats(conn: sqlite3.Connection) -> None:
         "FROM person"
     ).fetchone()
     total, null_count, has_value = row
-    print(f"=== Estado de curul_tipo ===")
+    print("=== Estado de curul_tipo ===")
     print(f"Total personas:    {total}")
     print(f"Con curul_tipo:    {has_value}")
     print(f"Sin curul_tipo:    {null_count}")
@@ -144,8 +137,7 @@ def show_stats(conn: sqlite3.Connection) -> None:
     # Desglose por valor
     print("Desglose por valor:")
     for row in conn.execute(
-        "SELECT curul_tipo, COUNT(*) FROM person GROUP BY curul_tipo "
-        "ORDER BY COUNT(*) DESC"
+        "SELECT curul_tipo, COUNT(*) FROM person GROUP BY curul_tipo ORDER BY COUNT(*) DESC"
     ):
         val = row[0] if row[0] else "(NULL)"
         print(f"  {val:25s} {row[1]:>4d}")
@@ -244,17 +236,13 @@ def run_fix(conn: sqlite3.Connection, dry_run: bool = False) -> None:
                         # Commit incremental cada 50 registros
                         if actualizadas > 0 and actualizadas % 50 == 0:
                             conn.commit()
-                            logger.info(
-                                f"Commit incremental: {actualizadas} actualizadas"
-                            )
+                            logger.info(f"Commit incremental: {actualizadas} actualizadas")
                     actualizadas += 1
                     exito = True
                     break  # éxito, no intentar más legislaturas
 
                 except Exception as exc:
-                    logger.debug(
-                        f"[{i}/{len(con_sitl)}] {pid} {nombre}: error en {leg}: {exc}"
-                    )
+                    logger.debug(f"[{i}/{len(con_sitl)}] {pid} {nombre}: error en {leg}: {exc}")
                     continue  # intentar siguiente legislatura
 
             if not exito:
@@ -288,9 +276,7 @@ def run_fix(conn: sqlite3.Connection, dry_run: bool = False) -> None:
             nombre_norm = normalizar_nombre(nombre)
             if nombre_norm in indice:
                 curul_tipo = indice[nombre_norm]
-                logger.info(
-                    f"Match por nombre: {pid} '{nombre}' → curul_tipo={curul_tipo}"
-                )
+                logger.info(f"Match por nombre: {pid} '{nombre}' → curul_tipo={curul_tipo}")
                 if not dry_run:
                     conn.execute(
                         "UPDATE person SET curul_tipo = ? WHERE id = ?",
@@ -299,8 +285,7 @@ def run_fix(conn: sqlite3.Connection, dry_run: bool = False) -> None:
                 match_exitoso += 1
             else:
                 logger.info(
-                    f"Sin match por nombre: {pid} '{nombre}' "
-                    f"(normalizado: '{nombre_norm}')"
+                    f"Sin match por nombre: {pid} '{nombre}' (normalizado: '{nombre_norm}')"
                 )
                 match_fallido += 1
 
@@ -310,16 +295,16 @@ def run_fix(conn: sqlite3.Connection, dry_run: bool = False) -> None:
     # --- Resumen ---
     modo = "[DRY-RUN]" if dry_run else "[EJECUTADO]"
     print(f"\n=== Resumen {modo} ===")
-    print(f"Con sitl_id:")
+    print("Con sitl_id:")
     print(f"  Actualizadas: {actualizadas}")
     print(f"  Fallidas:     {fallidas}")
     print(f"  Saltadas:     {saltadas}")
-    print(f"Sin sitl_id (match por nombre):")
+    print("Sin sitl_id (match por nombre):")
     print(f"  Match:        {match_exitoso}")
     print(f"  Sin match:    {match_fallido}")
 
     if dry_run and updates:
-        print(f"\nCambios propuestos (primeros 20):")
+        print("\nCambios propuestos (primeros 20):")
         for curul_tipo, pid, nombre in updates[:20]:
             print(f"  {pid} | {nombre} → {curul_tipo}")
         if len(updates) > 20:
@@ -327,9 +312,7 @@ def run_fix(conn: sqlite3.Connection, dry_run: bool = False) -> None:
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Corrige curul_tipo NULL en tabla person"
-    )
+    parser = argparse.ArgumentParser(description="Corrige curul_tipo NULL en tabla person")
     parser.add_argument(
         "--dry-run",
         action="store_true",
@@ -343,6 +326,8 @@ def main():
     args = parser.parse_args()
 
     conn = sqlite3.connect(str(DB_PATH))
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
 
     try:
         if args.stats:

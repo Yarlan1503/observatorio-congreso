@@ -21,9 +21,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "congreso.db")
 
 
-def calcular_resultado(
-    requirement: str, favor: int, contra: int, abstencion: int
-) -> str:
+def calcular_resultado(requirement: str, favor: int, contra: int, abstencion: int) -> str:
     """Calcula el resultado de una votación según el tipo de mayoría requerida.
 
     Args:
@@ -67,6 +65,8 @@ def main():
 
     conn = sqlite3.connect(DB_PATH)
     conn.execute("PRAGMA foreign_keys = ON")
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
     cur = conn.cursor()
 
     # 1. Obtener todos los vote_events con resultado no-NULL
@@ -79,7 +79,7 @@ def main():
     """)
     vote_events = cur.fetchall()
     print(f"\nVote_events a procesar (result IS NOT NULL): {len(vote_events)}")
-    print(f"Vote_events saltados (result IS NULL): 2 (pendientes)")
+    print("Vote_events saltados (result IS NULL): 2 (pendientes)")
 
     cambios = []  # Lista de dicts con detalle de cambios
 
@@ -126,17 +126,15 @@ def main():
 
     # 5. Mostrar resumen ANTES de commit
     print(f"\n{'─' * 65}")
-    print(f"RESUMEN DE CAMBIOS")
+    print("RESUMEN DE CAMBIOS")
     print(f"{'─' * 65}")
     print(f"Vote_events procesados: {len(vote_events)}")
     print(f"Resultados que cambian: {len(cambios)}")
 
     if cambios:
-        print(f"\nDetalle de cambios:")
+        print("\nDetalle de cambios:")
         for c in cambios:
-            print(
-                f"\n  [{c['ve_id']}] motion={c['motion_id']} requirement={c['requirement']}"
-            )
+            print(f"\n  [{c['ve_id']}] motion={c['motion_id']} requirement={c['requirement']}")
             print(f"    Resultado anterior: {c['resultado_anterior']}")
             print(f"    Resultado nuevo:    {c['resultado_nuevo']}")
             print(
@@ -178,7 +176,7 @@ def main():
         conn.commit()
         print(f"\n  ✓ Commit exitoso. {len(cambios)} registros actualizados.")
     else:
-        print(f"\n  No se requieren cambios. Sin commit necesario.")
+        print("\n  No se requieren cambios. Sin commit necesario.")
 
     # 7. Estadísticas finales
     print(f"\n{'─' * 65}")

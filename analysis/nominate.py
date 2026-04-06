@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # Constantes y mapeos (centralizados en db.constants)
 # ---------------------------------------------------------------------------
-from db.constants import _NAME_TO_ORG, _PARTY_ORG_IDS, _P_FLOOR
+from db.constants import _NAME_TO_ORG, _P_FLOOR, _PARTY_ORG_IDS
 
 _SEED = 42
 
@@ -99,6 +99,8 @@ def prepare_vote_matrix(
         raise FileNotFoundError(f"Base de datos no encontrada: {db_path}")
 
     conn = sqlite3.connect(str(path))
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
     try:
         # ------------------------------------------------------------------
         # 1. Cargar votos con filtro de legislatura
@@ -122,9 +124,7 @@ def prepare_vote_matrix(
             raise ValueError(f"No se encontraron votos para legislatura={legislatura}")
 
         # Normalizar partido
-        votes_df["party_id"] = votes_df["group"].map(
-            lambda x: _NAME_TO_ORG.get(x, "O11")
-        )
+        votes_df["party_id"] = votes_df["group"].map(lambda x: _NAME_TO_ORG.get(x, "O11"))
 
         # ------------------------------------------------------------------
         # 2. Binarizar: solo a_favor (1) y en_contra (0)
@@ -159,9 +159,7 @@ def prepare_vote_matrix(
             )
             # Eliminar votaciones lopsided del DataFrame
             votes_df = votes_df[~votes_df["vote_event_id"].isin(lopsided_ves)].copy()
-            binary_votes = binary_votes[
-                ~binary_votes["vote_event_id"].isin(lopsided_ves)
-            ].copy()
+            binary_votes = binary_votes[~binary_votes["vote_event_id"].isin(lopsided_ves)].copy()
         else:
             logger.info("Filtro lopsided deshabilitado (threshold=None o 0)")
 
@@ -237,9 +235,7 @@ def prepare_vote_matrix(
             conn,
             params=legislators,
         )
-        legislator_names: dict[str, str] = dict(
-            zip(persons_df["id"], persons_df["nombre"])
-        )
+        legislator_names: dict[str, str] = dict(zip(persons_df["id"], persons_df["nombre"]))
 
         # ------------------------------------------------------------------
         # 7. Obtener partido principal de cada legislador
@@ -360,7 +356,7 @@ def run_wnominate(
     # NOTA: El algoritmo W-NOMINATE es determinista (SVD + Nelder-Mead).
     # El parámetro seed se conserva por compatibilidad de interfaz pero
     # no afecta el resultado; la reproducibilidad es inherente al método.
-    _ = seed  # noqa: F841 — ignorar sin uso
+    _ = seed
 
     vote_matrix = vote_data["matrix"].astype(np.float64)
     n_legs, n_votes = vote_matrix.shape
@@ -529,9 +525,7 @@ def run_wnominate(
         impediría la convergencia del algoritmo. Esto es consistente con
         la práctica estándar en implementaciones de NOMINATE.
         """
-        p_correct = _compute_prob_correct_vec(
-            coords, bill_p, b, w_val, vote_matrix, obs_mask
-        )
+        p_correct = _compute_prob_correct_vec(coords, bill_p, b, w_val, vote_matrix, obs_mask)
         # Log-likelihood: suma de log(P(correcto)) solo donde hay observación
         # p_correct ya está clampeado a [_P_FLOOR, 1.0], así que log es seguro
         log_p = np.log(p_correct)
@@ -763,9 +757,7 @@ def run_wnominate(
     # ------------------------------------------------------------------
     # 7. Calcular métricas de ajuste finales
     # ------------------------------------------------------------------
-    fit = compute_fit_statistics(
-        coordinates, bill_params, vote_matrix, beta, w, dimensions
-    )
+    fit = compute_fit_statistics(coordinates, bill_params, vote_matrix, beta, w, dimensions)
 
     return {
         "coordinates": coordinates,
@@ -950,6 +942,8 @@ def nominate_by_legislatura(
         con un warning en el log.
     """
     conn = sqlite3.connect(db_path)
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
     try:
         legs_df = pd.read_sql_query(
             "SELECT DISTINCT legislatura FROM vote_event "
@@ -974,8 +968,7 @@ def nominate_by_legislatura(
             resultado = run_wnominate(data, dimensions=dimensions, seed=_SEED)
             resultados[leg] = resultado
             logger.info(
-                "Legislatura %s completada: %d legisladores, %d votaciones, "
-                "class_rate=%.2f%%",
+                "Legislatura %s completada: %d legisladores, %d votaciones, class_rate=%.2f%%",
                 leg,
                 data["n_legislators"],
                 data["n_votes"],
@@ -1031,6 +1024,8 @@ def nominate_cross_legislatura(
 
     # Determinar legislatura principal de cada legislador
     conn = sqlite3.connect(db_path)
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
     try:
         # Obtener la legislatura principal por votación
         leg_labels_query = """
@@ -1053,8 +1048,7 @@ def nominate_cross_legislatura(
     resultado["legislatura_labels"] = legislatura_labels
 
     logger.info(
-        "NOMINATE cross-legislatura completado: %d legisladores, %d votaciones, "
-        "class_rate=%.2f%%",
+        "NOMINATE cross-legislatura completado: %d legisladores, %d votaciones, class_rate=%.2f%%",
         data["n_legislators"],
         data["n_votes"],
         resultado["fit"]["classification_rate"] * 100,

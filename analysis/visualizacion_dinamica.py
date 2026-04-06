@@ -410,9 +410,7 @@ def plot_grafo_por_ventana(window_results: dict, output_dir: str) -> dict[str, s
         threshold = float(np.percentile(all_weights, 75))
 
         filtered_edges = [
-            (u, v, d)
-            for u, v, d in graph.edges(data=True)
-            if d.get("weight", 0) >= threshold
+            (u, v, d) for u, v, d in graph.edges(data=True) if d.get("weight", 0) >= threshold
         ]
 
         # Construir subgrafo
@@ -430,9 +428,7 @@ def plot_grafo_por_ventana(window_results: dict, output_dir: str) -> dict[str, s
         pos = nx.spring_layout(sub, seed=42, k=0.1, iterations=50)
 
         # Colores por party_name
-        node_colors = [
-            _get_party_color(sub.nodes[n].get("party_name", "")) for n in sub.nodes()
-        ]
+        node_colors = [_get_party_color(sub.nodes[n].get("party_name", "")) for n in sub.nodes()]
 
         # Tamaño proporcional a degree_centrality
         centralities = [sub.nodes[n].get("degree_centrality", 0.0) for n in sub.nodes()]
@@ -442,9 +438,7 @@ def plot_grafo_por_ventana(window_results: dict, output_dir: str) -> dict[str, s
         # Dibujar (sin labels de texto)
         fig, ax = plt.subplots(figsize=(14, 14))
 
-        nx.draw_networkx_edges(
-            sub, pos, ax=ax, alpha=0.3, width=0.5, edge_color="#999999"
-        )
+        nx.draw_networkx_edges(sub, pos, ax=ax, alpha=0.3, width=0.5, edge_color="#999999")
         nx.draw_networkx_nodes(
             sub,
             pos,

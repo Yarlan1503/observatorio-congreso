@@ -12,7 +12,6 @@ Uso:  python db/migrate_caso_cero.py   (desde la raíz del proyecto)
 import os
 import sqlite3
 import sys
-import json
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "congreso.db")
@@ -339,8 +338,7 @@ PERSONS = [
         LEG_END,
         None,
         None,
-        "Senador Morena. Dijo que los que votaron en contra "
-        "'van a pasar al muro de la traición'.",
+        "Senador Morena. Dijo que los que votaron en contra 'van a pasar al muro de la traición'.",
     ),
     (
         "P22",
@@ -1510,8 +1508,7 @@ def verify(conn):
     print()
     print("  Distribución votos VE01:")
     cur.execute(
-        "SELECT v.option, COUNT(*) FROM vote v "
-        "WHERE v.vote_event_id='VE01' GROUP BY v.option"
+        "SELECT v.option, COUNT(*) FROM vote v WHERE v.vote_event_id='VE01' GROUP BY v.option"
     )
     for row in cur.fetchall():
         print(f"    {row[0]}: {row[1]}")
@@ -1529,9 +1526,7 @@ def verify(conn):
     # Orphan check: votos sin persona
     print()
     orphans = cur.execute(
-        "SELECT v.id FROM vote v "
-        "LEFT JOIN person p ON v.voter_id = p.id "
-        "WHERE p.id IS NULL"
+        "SELECT v.id FROM vote v LEFT JOIN person p ON v.voter_id = p.id WHERE p.id IS NULL"
     ).fetchall()
     if orphans:
         print(f"  [ERROR] Votos huérfanos: {[r[0] for r in orphans]}")
@@ -1540,9 +1535,7 @@ def verify(conn):
 
     # FK check: membership → person
     orphans_m = cur.execute(
-        "SELECT m.id FROM membership m "
-        "LEFT JOIN person p ON m.person_id = p.id "
-        "WHERE p.id IS NULL"
+        "SELECT m.id FROM membership m LEFT JOIN person p ON m.person_id = p.id WHERE p.id IS NULL"
     ).fetchall()
     if orphans_m:
         print(f"  [ERROR] Memberships huérfanos: {[r[0] for r in orphans_m]}")
@@ -1579,6 +1572,8 @@ def main():
 
     conn = sqlite3.connect(DB_PATH)
     conn.execute("PRAGMA foreign_keys = ON")
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
 
     # FK check
     fk_status = conn.execute("PRAGMA foreign_keys").fetchone()[0]
@@ -1605,7 +1600,7 @@ def main():
     conn.close()
 
     print("\n" + "=" * 60)
-    print(f"Migración completada exitosamente")
+    print("Migración completada exitosamente")
     print("=" * 60)
 
     return 0

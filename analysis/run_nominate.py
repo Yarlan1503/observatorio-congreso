@@ -32,8 +32,8 @@ from analysis.nominate import (
     run_wnominate,
 )
 from analysis.visualizacion_nominate import (
-    plot_nominate_scatter,
     generate_all_nominate_visualizations,
+    plot_nominate_scatter,
 )
 
 # Configurar logging
@@ -117,6 +117,8 @@ def _get_legislaturas(db_path: str) -> list[str]:
         Lista de nombres de legislatura ordenados.
     """
     conn = sqlite3.connect(db_path)
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
     try:
         legs_df = pd.read_sql_query(
             "SELECT DISTINCT legislatura FROM vote_event "
@@ -189,6 +191,8 @@ def _run_cross_legislatura(
 
     # Determinar legislatura principal de cada legislador
     conn = sqlite3.connect(db_path)
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
     try:
         placeholders = ",".join(["?"] * len(data["legislators"]))
         query = (

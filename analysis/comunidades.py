@@ -12,11 +12,10 @@ Dependencias:
     - pandas
 """
 
-import networkx as nx
-import community
-import pandas as pd
 from collections import Counter
-from typing import Optional
+
+import community
+import networkx as nx
 
 
 def detect_communities(
@@ -52,8 +51,7 @@ def detect_communities(
 
     num_communities = len(set(partition.values()))
     print(
-        f"[comunidades] Partición obtenida: {len(partition)} nodos en "
-        f"{num_communities} comunidades"
+        f"[comunidades] Partición obtenida: {len(partition)} nodos en {num_communities} comunidades"
     )
 
     # Verificar que todos los nodos del grafo están en la partición
@@ -111,9 +109,7 @@ def analyze_communities(
     print(f"[comunidades] Tamaños: {dict(sorted(community_sizes.items()))}")
 
     # 3. Composición partidista por comunidad
-    community_composition: dict[int, dict[str, int]] = {
-        cid: {} for cid in community_ids
-    }
+    community_composition: dict[int, dict[str, int]] = {cid: {} for cid in community_ids}
     for node_id, cid in partition.items():
         party_id = party_map.get(node_id)
         if party_id is None:
@@ -142,10 +138,7 @@ def analyze_communities(
         community_party_purity[cid] = purity
         dominant_party[cid] = top_party
 
-    print(
-        f"[comunidades] Pureza por comunidad: "
-        f"{dict(sorted(community_party_purity.items()))}"
-    )
+    print(f"[comunidades] Pureza por comunidad: {dict(sorted(community_party_purity.items()))}")
 
     # 5. Legisladores cruzados (en comunidad donde su partido NO es dominante)
     cross_party_legislators: list[dict] = []
@@ -238,8 +231,5 @@ def get_partition_as_attribute(
         El mismo objeto grafo, mutado con el atributo 'community' en cada nodo.
     """
     nx.set_node_attributes(graph, partition, "community")
-    print(
-        f"[comunidades] Atributo 'community' asignado a "
-        f"{len(partition)} nodos del grafo"
-    )
+    print(f"[comunidades] Atributo 'community' asignado a {len(partition)} nodos del grafo")
     return graph

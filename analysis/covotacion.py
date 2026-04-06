@@ -83,6 +83,8 @@ def load_data(
         raise FileNotFoundError(f"Base de datos no encontrada: {db_path}")
 
     conn = sqlite3.connect(str(path))
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
     try:
         # Determinar filtro de cámara
         camara_filter = ""

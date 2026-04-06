@@ -56,8 +56,7 @@ def check_no_duplicates(conn: sqlite3.Connection) -> bool:
 def count_non_org_groups(conn: sqlite3.Connection) -> int:
     """Cuenta registros con group no-Org (no empieza con 'O' y no es NULL)."""
     return conn.execute(
-        "SELECT COUNT(*) FROM vote "
-        'WHERE "group" IS NOT NULL AND "group" NOT LIKE \'O%\''
+        'SELECT COUNT(*) FROM vote WHERE "group" IS NOT NULL AND "group" NOT LIKE \'O%\''
     ).fetchone()[0]
 
 
@@ -68,9 +67,7 @@ def show_stats(conn: sqlite3.Connection) -> None:
 
     # Total y desglose
     total = conn.execute("SELECT COUNT(*) FROM vote").fetchone()[0]
-    with_group = conn.execute(
-        'SELECT COUNT(*) FROM vote WHERE "group" IS NOT NULL'
-    ).fetchone()[0]
+    with_group = conn.execute('SELECT COUNT(*) FROM vote WHERE "group" IS NOT NULL').fetchone()[0]
     null_group = total - with_group
     non_org = count_non_org_groups(conn)
 
@@ -93,9 +90,7 @@ def show_stats(conn: sqlite3.Connection) -> None:
     if check_no_duplicates(conn):
         print("Duplicados (vote_event_id, voter_id): NO")
     else:
-        print(
-            "Duplicados (vote_event_id, voter_id): SI — ejecutar fix_duplicados.py primero"
-        )
+        print("Duplicados (vote_event_id, voter_id): SI — ejecutar fix_duplicados.py primero")
 
 
 def run_fix(conn: sqlite3.Connection, dry_run: bool = False) -> None:
@@ -134,9 +129,7 @@ def run_fix(conn: sqlite3.Connection, dry_run: bool = False) -> None:
 
     # --- Dry-run: solo reportar ---
     if dry_run:
-        print(
-            f"\n[DRY-RUN] Se actualizarían {non_org} registros. Sin cambios aplicados."
-        )
+        print(f"\n[DRY-RUN] Se actualizarían {non_org} registros. Sin cambios aplicados.")
         return
 
     # --- UPDATE con transacción ---
@@ -198,6 +191,8 @@ def main():
         sys.exit(1)
 
     conn = sqlite3.connect(str(DB_PATH))
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
     try:
         if args.stats:
             show_stats(conn)

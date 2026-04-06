@@ -34,6 +34,8 @@ def main():
 
     conn = sqlite3.connect(str(DB_PATH))
     conn.execute("PRAGMA foreign_keys = ON")
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
 
     try:
         return _run(conn)
@@ -55,9 +57,7 @@ def _run(conn: sqlite3.Connection) -> int:
     print(f"vote_event con requirement NULL: {nulls_before}")
 
     if nulls_before == 0:
-        print(
-            "\n✓ Todos los vote_events ya tienen requirement. No se necesitan actualizaciones."
-        )
+        print("\n✓ Todos los vote_events ya tienen requirement. No se necesitan actualizaciones.")
         # Mostrar distribución actual
         print("\nDistribución actual:")
         for req, count in conn.execute(
@@ -79,9 +79,7 @@ def _run(conn: sqlite3.Connection) -> int:
 
     updated_from_motion = (
         nulls_before
-        - conn.execute(
-            "SELECT COUNT(*) FROM vote_event WHERE requirement IS NULL"
-        ).fetchone()[0]
+        - conn.execute("SELECT COUNT(*) FROM vote_event WHERE requirement IS NULL").fetchone()[0]
     )
     print(f"  Desde motion.requirement: {updated_from_motion}")
 

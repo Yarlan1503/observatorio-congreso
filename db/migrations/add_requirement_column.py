@@ -112,8 +112,7 @@ def migrate(conn: sqlite3.Connection) -> None:
         )
         # Mostrar ejemplos problemáticos
         orphans = conn.execute(
-            "SELECT ve.id, ve.motion_id FROM vote_event ve "
-            "WHERE ve.requirement IS NULL LIMIT 5"
+            "SELECT ve.id, ve.motion_id FROM vote_event ve WHERE ve.requirement IS NULL LIMIT 5"
         ).fetchall()
         for ve_id, motion_id in orphans:
             print(f"  - {ve_id} (motion_id={motion_id})")
@@ -129,6 +128,8 @@ def main():
 
     conn = sqlite3.connect(db_path)
     conn.execute("PRAGMA foreign_keys = ON")
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
 
     try:
         if "--stats" in sys.argv:

@@ -35,9 +35,7 @@ def compute_degree_centrality(graph: nx.Graph) -> dict[str, float]:
     Returns:
         Dict node_id → weighted_degree_normalized (0.0 a 1.0).
     """
-    logger.info(
-        f"Calculando weighted degree centrality ({graph.number_of_nodes()} nodos)"
-    )
+    logger.info(f"Calculando weighted degree centrality ({graph.number_of_nodes()} nodos)")
 
     # Weighted degree: suma de pesos de aristas por nodo
     weighted_degrees: dict[str, float] = dict(graph.degree(weight="weight"))
@@ -77,9 +75,7 @@ def compute_betweenness_centrality(graph: nx.Graph) -> dict[str, float]:
     Returns:
         Dict node_id → betweenness_centrality_value (0.0 a 1.0).
     """
-    logger.info(
-        f"Calculando betweenness centrality unweighted ({graph.number_of_nodes()} nodos)"
-    )
+    logger.info(f"Calculando betweenness centrality unweighted ({graph.number_of_nodes()} nodos)")
 
     betweenness = nx.betweenness_centrality(graph, weight=None)
 

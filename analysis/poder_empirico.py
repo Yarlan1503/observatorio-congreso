@@ -13,21 +13,21 @@ Analiza el poder real de cada partido basándose en votaciones nominales:
 Uso: python3 analysis/poder_empirico.py
 """
 
-import sqlite3
 import csv
-import os
 import math
+import os
+import sqlite3
 from collections import defaultdict
-from itertools import permutations, combinations
+from itertools import combinations, permutations
 
 from db.constants import (
     _NAME_TO_ORG,
     _ORG_ID_TO_NAME,
     _PARTY_ORG_IDS,
-    TOTAL_SEATS,
-    MIN_VOTES,
     CAMARA_DIPUTADOS_ID,
     CAMARA_SENADO_ID,
+    MIN_VOTES,
+    TOTAL_SEATS,
     get_total_seats,
 )
 
@@ -538,9 +538,9 @@ def analyze_close_votes(conn, analyses, threshold=10):
 
             # ¿Votó diferente a su partido?
             dissenting = False
-            if party_pos == "favor" and option != "a_favor":
-                dissenting = True
-            elif party_pos == "contra" and option != "en_contra":
+            if (party_pos == "favor" and option != "a_favor") or (
+                party_pos == "contra" and option != "en_contra"
+            ):
                 dissenting = True
 
             if not dissenting:
@@ -610,9 +610,7 @@ def find_top_dissidents(conn, min_votes=MIN_VOTES):
         positions = {}
         for org, opts in party_options.items():
             asistentes = (
-                opts.get("a_favor", 0)
-                + opts.get("en_contra", 0)
-                + opts.get("abstencion", 0)
+                opts.get("a_favor", 0) + opts.get("en_contra", 0) + opts.get("abstencion", 0)
             )
             if asistentes == 0:
                 positions[org] = "ausente"
@@ -637,9 +635,7 @@ def find_top_dissidents(conn, min_votes=MIN_VOTES):
     )
 
     # Contar disidencias por persona
-    person_stats = defaultdict(
-        lambda: {"total": 0, "dissent": 0, "party_counts": defaultdict(int)}
-    )
+    person_stats = defaultdict(lambda: {"total": 0, "dissent": 0, "party_counts": defaultdict(int)})
 
     for voter_id, ve_id, option, group_val in cur.fetchall():
         org = normalize_group(group_val)
@@ -691,9 +687,7 @@ def find_top_dissidents(conn, min_votes=MIN_VOTES):
 # --- Output ---
 
 
-def save_results(
-    comparison, reforma_analyses, dissidents, all_analyses, close_votes_analysis
-):
+def save_results(comparison, reforma_analyses, dissidents, all_analyses, close_votes_analysis):
     """Guarda todos los resultados en CSVs."""
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -915,15 +909,11 @@ def print_all_results(
         print(
             f"  Shapley-Shubik = {ss_morena:.1f}%: con mayoria simple, Morena domina unilateralmente."
         )
-        print(
-            f"  Poder empirico = {emp_morena:.1f}%: porcentaje de votaciones donde fue critica."
-        )
+        print(f"  Poder empirico = {emp_morena:.1f}%: porcentaje de votaciones donde fue critica.")
         print(
             f"  La diferencia entre poder teorico ({ss_morena:.1f}%) y empirico ({emp_morena:.1f}%)"
         )
-        print(
-            f"  revela donde las coaliciones reales difieren del modelo de mayoria simple."
-        )
+        print("  revela donde las coaliciones reales difieren del modelo de mayoria simple.")
 
     pt_row = next((r for r in comparison if r["org_id"] == "O02"), None)
     pvem_row = next((r for r in comparison if r["org_id"] == "O03"), None)
@@ -931,10 +921,8 @@ def print_all_results(
         print(
             f"\n  PT ({pt_row['empirico'] * 100:.1f}% empirico) y PVEM ({pvem_row['empirico'] * 100:.1f}% empirico)"
         )
-        print(f"  tienen 0% de poder Shapley-Shubik para mayoria simple, pero su poder")
-        print(
-            f"  empirico proviene de votaciones que requieren mayoria calificada (2/3)."
-        )
+        print("  tienen 0% de poder Shapley-Shubik para mayoria simple, pero su poder")
+        print("  empirico proviene de votaciones que requieren mayoria calificada (2/3).")
     print()
 
     # =========================================================================
@@ -981,9 +969,7 @@ def print_all_results(
         print(f"\n  Coalicion ganadora: {coalicion_str} = {a['a_favor_total']}")
 
         # Verificar criticidad
-        print(
-            f"  Partidos criticos (sin cuyo apoyo no se llegaba a {a['mayoria_necesaria']}):"
-        )
+        print(f"  Partidos criticos (sin cuyo apoyo no se llegaba a {a['mayoria_necesaria']}):")
         for org in a["critical_parties"]:
             pv = a["party_votes"][org]
             remaining = a["a_favor_total"] - pv["favor"]
@@ -1060,13 +1046,9 @@ def print_all_results(
         )
         print(f"  {'─' * 90}")
         for i, (pid, name, party, rate, total, dissent) in enumerate(dissidents, 1):
-            print(
-                f"  {i:<4} {name:<35} {party:<12} {rate * 100:>11.1f}% {total:>12} {dissent:>12}"
-            )
+            print(f"  {i:<4} {name:<35} {party:<12} {rate * 100:>11.1f}% {total:>12} {dissent:>12}")
     else:
-        print(
-            "\n  No se encontraron disidentes (ningun legislador voto diferente a su partido)."
-        )
+        print("\n  No se encontraron disidentes (ningun legislador voto diferente a su partido).")
     print()
 
     # =========================================================================
@@ -1097,9 +1079,7 @@ def print_all_results(
     print(f"{'RESUMEN ESTADISTICO':^100}")
     print(SEP)
     print(f"\n  Total votaciones analizadas: {len(all_analyses)}")
-    print(
-        f"  Todas aprobadas: {sum(1 for a in all_analyses if a['result'] == 'aprobada')}"
-    )
+    print(f"  Todas aprobadas: {sum(1 for a in all_analyses if a['result'] == 'aprobada')}")
     print(
         f"  Mayoria simple: {sum(1 for a in all_analyses if a['requirement'] == 'mayoria_simple')}"
     )
@@ -1113,7 +1093,7 @@ def print_all_results(
         for org in a["critical_parties"]:
             crit_counts[org] += 1
 
-    print(f"\n  Veces critico por partido:")
+    print("\n  Veces critico por partido:")
     for org in sorted(crit_counts, key=crit_counts.get, reverse=True):
         print(
             f"    {get_org_name(org):<16} {crit_counts[org]:>4} / {len(all_analyses)} ({crit_counts[org] / len(all_analyses) * 100:.1f}%)"
@@ -1142,6 +1122,8 @@ def main(camara: str | None = None):
         camara: 'D' para Diputados, 'S' para Senado, None para todas.
     """
     conn = sqlite3.connect(DB_PATH)
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
 
     # Obtener votaciones con resultado
     vote_events = get_vote_events_with_results(conn, camara=camara)
@@ -1149,9 +1131,7 @@ def main(camara: str | None = None):
         print("No se encontraron votaciones con resultado.")
         conn.close()
         return
-    print(
-        f"Votaciones con resultado: {len(vote_events)} ({vote_events[0]}-{vote_events[-1]})"
-    )
+    print(f"Votaciones con resultado: {len(vote_events)} ({vote_events[0]}-{vote_events[-1]})")
 
     # Analizar cada votación
     analyses = [analyze_vote_event(conn, ve_id) for ve_id in vote_events]
@@ -1174,9 +1154,7 @@ def main(camara: str | None = None):
     dissidents = find_top_dissidents(conn, min_votes=10)
 
     # Guardar CSVs
-    save_results(
-        comparison, reforma_analyses, dissidents, analyses, close_votes_analysis
-    )
+    save_results(comparison, reforma_analyses, dissidents, analyses, close_votes_analysis)
 
     # Imprimir resultados
     print_all_results(

@@ -34,7 +34,6 @@ Funciones dinámicas:
 
 import sqlite3
 from pathlib import Path
-from typing import Optional
 
 # ---------------------------------------------------------------------------
 # IDs de las cámaras
@@ -176,10 +175,10 @@ def init_constants_from_db(db_path: str) -> None:
         return
 
     conn = sqlite3.connect(str(path))
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
     try:
-        rows = conn.execute(
-            "SELECT id, nombre, abbr, clasificacion FROM organization"
-        ).fetchall()
+        rows = conn.execute("SELECT id, nombre, abbr, clasificacion FROM organization").fetchall()
 
         # Construir mapeos dinámicos
         new_name_to_org: dict[str | None, str] = {None: "O11"}
@@ -266,6 +265,8 @@ def get_total_seats(db_path: str, camara: str = "D") -> int:
     rol = "diputado" if camara == "D" else "senador"
 
     conn = sqlite3.connect(str(path))
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
     try:
         row = conn.execute(
             """SELECT COUNT(DISTINCT person_id) FROM membership

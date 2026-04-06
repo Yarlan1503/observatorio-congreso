@@ -29,7 +29,6 @@ import sqlite3
 import sys
 import unicodedata
 from pathlib import Path
-from typing import Optional
 
 # Asegurar que el directorio del proyecto está en sys.path
 PROJECT_DIR = Path(__file__).resolve().parent.parent
@@ -39,7 +38,6 @@ from diputados.scraper.client import SITLClient
 from diputados.scraper.config import DB_PATH, LEGISLATURAS
 from diputados.scraper.legislatura import url_curricula
 from diputados.scraper.parsers.diputado import parse_diputado
-from diputados.scraper.utils.text_utils import normalize_name
 
 # --- Logging ---
 logging.basicConfig(
@@ -106,9 +104,7 @@ def mapear_curul_tipo(principio_eleccion: str) -> str | None:
     # Patrones garbled del servidor LX
     if "mayor a relativa" in norm or "mayor a relativ" in norm:
         return "mayoria_relativa"
-    if "representaci n proporcional" in norm or (
-        "representaci" in norm and "proporcional" in norm
-    ):
+    if "representaci n proporcional" in norm or ("representaci" in norm and "proporcional" in norm):
         return "plurinominal"
 
     return None
@@ -152,7 +148,7 @@ def _parse_listado_diputados(html: str) -> list[tuple[str, int]]:
 def _buscar_sitl_id_por_nombre(
     nombre_buscar: str,
     listado: list[tuple[str, int]],
-) -> Optional[int]:
+) -> int | None:
     """Busca un diputado por nombre normalizado en el listado del SITL.
 
     Args:
@@ -216,7 +212,7 @@ def _buscar_sitl_id_por_nombre(
 
 def _fetch_principio_eleccion(
     client: SITLClient, sitl_id: int, legislatura: str = "LXVI"
-) -> tuple[Optional[str], Optional[str]]:
+) -> tuple[str | None, str | None]:
     """Obtiene el principio de elección de un diputado desde su curricula.
 
     Args:
@@ -252,9 +248,7 @@ def _fetch_principio_eleccion(
                 return ficha.principio_eleccion, curul_tipo
 
         except Exception as exc:
-            logger.debug(
-                f"Error accediendo curricula de sitl_id={sitl_id} en {leg}: {exc}"
-            )
+            logger.debug(f"Error accediendo curricula de sitl_id={sitl_id} en {leg}: {exc}")
             continue
 
     return None, None
@@ -284,9 +278,9 @@ def show_stats(conn: sqlite3.Connection) -> None:
 
     # Totales generales
     total = conn.execute("SELECT COUNT(*) FROM person").fetchone()[0]
-    con_tipo = conn.execute(
-        "SELECT COUNT(*) FROM person WHERE curul_tipo IS NOT NULL"
-    ).fetchone()[0]
+    con_tipo = conn.execute("SELECT COUNT(*) FROM person WHERE curul_tipo IS NOT NULL").fetchone()[
+        0
+    ]
     sin_tipo = total - con_tipo
     print(f"Total personas: {total}")
     print(f"Con curul_tipo: {con_tipo} ({con_tipo / total * 100:.1f}%)")
@@ -337,7 +331,7 @@ def run_fix(conn: sqlite3.Connection, dry_run: bool = False) -> None:
         print("Fase 2: Buscando sitl_id por nombre...")
         personas_con_sitl: list[tuple[str, str, int]] = []  # pid, nombre, sitl_id
 
-        for pid, nombre, partido, party_id in DIPUTADOS_MANUALES:
+        for pid, nombre, partido, _party_id in DIPUTADOS_MANUALES:
             listado = listado_pvem if partido == "PVEM" else listado_pt
             sitl_id = _buscar_sitl_id_por_nombre(nombre, listado)
 
@@ -345,9 +339,7 @@ def run_fix(conn: sqlite3.Connection, dry_run: bool = False) -> None:
                 logger.info(f"  ✓ {pid} {nombre} → sitl_id={sitl_id}")
                 personas_con_sitl.append((pid, nombre, sitl_id))
             else:
-                logger.warning(
-                    f"  ✗ {pid} {nombre} — NO encontrado en listado {partido}"
-                )
+                logger.warning(f"  ✗ {pid} {nombre} — NO encontrado en listado {partido}")
                 resultados.append(
                     {
                         "pid": pid,
@@ -484,6 +476,8 @@ def main():
     args = parser.parse_args()
 
     conn = sqlite3.connect(str(DB_PATH))
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
 
     try:
         if args.stats:

@@ -6,20 +6,13 @@ idempotente usando INSERT OR IGNORE. Todo un vote_event se inserta
 en una sola transacción para garantizar consistencia.
 """
 
-import sqlite3
-import json
 import logging
-from typing import Optional
+import sqlite3
 
+from .config import DB_PATH
 from .transformers import (
     VotacionCompleta,
-    VoteEventPopolo,
-    VotePopolo,
-    CountPopolo,
-    PersonPopolo,
-    MembershipPopolo,
 )
-from .config import DB_PATH
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +24,7 @@ class Loader:
     Transaccional: todo un vote_event se inserta en una sola transacción.
     """
 
-    def __init__(self, db_path: Optional[str] = None):
+    def __init__(self, db_path: str | None = None):
         """Inicializa el Loader.
 
         Args:
@@ -45,9 +38,10 @@ class Loader:
         Returns:
             Conexión SQLite configurada con FK y WAL mode.
         """
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30.0)
         conn.execute("PRAGMA foreign_keys = ON")
         conn.execute("PRAGMA journal_mode = WAL")
+        conn.execute("PRAGMA busy_timeout = 5000")
         return conn
 
     def upsert_votacion(self, votacion: VotacionCompleta) -> dict:
@@ -220,8 +214,7 @@ class Loader:
             if violations:
                 for v in violations:
                     logger.error(
-                        f"Violación FK: tabla={v[0]}, rowid={v[1]}, "
-                        f"parent={v[2]}, fkid={v[3]}"
+                        f"Violación FK: tabla={v[0]}, rowid={v[1]}, parent={v[2]}, fkid={v[3]}"
                     )
                 return False
             return True

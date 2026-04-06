@@ -16,8 +16,8 @@ from pathlib import Path
 import pandas as pd
 
 from analysis.covotacion_dinamica import (
-    build_windows,
     analyze_windows,
+    build_windows,
     compute_evolution_metrics,
 )
 from analysis.visualizacion_dinamica import generate_all_dynamic_visualizations

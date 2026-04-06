@@ -7,14 +7,11 @@ O: python analysis/run_analysis.py --camara diputados
 O: python analysis/run_analysis.py --camara senado
 """
 
-import sys
 import logging
 from pathlib import Path
 
 # Configurar logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 # Raíz del proyecto
@@ -41,12 +38,11 @@ def main(camara: str | None = None):
     # --- FASE 1: Carga de datos y construcción del grafo ---
     # IMPORTAR al inicio de la función para evitar circular imports:
     from analysis.covotacion import (
-        load_data,
-        normalize_party,
-        get_primary_party,
         build_covotacion_matrix,
         build_graph,
         compute_quantitative_metrics,
+        get_primary_party,
+        load_data,
     )
 
     logger.info("Cargando datos...")
@@ -59,9 +55,7 @@ def main(camara: str | None = None):
     logger.info(f"  Legisladores con partido asignado: {len(party_map)}")
 
     logger.info("Construyendo matriz de co-votación...")
-    matrix, legislators, co_participations = build_covotacion_matrix(
-        votes_df, min_votes=10
-    )
+    matrix, legislators, co_participations = build_covotacion_matrix(votes_df, min_votes=10)
     logger.info(f"  Legisladores elegibles: {len(legislators)}")
     logger.info(f"  Matriz: {matrix.shape}")
 
@@ -79,18 +73,16 @@ def main(camara: str | None = None):
 
     # --- FASE 3: Centralidad ---
     from analysis.centralidad import (
+        add_centrality_to_graph,
         compute_all_centrality,
         top_n_centrality,
-        add_centrality_to_graph,
     )
 
     logger.info("Calculando centralidad...")
     centrality = compute_all_centrality(graph)
     graph = add_centrality_to_graph(graph, centrality)
 
-    top_degree = top_n_centrality(
-        centrality["degree"], persons_df, party_map, org_map, n=10
-    )
+    top_degree = top_n_centrality(centrality["degree"], persons_df, party_map, org_map, n=10)
     top_betweenness = top_n_centrality(
         centrality["betweenness"], persons_df, party_map, org_map, n=10
     )
@@ -109,8 +101,8 @@ def main(camara: str | None = None):
 
     # --- FASE 4: Comunidades ---
     from analysis.comunidades import (
-        detect_communities,
         analyze_communities,
+        detect_communities,
         get_partition_as_attribute,
     )
 
@@ -127,9 +119,7 @@ def main(camara: str | None = None):
     for comm_id, composition in community_analysis["community_composition"].items():
         total = sum(composition.values())
         dominant = max(composition, key=composition.get)
-        logger.info(
-            f"  Comunidad {comm_id} ({total} legisladores, {dominant} dominante):"
-        )
+        logger.info(f"  Comunidad {comm_id} ({total} legisladores, {dominant} dominante):")
         for party, count in sorted(composition.items(), key=lambda x: -x[1]):
             logger.info(f"    {party}: {count} ({count / total * 100:.1f}%)")
 
@@ -214,9 +204,7 @@ def main(camara: str | None = None):
             if other_pid != pid:
                 key = tuple(sorted([pid, other_pid]))
                 inter_vals.append(metrics["inter_party_avg"].get(key, 0))
-        ld["covotacion_inter_partido_prom"] = (
-            sum(inter_vals) / len(inter_vals) if inter_vals else 0
-        )
+        ld["covotacion_inter_partido_prom"] = sum(inter_vals) / len(inter_vals) if inter_vals else 0
 
     legislators_csv = OUTPUT_DIR / "metricas_legisladores.csv"
     pd.DataFrame(legislator_data).to_csv(legislators_csv, index=False)

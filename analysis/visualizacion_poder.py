@@ -17,13 +17,14 @@ import matplotlib
 
 matplotlib.use("Agg")  # Sin display — backend no interactivo
 
+import sqlite3
+from collections import defaultdict
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
-import pandas as pd
 import numpy as np
-import sqlite3
-from pathlib import Path
-from collections import defaultdict
+import pandas as pd
 
 # ---------------------------------------------------------------------------
 # Configuración global
@@ -402,6 +403,8 @@ def plot_comparacion_triple(comparacion):
 def plot_linea_temporal():
     """Evolución del poder empírico por partido a lo largo de las votaciones."""
     conn = sqlite3.connect(str(DB_PATH))
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
     cur = conn.cursor()
 
     # Obtener votaciones ordenadas por fecha
@@ -517,9 +520,7 @@ def plot_linea_temporal():
         n_votaciones = i + 1
         cumulative = {}
         for org in all_orgs:
-            cumulative[org] = (
-                (org_crit_count[org] / n_votaciones) * 100 if n_votaciones > 0 else 0
-            )
+            cumulative[org] = (org_crit_count[org] / n_votaciones) * 100 if n_votaciones > 0 else 0
 
         timeline_data.append((ve_id, ve_date, cumulative.copy()))
 
@@ -591,6 +592,8 @@ def plot_linea_temporal():
 def plot_reforma_judicial():
     """Barras apiladas por partido para VE04 con línea de mayoría calificada."""
     conn = sqlite3.connect(str(DB_PATH))
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
     cur = conn.cursor()
 
     # Obtener datos de VE04 desde la BD
@@ -650,9 +653,7 @@ def plot_reforma_judicial():
     x = np.arange(len(ordered_parties))
     width = 0.6
 
-    bars_favor = ax.bar(
-        x, favor_vals, width, label="A favor", color="#2ecc71", edgecolor="white"
-    )
+    bars_favor = ax.bar(x, favor_vals, width, label="A favor", color="#2ecc71", edgecolor="white")
     bars_contra = ax.bar(
         x,
         contra_vals,
@@ -756,6 +757,8 @@ def plot_reforma_judicial():
 def plot_heatmap_votaciones():
     """Heatmap partido × votación mostrando alineamiento."""
     conn = sqlite3.connect(str(DB_PATH))
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
     cur = conn.cursor()
 
     # Obtener votaciones ordenadas por fecha
@@ -800,9 +803,7 @@ def plot_heatmap_votaciones():
         for i, org in enumerate(party_orgs):
             opts = party_options.get(org, {})
             asistentes = (
-                opts.get("a_favor", 0)
-                + opts.get("en_contra", 0)
-                + opts.get("abstencion", 0)
+                opts.get("a_favor", 0) + opts.get("en_contra", 0) + opts.get("abstencion", 0)
             )
 
             if asistentes == 0:
@@ -824,9 +825,7 @@ def plot_heatmap_votaciones():
 
     cmap = ListedColormap(["#e74c3c", "#bdc3c7", "#e67e22", "#2ecc71"])
 
-    im = ax.imshow(
-        matrix, aspect="auto", cmap=cmap, vmin=-1, vmax=2, interpolation="nearest"
-    )
+    im = ax.imshow(matrix, aspect="auto", cmap=cmap, vmin=-1, vmax=2, interpolation="nearest")
 
     # Labels
     ax.set_yticks(range(len(party_names)))

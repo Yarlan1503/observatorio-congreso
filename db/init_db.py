@@ -28,12 +28,17 @@ def create_database():
     print(f"[init] Creando base de datos: {DB_PATH}")
 
     # Leer el schema SQL
-    with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
+    with open(SCHEMA_PATH, encoding="utf-8") as f:
         schema_sql = f.read()
 
     # Conectar y ejecutar schema
     conn = sqlite3.connect(DB_PATH)
     conn.executescript(schema_sql)
+
+    # Asegurar WAL mode y busy_timeout (ya incluidos en schema.sql,
+    # pero executescript no siempre aplica PRAGMAs correctamente)
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
 
     # Verificar que foreign_keys estén habilitadas
     cur = conn.execute("PRAGMA foreign_keys;")
@@ -69,9 +74,7 @@ def populate_organizations(conn):
         "VALUES (?, ?, ?, ?, ?, ?)",
         organizations,
     )
-    print(
-        f"[init] Insertadas {len(organizations)} organizaciones (instituciones + coaliciones)"
-    )
+    print(f"[init] Insertadas {len(organizations)} organizaciones (instituciones + coaliciones)")
 
 
 def populate_areas(conn):
@@ -120,8 +123,7 @@ def populate_areas(conn):
         areas.append((area_id, nombre, "estado", None, None))
 
     conn.executemany(
-        "INSERT INTO area (id, nombre, clasificacion, parent_id, geometry) "
-        "VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO area (id, nombre, clasificacion, parent_id, geometry) VALUES (?, ?, ?, ?, ?)",
         areas,
     )
     print(f"[init] Insertadas {len(areas)} áreas (estados)")

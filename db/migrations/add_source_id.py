@@ -32,9 +32,7 @@ def migrate(conn: sqlite3.Connection):
     cur.execute("ALTER TABLE vote_event ADD COLUMN source_id TEXT")
 
     print("[migrate] Creating index idx_vote_event_source...")
-    cur.execute(
-        "CREATE INDEX IF NOT EXISTS idx_vote_event_source ON vote_event(source_id)"
-    )
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_vote_event_source ON vote_event(source_id)")
 
     conn.commit()
     print("[migrate] Done.")
@@ -46,6 +44,8 @@ def main():
         return 1
 
     conn = sqlite3.connect(DB_PATH)
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
     try:
         migrate(conn)
     finally:

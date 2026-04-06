@@ -5,16 +5,15 @@ Produce grafos de legisladores, grafos de partidos, histogramas de pesos
 y exporta el grafo en formato GraphML para análisis externo.
 """
 
-import networkx as nx
 import matplotlib
+import networkx as nx
 
 matplotlib.use("Agg")  # Sin display — backend no interactivo
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from pathlib import Path
-from typing import Optional
-
 
 # --- Esquema de colores por partido ---
 
@@ -32,7 +31,7 @@ PARTY_COLORS: dict[str, str] = {
 DEFAULT_COLOR: str = "#CCCCCC"
 
 
-def _get_party_color(party_name: Optional[str]) -> str:
+def _get_party_color(party_name: str | None) -> str:
     """Retorna el color asociado a un partido.
 
     Args:
@@ -90,9 +89,7 @@ def plot_main_graph(
 
     # Construir lista de aristas que pasan el umbral
     filtered_edges = [
-        (u, v, d)
-        for u, v, d in graph.edges(data=True)
-        if d.get("weight", 0) >= threshold
+        (u, v, d) for u, v, d in graph.edges(data=True) if d.get("weight", 0) >= threshold
     ]
 
     # Crear subgrafo solo con las aristas filtradas (mantiene nodos aislados)
@@ -111,15 +108,11 @@ def plot_main_graph(
     pos = nx.spring_layout(sub, seed=42, k=0.1, iterations=50)
 
     # --- Colores y tamaños de nodo ---
-    node_colors = [
-        _get_party_color(sub.nodes[n].get("party_name")) for n in sub.nodes()
-    ]
+    node_colors = [_get_party_color(sub.nodes[n].get("party_name")) for n in sub.nodes()]
 
     # Tamaño proporcional a degree_centrality
     centralities = [sub.nodes[n].get("degree_centrality", 0.0) for n in sub.nodes()]
-    max_centrality = (
-        max(centralities) if centralities and max(centralities) > 0 else 1.0
-    )
+    max_centrality = max(centralities) if centralities and max(centralities) > 0 else 1.0
     node_sizes = [50 + 450 * (c / max_centrality) for c in centralities]
 
     # --- Labels ---
@@ -257,9 +250,7 @@ def plot_party_graph(
     else:
         min_w, max_w, range_w = 0, 1, 1
 
-    edge_widths = [
-        0.5 + 4.5 * ((d["weight"] - min_w) / range_w) for _, _, d in G.edges(data=True)
-    ]
+    edge_widths = [0.5 + 4.5 * ((d["weight"] - min_w) / range_w) for _, _, d in G.edges(data=True)]
 
     # Labels de nodos
     node_labels = {pid: org_map.get(pid, pid) for pid in G.nodes()}

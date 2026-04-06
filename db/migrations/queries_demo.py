@@ -12,7 +12,6 @@ import os
 import sqlite3
 import sys
 
-
 # Ruta a la base de datos
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "congreso.db")
@@ -96,6 +95,8 @@ def main():
 
     conn = sqlite3.connect(DB_PATH)
     conn.execute("PRAGMA foreign_keys = ON;")
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
 
     queries = [
         (
@@ -118,14 +119,12 @@ def main():
         ),
         (
             "4. Lista completa de organizaciones",
-            "SELECT id, nombre, clasificacion "
-            "FROM organization ORDER BY clasificacion, nombre;",
+            "SELECT id, nombre, clasificacion FROM organization ORDER BY clasificacion, nombre;",
             ["id", "nombre", "clasificacion"],
         ),
         (
             "5. Lista completa de actores externos",
-            "SELECT id, nombre, tipo, observaciones "
-            "FROM actor_externo ORDER BY tipo, nombre;",
+            "SELECT id, nombre, tipo, observaciones FROM actor_externo ORDER BY tipo, nombre;",
             ["id", "nombre", "tipo", "observaciones"],
         ),
         (

@@ -44,6 +44,8 @@ def main() -> None:
         sys.exit(1)
 
     conn = sqlite3.connect(str(DB_PATH), timeout=30.0)
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
     cur = conn.cursor()
 
     for org_id, info in BASURA_ORGS.items():

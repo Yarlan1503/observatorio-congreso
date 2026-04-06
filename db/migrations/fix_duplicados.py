@@ -43,7 +43,7 @@ def backup_database() -> None:
     print(f"  Destino: {BACKUP_PATH}")
 
     if BACKUP_PATH.exists():
-        print(f"  Backup existente detectado — se sobrescribe.")
+        print("  Backup existente detectado — se sobrescribe.")
 
     t0 = time.time()
     shutil.copy2(DB_PATH, BACKUP_PATH)
@@ -276,7 +276,6 @@ def verify(conn: sqlite3.Connection, stats_before: dict) -> None:
 
     # Desglose por legislatura DESPUÉS
     print("\n  Desglose por legislatura (DESPUÉS):")
-    leg_after = {}
     rows = cur.execute("""
         SELECT ve.legislatura, COUNT(*) AS votos
         FROM vote v
@@ -293,20 +292,17 @@ def verify(conn: sqlite3.Connection, stats_before: dict) -> None:
         leg_display = leg if leg else "(sin legislatura)"
         votos_before = leg_before.get(leg, 0)
         diff = votos_before - votos_after
-        print(
-            f"    {leg_display:20s} {votos_before:>10,} {votos_after:>10,} {diff:>10,}"
-        )
+        print(f"    {leg_display:20s} {votos_before:>10,} {votos_after:>10,} {diff:>10,}")
 
     # Verificar que no se perdieron votos no-duplicados
     # Un voto no-duplicado es aquel en un grupo de cnt=1
     # Su conteo por legislatura debería ser idéntico antes y después
     print("\n  Verificación de integridad (votos no-duplicados):")
-    nondup_before = total_before - esperado
-    nondup_after = total_after
+    total_before - esperado
 
     # Más preciso: votos únicos antes = votos después
     # (los únicos son los que quedan después de eliminar duplicados)
-    print(f"    Votos esperados post-limpieza: ~391,627")
+    print("    Votos esperados post-limpieza: ~391,627")
     print(f"    Votos reales post-limpieza:    {total_after:,}")
 
     if total_after > 0:
@@ -351,9 +347,9 @@ def main():
 
     # Fase 1: Diagnóstico
     conn = sqlite3.connect(str(DB_PATH))
-    conn.execute(
-        "PRAGMA foreign_keys = OFF"
-    )  # No necesitamos FK para DELETE dentro de vote
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
+    conn.execute("PRAGMA foreign_keys = OFF")  # No necesitamos FK para DELETE dentro de vote
     try:
         stats = diagnose(conn)
 

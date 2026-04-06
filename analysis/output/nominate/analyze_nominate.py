@@ -6,10 +6,10 @@ Genera todos los hallazgos numéricos solicitados en inv-003.
 Uso: python3 analyze_nominate.py
 """
 
-import pandas as pd
-import numpy as np
-from collections import Counter
 import warnings
+
+import numpy as np
+import pandas as pd
 
 warnings.filterwarnings("ignore")
 
@@ -91,9 +91,7 @@ stats = (
     .reset_index()
 )
 
-stats["legislatura"] = pd.Categorical(
-    stats["legislatura"], categories=LEGISLATURAS, ordered=True
-)
+stats["legislatura"] = pd.Categorical(stats["legislatura"], categories=LEGISLATURAS, ordered=True)
 stats = stats.sort_values(["legislatura", "sigla"])
 
 for leg in LEGISLATURAS:
@@ -168,7 +166,7 @@ total = len(df)
 total_duplicados = df[df.duplicated(subset=["coord_key"], keep=False)]
 n_puntos_unicos_global = df["coord_key"].nunique()
 
-print(f"\nRESUMEN GLOBAL:")
+print("\nRESUMEN GLOBAL:")
 print(f"  Total legisladores: {total}")
 print(f"  Puntos únicos en el espacio: {n_puntos_unicos_global}")
 print(
@@ -180,9 +178,7 @@ print(
 
 # Tabla por partido-legislatura
 for leg in LEGISLATURAS:
-    sub = df_colapso[df_colapso["legislatura"] == leg].sort_values(
-        "pct_colapso", ascending=False
-    )
+    sub = df_colapso[df_colapso["legislatura"] == leg].sort_values("pct_colapso", ascending=False)
     if len(sub) == 0:
         continue
     print(f"\n{'─' * 75}")
@@ -193,11 +189,7 @@ for leg in LEGISLATURAS:
     )
     print("-" * 75)
     for _, row in sub.iterrows():
-        flag = (
-            " ★★★"
-            if row["pct_colapso"] >= 80
-            else (" ★★" if row["pct_colapso"] >= 50 else "")
-        )
+        flag = " ★★★" if row["pct_colapso"] >= 80 else (" ★★" if row["pct_colapso"] >= 50 else "")
         print(
             f"{row['sigla']:<8} {row['n']:>4.0f} {row['n_puntos_unicos']:>7.0f} {row['n_punto_comun']:>7.0f} "
             f"{row['pct_colapso']:>8.1f}%{flag:<4} {row['n_duplicados']:>6.0f} {row['pct_duplicados']:>6.1f}%"
@@ -205,9 +197,7 @@ for leg in LEGISLATURAS:
 
 # Partidos con >80% colapso
 critical = df_colapso[df_colapso["pct_colapso"] >= 80]
-print(
-    f"\n*** ALERTA: {len(critical)} combinaciones partido-legislatura con ≥80% de colapso ***"
-)
+print(f"\n*** ALERTA: {len(critical)} combinaciones partido-legislatura con ≥80% de colapso ***")
 if len(critical) > 0:
     for _, row in critical.sort_values("pct_colapso", ascending=False).iterrows():
         print(
@@ -297,9 +287,7 @@ centroides_cross["legislatura"] = pd.Categorical(
 
 print("\nCentroides por partido-legislatura:")
 for sigla in sorted(centroides_cross["sigla"].unique()):
-    sub = centroides_cross[centroides_cross["sigla"] == sigla].sort_values(
-        "legislatura"
-    )
+    sub = centroides_cross[centroides_cross["sigla"] == sigla].sort_values("legislatura")
     if len(sub) <= 1:
         continue
     print(f"\n  {sigla}:")
@@ -318,9 +306,7 @@ for sigla in sorted(centroides_cross["sigla"].unique()):
 # ¿Partidos que cambiaron de lado?
 print("\n\nCambio de lado del espectro (signo de dim_1):")
 for sigla in sorted(centroides_cross["sigla"].unique()):
-    sub = centroides_cross[centroides_cross["sigla"] == sigla].sort_values(
-        "legislatura"
-    )
+    sub = centroides_cross[centroides_cross["sigla"] == sigla].sort_values("legislatura")
     if len(sub) <= 1:
         continue
     signos = sub["c1_mean"].apply(lambda x: "+" if x >= 0 else "-").tolist()
@@ -349,9 +335,7 @@ for sigla in sorted(centroides_cross["sigla"].unique()):
             (sub.loc[i, "c1_mean"] - sub.loc[i - 1, "c1_mean"]) ** 2
             + (sub.loc[i, "c2_mean"] - sub.loc[i - 1, "c2_mean"]) ** 2
         )
-        print(
-            f"  {sigla} {sub.loc[i - 1, 'legislatura']}→{sub.loc[i, 'legislatura']}: {d:.4f}"
-        )
+        print(f"  {sigla} {sub.loc[i - 1, 'legislatura']}→{sub.loc[i, 'legislatura']}: {d:.4f}")
 
 # ════════════════════════════════════════════════════════════════════════════════
 # 5. ANÁLISIS GLOBAL DE LA DIMENSIÓN 2
@@ -367,7 +351,7 @@ var_total = var_d1 + var_d2
 pct_d1 = 100 * var_d1 / var_total
 pct_d2 = 100 * var_d2 / var_total
 
-print(f"\nVarianza global:")
+print("\nVarianza global:")
 print(f"  Var(dim_1) = {var_d1:.6f} ({pct_d1:.1f}%)")
 print(f"  Var(dim_2) = {var_d2:.6f} ({pct_d2:.1f}%)")
 print(f"  Ratio dim_1/dim_2 = {var_d1 / var_d2:.2f}x")
@@ -419,7 +403,7 @@ total_dup_global = df.duplicated(subset=["coord_key"], keep=False).sum()
 pct_dup_global = 100 * total_dup_global / total
 
 print(f"\n{'─' * 80}")
-print(f"  COLAPSO GLOBAL")
+print("  COLAPSO GLOBAL")
 print(f"{'─' * 80}")
 print(f"  Legisladores totales: {total}")
 print(f"  Con coordenadas idénticas a otro: {total_dup_global} ({pct_dup_global:.1f}%)")
@@ -437,12 +421,10 @@ party_compact = (
     )
     .reset_index()
 )
-party_compact = party_compact[
-    party_compact["n_groups"] >= 2
-]  # Solo partidos en 2+ legislaturas
+party_compact = party_compact[party_compact["n_groups"] >= 2]  # Solo partidos en 2+ legislaturas
 
 print(f"\n{'─' * 80}")
-print(f"  COMPACTACIÓN POR PARTIDO (promedio σ(dim_1) a través de legislaturas)")
+print("  COMPACTACIÓN POR PARTIDO (promedio σ(dim_1) a través de legislaturas)")
 print(f"{'─' * 80}")
 party_compact = party_compact.sort_values("avg_std_d1")
 print(
@@ -451,7 +433,7 @@ print(
 print(
     f"  Menos compacto: {party_compact.iloc[-1]['sigla']} (σ_avg={party_compact.iloc[-1]['avg_std_d1']:.6f})"
 )
-print(f"\n  Ranking completo:")
+print("\n  Ranking completo:")
 print(f"  {'Partido':<8} {'σ_avg(d1)':>12} {'σ_avg(d2)':>12} {'Legs':>5}")
 for _, row in party_compact.iterrows():
     print(
@@ -472,7 +454,7 @@ leg_disp = (
 leg_disp["total_range"] = leg_disp["range_d1"] + leg_disp["range_d2"]
 
 print(f"\n{'─' * 80}")
-print(f"  DISPERSIÓN POR LEGISLATURA")
+print("  DISPERSIÓN POR LEGISLATURA")
 print(f"{'─' * 80}")
 leg_disp_sorted = leg_disp.sort_values("total_range")
 print(
@@ -481,7 +463,7 @@ print(
 print(
     f"  Mayor dispersión: {leg_disp_sorted.iloc[-1]['legislatura']} (rango_total={leg_disp_sorted.iloc[-1]['total_range']:.6f})"
 )
-print(f"\n  Ranking completo:")
+print("\n  Ranking completo:")
 print(
     f"  {'Leg':<6} {'σ(d1)':>11} {'σ(d2)':>11} {'Rango(d1)':>12} {'Rango(d2)':>12} {'R_Total':>12}"
 )
@@ -492,20 +474,16 @@ for _, row in leg_disp.sort_values("legislatura").iterrows():
 
 # Correlación n_votaciones vs dispersión
 print(f"\n{'─' * 80}")
-print(f"  CORRELACIÓN: VOTACIONES DISPONIBLES vs DISPERSIÓN")
+print("  CORRELACIÓN: VOTACIONES DISPONIBLES vs DISPERSIÓN")
 print(f"{'─' * 80}")
-merge_data = leg_disp.merge(
-    df_metricas[["legislatura", "n_votaciones"]], on="legislatura"
-)
+merge_data = leg_disp.merge(df_metricas[["legislatura", "n_votaciones"]], on="legislatura")
 corr_d1 = merge_data["n_votaciones"].corr(merge_data["range_d1"])
 corr_d2 = merge_data["n_votaciones"].corr(merge_data["range_d2"])
 corr_total = merge_data["n_votaciones"].corr(merge_data["total_range"])
 print(f"  Correlación(n_votaciones, rango_d1): r = {corr_d1:.4f}")
 print(f"  Correlación(n_votaciones, rango_d2): r = {corr_d2:.4f}")
 print(f"  Correlación(n_votaciones, rango_total): r = {corr_total:.4f}")
-print(
-    f"\n  {'Leg':<6} {'N_Vot':>6} {'Rango(d1)':>12} {'Rango(d2)':>12} {'R_Total':>12}"
-)
+print(f"\n  {'Leg':<6} {'N_Vot':>6} {'Rango(d1)':>12} {'Rango(d2)':>12} {'R_Total':>12}")
 for _, row in merge_data.sort_values("n_votaciones").iterrows():
     print(
         f"  {row['legislatura']:<6} {row['n_votaciones']:>6.0f} {row['range_d1']:>12.6f} {row['range_d2']:>12.6f} {row['total_range']:>12.6f}"
@@ -513,31 +491,29 @@ for _, row in merge_data.sort_values("n_votaciones").iterrows():
 
 # Hallazgos clave
 print(f"\n{'═' * 100}")
-print(f"  HALLAZGOS CLAVE PARA EL ARTÍCULO")
+print("  HALLAZGOS CLAVE PARA EL ARTÍCULO")
 print(f"{'═' * 100}")
 print(
     f"\n  1. COLAPSO MASIVO: {pct_dup_global:.1f}% de legisladores comparten coordenadas con otro."
 )
 print(f"     Solo {n_puntos_unicos_global} puntos únicos de {total} legisladores.")
-print(f"     NOMINATE no discrimina entre la mayoría de legisladores.")
+print("     NOMINATE no discrimina entre la mayoría de legisladores.")
 
 critical_pct = len(df_colapso[df_colapso["pct_colapso"] >= 80]) / len(df_colapso) * 100
 print(
     f"\n  2. PARTIDOS BLOQUE: {len(critical)} de {len(df_colapso)} combinaciones partido-legislatura ({critical_pct:.1f}%)"
 )
-print(f"     tienen ≥80% de miembros en un solo punto ideal.")
+print("     tienen ≥80% de miembros en un solo punto ideal.")
 
 # LX case: w=1.0 with only 11 votes
 lx_pct = df_colapso[df_colapso["legislatura"] == "LX"]["pct_colapso"].mean()
 print(f"\n  3. CASO LX (w=1.0, solo 11 votaciones): Colapso promedio = {lx_pct:.1f}%")
-print(f"     β=30.0 saturado + 11 votaciones = disciplina artificial extrema.")
+print("     β=30.0 saturado + 11 votaciones = disciplina artificial extrema.")
 
 print(f"\n  4. DIMENSIÓN 2: Contiene solo {pct_d2:.1f}% de la varianza total.")
-print(
-    f"     Ratio dim_1/dim_2 = {var_d1 / var_d2:.1f}x — dim_2 es prácticamente ruido."
-)
+print(f"     Ratio dim_1/dim_2 = {var_d1 / var_d2:.1f}x — dim_2 es prácticamente ruido.")
 
-print(f"\n  5. NINGUNA LEGISLATURA CONVERGIÓ en 100 iteraciones con β=30.0.")
+print("\n  5. NINGUNA LEGISLATURA CONVERGIÓ en 100 iteraciones con β=30.0.")
 
 if abs(corr_total) > 0.5:
     direction = "positiva" if corr_total > 0 else "negativa"
@@ -546,7 +522,7 @@ if abs(corr_total) > 0.5:
     )
 else:
     print(f"\n  6. CORRELACIÓN DÉBIL votaciones-dispersión (r={corr_total:.3f}).")
-    print(f"     La dispersión no depende solo del número de votaciones.")
+    print("     La dispersión no depende solo del número de votaciones.")
 
 print(f"\n{'═' * 100}")
 print("FIN DEL ANÁLISIS")

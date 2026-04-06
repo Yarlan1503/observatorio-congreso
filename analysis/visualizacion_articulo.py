@@ -17,8 +17,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from analysis.visualizacion import PARTY_COLORS
-
 logger = logging.getLogger(__name__)
 
 # Directorios
@@ -65,9 +63,7 @@ def plot_ari_evolution(output_dir: Path) -> str:
 
     fig, ax = plt.subplots(figsize=(10, 6), dpi=200)
 
-    bars = ax.bar(
-        range(len(labels)), ari_values, color=colors, edgecolor="white", linewidth=0.5
-    )
+    bars = ax.bar(range(len(labels)), ari_values, color=colors, edgecolor="white", linewidth=0.5)
 
     # Anotar valor ARI sobre cada barra
     for i, (bar, val) in enumerate(zip(bars, ari_values)):
@@ -206,7 +202,7 @@ def plot_frontera_coalicion(output_dir: Path) -> str:
 def _get_inter_party_data():
     """Intentar obtener datos inter_party_avg del pipeline."""
     try:
-        from analysis.covotacion_dinamica import build_windows, analyze_windows
+        from analysis.covotacion_dinamica import analyze_windows, build_windows
 
         db_path = PROJECT_ROOT / "db" / "congreso.db"
         if not db_path.exists():
@@ -441,8 +437,7 @@ def plot_panel_grafos(output_dir: Path) -> str:
 
     if len(files) < 6:
         logger.warning(
-            "Se encontraron solo %d grafos (se esperaban 6). "
-            "Rellenando subplots vacíos.",
+            "Se encontraron solo %d grafos (se esperaban 6). Rellenando subplots vacíos.",
             len(files),
         )
 

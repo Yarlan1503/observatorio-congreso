@@ -9,9 +9,9 @@ Calcula índices de poder legislativo para cada partido basándose en:
 Uso: python3 analysis/poder_partidos.py
 """
 
-import sqlite3
 import itertools
 import math
+import sqlite3
 from pathlib import Path
 
 import pandas as pd
@@ -113,9 +113,7 @@ def get_seats_per_party(conn) -> dict:
             max_votes = max(relevant_votes.values())
             if max_votes > 0:
                 # Asignar al org con más votos
-                best_orgs = [
-                    org for org, cnt in relevant_votes.items() if cnt == max_votes
-                ]
+                best_orgs = [org for org, cnt in relevant_votes.items() if cnt == max_votes]
                 if len(best_orgs) == 1:
                     person_assignment[person_id] = best_orgs[0]
                 else:
@@ -283,10 +281,7 @@ def print_tabla_completa(df: pd.DataFrame, seats: dict, total_seats: int):
         bz_sum = sub["Banzhaf_%"].sum()
         nom_sum = sub["Nominal_%"].sum()
         seats_sum = sub["Escaños"].sum()
-        print(
-            f"{'TOTAL':<18} {seats_sum:>8} {nom_sum:>11.2f}% "
-            f"{ss_sum:>17.2f}% {bz_sum:>11.2f}%"
-        )
+        print(f"{'TOTAL':<18} {seats_sum:>8} {nom_sum:>11.2f}% {ss_sum:>17.2f}% {bz_sum:>11.2f}%")
         print()
 
     # Análisis de coaliciones clave
@@ -319,9 +314,7 @@ def _print_coalition_analysis(seats: dict, total_seats: int):
         "PAN + MC": ["O04", "O06"],
     }
 
-    print(
-        f"{'Coalición':<45} {'Escaños':>8} {'%':>8} {'Simple':>8} {'2/3':>8} {'3/4':>8}"
-    )
+    print(f"{'Coalición':<45} {'Escaños':>8} {'%':>8} {'Simple':>8} {'2/3':>8} {'3/4':>8}")
     print("-" * 95)
 
     for coal_name, org_ids in coalitions.items():
@@ -349,6 +342,8 @@ def _print_coalition_analysis(seats: dict, total_seats: int):
 
 def main():
     conn = sqlite3.connect(DB_PATH)
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 5000")
     seats = get_seats_per_party(conn)
 
     thresholds = {
@@ -362,13 +357,10 @@ def main():
     # Verificar total de escaños
     print(f"Total escaños computados: {total_seats}")
     print(
-        f"  (La Cámara tiene 500 curules; el exceso refleja diputados que "
-        f"sirvieron durante la legislatura pero fueron reemplazados)"
+        "  (La Cámara tiene 500 curules; el exceso refleja diputados que "
+        "sirvieron durante la legislatura pero fueron reemplazados)"
     )
-    print(
-        f"  (Solo se cuentan memberships con rol='diputado'; "
-        f"militantes del caso cero excluidos)"
-    )
+    print("  (Solo se cuentan memberships con rol='diputado'; militantes del caso cero excluidos)")
 
     # Verificar que los índices suman exactamente 1.0
     results = []

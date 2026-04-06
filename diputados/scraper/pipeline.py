@@ -10,31 +10,29 @@ Uso:
     python -m scraper.pipeline --stats
 """
 
-import logging
-import sys
-import re
 import argparse
+import logging
+import re
 import sqlite3
-from typing import Optional
 
 from bs4 import BeautifulSoup
 
-from .config import PARTY_SITL_IDS, CACHE_DIR, DB_PATH
 from .client import SITLClient
+from .config import DB_PATH, PARTY_SITL_IDS
 from .legislatura import (
-    url_votaciones_por_periodo,
+    _base,
+    _suffix,
+    get_legislatura_data,
     url_estadistico,
     url_nominal,
     url_sistema,
-    get_legislatura_data,
-    _base,
-    _suffix,
+    url_votaciones_por_periodo,
 )
-from .parsers.votaciones import parse_votaciones
+from .loader import Loader
 from .parsers.desglose import parse_desglose
 from .parsers.nominal import parse_nominal
+from .parsers.votaciones import parse_votaciones
 from .transformers import transformar_votacion
-from .loader import Loader
 
 logging.basicConfig(
     level=logging.INFO,
@@ -71,16 +69,14 @@ class ScraperPipeline:
         """
         self.legislatura = legislatura
         self.leg_data = get_legislatura_data(legislatura)
-        self.party_sitl_ids: dict[str, int] = self.leg_data.get(
-            "parties", PARTY_SITL_IDS
-        )
+        self.party_sitl_ids: dict[str, int] = self.leg_data.get("parties", PARTY_SITL_IDS)
         self.client = SITLClient(use_cache=use_cache, delay=delay)
         self.loader = Loader()
 
     def scrape_votaciones_periodo(
         self,
         periodo: int,
-        limit: Optional[int] = None,
+        limit: int | None = None,
     ) -> list[dict]:
         """Scrapea todas las votaciones de un periodo legislativo.
 
@@ -108,16 +104,12 @@ class ScraperPipeline:
         for i, vot in enumerate(votaciones, 1):
             titulo_corto = vot.titulo[:60] if vot.titulo else "(sin título)"
             logger.info(
-                f"[{i}/{len(votaciones)}] Procesando votación SITL "
-                f"{vot.sitl_id}: {titulo_corto}..."
+                f"[{i}/{len(votaciones)}] Procesando votación SITL {vot.sitl_id}: {titulo_corto}..."
             )
             try:
                 stats = self._scrape_single_votacion(vot)
                 results.append(stats)
-                logger.info(
-                    f"  ✓ {stats['votes']} votos, "
-                    f"{stats['new_persons']} personas nuevas"
-                )
+                logger.info(f"  ✓ {stats['votes']} votos, {stats['new_persons']} personas nuevas")
             except Exception as e:
                 logger.error(f"  ✗ Error procesando votación {vot.sitl_id}: {e}")
                 results.append({"error": str(e), "sitl_id": vot.sitl_id})
@@ -142,9 +134,7 @@ class ScraperPipeline:
         """
         # 1. Desglose
         url_desg = url_estadistico(self.legislatura, votacion.sitl_id)
-        html_desg = self.client.get_html(
-            url_desg, referer=url_sistema(self.legislatura)
-        )
+        html_desg = self.client.get_html(url_desg, referer=url_sistema(self.legislatura))
         desglose = parse_desglose(html_desg, votacion.sitl_id)
 
         if desglose is None:
@@ -173,6 +163,8 @@ class ScraperPipeline:
         # 3. Transformar (conexión para lookup de IDs + creación de orgs)
         conn = sqlite3.connect(str(DB_PATH))
         conn.execute("PRAGMA foreign_keys = ON")
+        conn.execute("PRAGMA journal_mode = WAL")
+        conn.execute("PRAGMA busy_timeout = 5000")
         try:
             votacion_completa = transformar_votacion(
                 votacion, desglose, nominales, conn, self.legislatura
@@ -325,9 +317,7 @@ def main():
         total_exitosas = sum(1 for r in all_results if "error" not in r)
         total_errores = sum(1 for r in all_results if "error" in r)
         total_votes = sum(r.get("votes", 0) for r in all_results if "error" not in r)
-        total_persons = sum(
-            r.get("new_persons", 0) for r in all_results if "error" not in r
-        )
+        total_persons = sum(r.get("new_persons", 0) for r in all_results if "error" not in r)
 
         print(f"\n{'=' * 50}")
         print(f"TOTAL: {total_exitosas} exitosas, {total_errores} errores")

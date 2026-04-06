@@ -220,6 +220,7 @@ class PerfilEnricher:
         conn = sqlite3.connect(self.db_path, timeout=30.0)
         conn.execute("PRAGMA foreign_keys = ON")
         conn.execute("PRAGMA journal_mode = WAL")
+        conn.execute("PRAGMA busy_timeout = 5000")
         return conn
 
     def _build_name_cache(self, conn: sqlite3.Connection) -> None:

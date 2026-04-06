@@ -168,12 +168,7 @@ def confidence_ellipse(
     scale_y = np.sqrt(cov[1, 1]) * n_std
     mean_x = np.mean(x)
     mean_y = np.mean(y)
-    transf = (
-        transforms.Affine2D()
-        .rotate_deg(45)
-        .scale(scale_x, scale_y)
-        .translate(mean_x, mean_y)
-    )
+    transf = transforms.Affine2D().rotate_deg(45).scale(scale_x, scale_y).translate(mean_x, mean_y)
     ellipse.set_transform(transf + ax.transData)
     return ax.add_patch(ellipse)
 
@@ -216,9 +211,7 @@ def plot_nominate_scatter(
 
         ncols = 2
         nrows = (n + 1) // 2
-        fig, axes = plt.subplots(
-            nrows, ncols, figsize=(6 * ncols, 5 * nrows), squeeze=False
-        )
+        fig, axes = plt.subplots(nrows, ncols, figsize=(6 * ncols, 5 * nrows), squeeze=False)
 
         for idx, leg in enumerate(legs):
             row, col = divmod(idx, ncols)
@@ -292,9 +285,7 @@ def _draw_single_scatter(ax: plt.Axes, result: dict) -> None:
     # Anotar centroides de partidos principales
     for party in parties_present:
         mask = [
-            legislators[i]
-            for i in range(len(legislators))
-            if parties.get(legislators[i]) == party
+            legislators[i] for i in range(len(legislators)) if parties.get(legislators[i]) == party
         ]
         if not mask:
             continue
@@ -404,9 +395,7 @@ def plot_nominate_trajectory(
 
     # Filtrar: solo legisladores en ≥2 legislaturas
     trajectories = {
-        lid: positions
-        for lid, positions in legislator_positions.items()
-        if len(positions) >= 2
+        lid: positions for lid, positions in legislator_positions.items() if len(positions) >= 2
     }
 
     if not trajectories:
@@ -427,9 +416,7 @@ def plot_nominate_trajectory(
 
     # Si hay >100, muestrear los que más legislaturas abarcan
     if len(trajectories) > 100:
-        sorted_trajs = sorted(
-            trajectories.items(), key=lambda item: len(item[1]), reverse=True
-        )
+        sorted_trajs = sorted(trajectories.items(), key=lambda item: len(item[1]), reverse=True)
         trajectories = dict(sorted_trajs[:100])
         logger.info("Muestreados 100 legisladores de %d totales", len(sorted_trajs))
 
@@ -560,9 +547,7 @@ def plot_nominate_parties(
         logger.warning("Sin coordenadas para gráfico de partidos")
         fig, ax = plt.subplots(figsize=(8, 7))
         ax.text(0.5, 0.5, "Sin datos", ha="center", va="center", transform=ax.transAxes)
-        filepath = (
-            output_path / f"nominate_partidos_{legislatura_label or 'sin_datos'}.png"
-        )
+        filepath = output_path / f"nominate_partidos_{legislatura_label or 'sin_datos'}.png"
         fig.savefig(filepath, dpi=300, bbox_inches="tight")
         plt.close(fig)
         return str(filepath.resolve())
@@ -738,17 +723,13 @@ def plot_nominate_evolution(
             party_centroids.setdefault(party, []).append((leg, cx, cy))
 
     # Filtrar: solo partidos con presencia en ≥3 legislaturas
-    qualified = {
-        p: positions for p, positions in party_centroids.items() if len(positions) >= 3
-    }
+    qualified = {p: positions for p, positions in party_centroids.items() if len(positions) >= 3}
 
     if not qualified:
         logger.warning("Ningún partido tiene presencia en ≥3 legislaturas")
         # Relajar a ≥2
         qualified = {
-            p: positions
-            for p, positions in party_centroids.items()
-            if len(positions) >= 2
+            p: positions for p, positions in party_centroids.items() if len(positions) >= 2
         }
         if not qualified:
             fig, ax = plt.subplots(figsize=(8, 7))
@@ -897,18 +878,14 @@ def generate_all_nominate_visualizations(
     # 1. Scatter y partidos por legislatura individual
     for leg in legs:
         try:
-            path = plot_nominate_scatter(
-                results_by_leg[leg], output_dir, legislatura_label=leg
-            )
+            path = plot_nominate_scatter(results_by_leg[leg], output_dir, legislatura_label=leg)
             if path:
                 results[f"scatter_{leg}"] = path
         except Exception as e:
             logger.error("Error scatter %s: %s", leg, e)
 
         try:
-            path = plot_nominate_parties(
-                results_by_leg[leg], output_dir, legislatura_label=leg
-            )
+            path = plot_nominate_parties(results_by_leg[leg], output_dir, legislatura_label=leg)
             if path:
                 results[f"partidos_{leg}"] = path
         except Exception as e:

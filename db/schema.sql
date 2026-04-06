@@ -15,6 +15,8 @@
 -- Pragmas de configuración de la base de datos
 PRAGMA foreign_keys = ON;
 PRAGMA encoding = "UTF-8";
+PRAGMA journal_mode = WAL;
+PRAGMA busy_timeout = 5000;
 
 -- ============================================================
 -- Tabla 1: area — Divisiones geográficas del país
