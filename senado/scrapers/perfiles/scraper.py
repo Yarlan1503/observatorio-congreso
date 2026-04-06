@@ -37,6 +37,7 @@ from senado.scrapers.shared.config import (
     BASE_URL_LXVI,
     COOKIE_PATH,
     DB_PATH,
+    SENADO_ORG_ID,
 )
 
 from .parsers.perfil_parser import SenPerfil, parse_perfil_html
@@ -55,8 +56,6 @@ FECHAS_LEGISLATURA: dict[str, tuple[str, str]] = {
     "LXV": ("2021-09-01", "2024-08-31"),
     "LXVI": ("2024-09-01", "2027-08-31"),
 }
-
-SENADO_ORG_ID = "O09"  # "Senado de la República"
 
 # --- Logging ---
 
@@ -725,12 +724,8 @@ class PerfilPipeline:
             # Randomizar orden si rango amplio (>200 IDs)
             if total > 200:
                 logger.info(f"Rango amplio ({total} IDs), aleatorizando orden")
-                # Procesar en chunks de 50-100 para evitar patrones
-                chunk_size = random.randint(50, 100)
                 random.shuffle(id_list)
-                logger.info(f"  chunk_size={chunk_size}, orden aleatorizado")
-            else:
-                chunk_size = total
+                logger.info("  orden aleatorizado")
 
             logger.info(
                 f"Iniciando scrapeo de perfiles [{start}, {effective_end}] "
@@ -791,7 +786,7 @@ class PerfilPipeline:
                     stats_agg["errores"] += 1
 
         finally:
-            pass
+            self.client.close()
 
         # Resumen
         logger.info(

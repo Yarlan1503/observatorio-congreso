@@ -24,6 +24,9 @@ env/
 # Caché del scraper (HTML descargado — se regenera)
 cache/
 
+# Cookies del scraper (curl_cffi sessions)
+*.pkl
+
 # Herramientas de linting/formatting
 .ruff_cache/
 .mypy_cache/
