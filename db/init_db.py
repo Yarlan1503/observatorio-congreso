@@ -22,7 +22,12 @@ def create_database():
     """Crear la base de datos aplicando el schema SQL."""
     # Idempotente: borrar BD existente si existe
     if os.path.exists(DB_PATH):
-        print(f"[init] Eliminando base de datos existente: {DB_PATH}")
+        print(f"[init] Base de datos existente: {DB_PATH}")
+        confirmacion = input("¿Borrar BD existente y recrear desde cero? [y/N]: ")
+        if confirmacion.strip().lower() != "y":
+            print("[init] Operación cancelada.")
+            sys.exit(0)
+        print(f"[init] Eliminando base de datos: {DB_PATH}")
         os.remove(DB_PATH)
 
     print(f"[init] Creando base de datos: {DB_PATH}")
