@@ -75,5 +75,5 @@ indent-style = "space"
 docstring-code-format = true
 
 [tool.pytest.ini_options]
-testpaths = ["senado/scrapers/tests"]
+testpaths = ["senado/scrapers/tests", "db/tests", "utils/tests"]
 pythonpath = ["."]
