@@ -10,32 +10,31 @@ Proceso principal:
             → Loader.upsert_votacion() → SQLite
 """
 
-import sqlite3
-import re
 import json
 import logging
-from typing import Optional
-from dataclasses import dataclass, field
-
-from .models import (
-    VotacionRecord,
-    DesgloseVotacion,
-    NominalVotacion,
-    VotoNominal,
-    DesglosePartido,
-)
-from .config import CAMARA_DIPUTADOS_ID
-from .legislatura import url_estadistico
-from utils.text_utils import normalize_name
+import re
+import sqlite3
 
 # ID generator compartido entre cámaras
 import sys
+from dataclasses import dataclass
 from pathlib import Path
+
+from utils.text_utils import MESES_ES, normalize_name
+
+from .config import CAMARA_DIPUTADOS_ID
+from .legislatura import url_estadistico
+from .models import (
+    DesgloseVotacion,
+    NominalVotacion,
+    VotacionRecord,
+)
 
 _db_module_path = str(Path(__file__).resolve().parent.parent.parent / "db")
 if _db_module_path not in sys.path:
     sys.path.insert(0, _db_module_path)
-from id_generator import next_id, get_next_id_batch
+from id_generator import get_next_id_batch, next_id
+
 from db.helpers import get_or_create_organization
 
 logger = logging.getLogger(__name__)
@@ -63,7 +62,7 @@ class VoteEventPopolo:
     motion_text: str = ""
     motion_clasificacion: str = "otra"
     motion_requirement: str = "mayoria_simple"
-    motion_result: Optional[str] = None
+    motion_result: str | None = None
     motion_date: str = ""
     motion_legislative_session: str = ""
     motion_fuente_url: str = ""
@@ -77,7 +76,7 @@ class VotePopolo:
     vote_event_id: str
     voter_id: str  # P01, P28, etc.
     option: str  # "a_favor", "en_contra", "abstencion", "ausente"
-    group: Optional[str]  # "O01", "O04", etc.
+    group: str | None  # "O01", "O04", etc.
 
 
 @dataclass
@@ -88,7 +87,7 @@ class CountPopolo:
     vote_event_id: str
     option: str
     value: int
-    group_id: Optional[str]  # "O01", etc.
+    group_id: str | None  # "O01", etc.
 
 
 @dataclass
@@ -100,9 +99,9 @@ class PersonPopolo:
     identifiers_json: str  # {"sitl_id": 108}
     start_date: str = ""
     end_date: str = ""
-    fecha_nacimiento: Optional[str] = None
-    genero: Optional[str] = None
-    curul_tipo: Optional[str] = None
+    fecha_nacimiento: str | None = None
+    genero: str | None = None
+    curul_tipo: str | None = None
 
 
 @dataclass
@@ -115,8 +114,8 @@ class MembershipPopolo:
     rol: str = "diputado"
     label: str = ""
     start_date: str = ""
-    end_date: Optional[str] = None
-    on_behalf_of: Optional[str] = None
+    end_date: str | None = None
+    on_behalf_of: str | None = None
 
 
 @dataclass
@@ -135,7 +134,7 @@ class VotacionCompleta:
 # ============================================================
 
 
-def match_persona_por_nombre(nombre: str, conn: sqlite3.Connection) -> Optional[str]:
+def match_persona_por_nombre(nombre: str, conn: sqlite3.Connection) -> str | None:
     """Busca una persona existente por nombre normalizado.
 
     Retorna el ID (P01, P02, etc.) si encuentra match, None si no.
@@ -347,22 +346,6 @@ def determinar_requirement(titulo: str) -> str:
 # Conversión de formatos
 # ============================================================
 
-# Mapa de meses en español
-_MESES_ES: dict[str, str] = {
-    "enero": "01",
-    "febrero": "02",
-    "marzo": "03",
-    "abril": "04",
-    "mayo": "05",
-    "junio": "06",
-    "julio": "07",
-    "agosto": "08",
-    "septiembre": "09",
-    "octubre": "10",
-    "noviembre": "11",
-    "diciembre": "12",
-}
-
 
 def parsear_fecha_sitl(fecha_str: str) -> str:
     """Convierte fecha del SITL ("10 Diciembre 2024") a ISO 8601 ("2024-12-10").
@@ -400,7 +383,7 @@ def parsear_fecha_sitl(fecha_str: str) -> str:
 
         # Normalizar mes (sin acentos)
         mes_norm = normalize_name(mes_nombre)
-        mes_num = _MESES_ES.get(mes_norm)
+        mes_num = MESES_ES.get(mes_norm)
         if mes_num:
             return f"{anio}-{mes_num}-{dia}"
 
@@ -440,9 +423,7 @@ def sentido_to_option(sentido: str) -> str:
         return "en_contra"
     elif "ausente" in s:
         return "ausente"
-    elif "abstenc" in s or "abstencion" in s:
-        return "abstencion"
-    elif "asistencia" in s or "solo" in s:
+    elif "abstenc" in s or "abstencion" in s or "asistencia" in s or "solo" in s:
         return "abstencion"
     else:
         logger.warning(f"Sentido de voto no reconocido: '{sentido}', usando 'ausente'")
@@ -488,7 +469,7 @@ _PARTY_FULL_NAMES: dict[str, str] = {
 }
 
 
-def _partido_to_org_id(partido_nombre: str, conn: sqlite3.Connection) -> Optional[str]:
+def _partido_to_org_id(partido_nombre: str, conn: sqlite3.Connection) -> str | None:
     """Convierte nombre de partido a ID de organización via BD lookup/create.
 
     Soporta tanto nombres cortos ("MORENA", "PAN") como nombres completos
@@ -635,9 +616,7 @@ def transformar_votacion(
     # Pre-allocamos el máximo posible (total_nominales) y usamos un índice.
     _person_id_pool = get_next_id_batch(conn, "person", count=total_nominales)
     _person_id_idx = 0
-    _membership_id_pool = get_next_id_batch(
-        conn, "membership", camara="D", count=total_nominales
-    )
+    _membership_id_pool = get_next_id_batch(conn, "membership", camara="D", count=total_nominales)
     _membership_id_idx = 0
 
     # Cache de nombres ya procesados en esta votación (evitar duplicar persona)
@@ -669,9 +648,7 @@ def transformar_votacion(
                     PersonPopolo(
                         id=person_id,
                         nombre=voto.nombre,
-                        identifiers_json=json.dumps(identifiers)
-                        if identifiers
-                        else "{}",
+                        identifiers_json=json.dumps(identifiers) if identifiers else "{}",
                         start_date="",
                         end_date="",
                     )
@@ -706,8 +683,7 @@ def transformar_votacion(
                     ).fetchone()
                     # También verificar memberships ya creadas en esta sesión
                     already_added = any(
-                        m.person_id == person_id and m.org_id == org_id
-                        for m in new_memberships
+                        m.person_id == person_id and m.org_id == org_id for m in new_memberships
                     )
                     if not existing_membership and not already_added:
                         new_memberships.append(
@@ -768,9 +744,7 @@ def transformar_votacion(
         if valores_totales[opcion] > 0:
             count_needed += 1
 
-    count_ids = (
-        get_next_id_batch(conn, "count", count=count_needed) if count_needed > 0 else []
-    )
+    count_ids = get_next_id_batch(conn, "count", count=count_needed) if count_needed > 0 else []
     _count_id_idx = 0
 
     for partido in desglose.partidos:
