@@ -16,7 +16,7 @@ import polars as pl
 # ---------------------------------------------------------------------------
 # Rutas
 # ---------------------------------------------------------------------------
-BASE_DIR = Path("/home/cachorro/Documentos/Congreso de la Union")
+BASE_DIR = Path(__file__).parent.parent.parent  # Project root
 OUTPUT_DIR = Path("/home/cachorro/Documentos/CachorroSpace/public/data/observatorio")
 
 # ---------------------------------------------------------------------------
@@ -80,7 +80,9 @@ def write_json(obj, path: Path) -> None:
 
 def export_nominate() -> int:
     """1. nominate.json -- Coordenadas NOMINATE por legislatura."""
-    df = pl.read_csv(BASE_DIR / "analysis/output/nominate/coordenadas_nominate.csv")
+    df = pl.read_csv(
+        BASE_DIR / "analysis/analisis-diputados/output/nominate/coordenadas_nominate.csv"
+    )
     df = normalize_partido(df)
 
     legislaturas = sorted(df["legislatura"].unique().to_list())
@@ -97,7 +99,7 @@ def export_nominate() -> int:
 
 def export_nominate_cross() -> int:
     """2. nominate_cross.json -- Coordenadas cross-legislatura."""
-    df = pl.read_csv(BASE_DIR / "analysis/output/nominate/coordenadas_cross.csv")
+    df = pl.read_csv(BASE_DIR / "analysis/analisis-diputados/output/nominate/coordenadas_cross.csv")
     df = normalize_partido(df)
 
     legislaturas = sorted(df["legislatura"].unique().to_list())
@@ -114,7 +116,7 @@ def export_nominate_cross() -> int:
 
 def export_nominate_metrics() -> int:
     """3. nominate_metrics.json -- Metricas de ajuste por legislatura."""
-    df = pl.read_csv(BASE_DIR / "analysis/output/nominate/metricas_ajuste.csv")
+    df = pl.read_csv(BASE_DIR / "analysis/analisis-diputados/output/nominate/metricas_ajuste.csv")
     records = round_records(df.to_dicts())
     write_json(records, OUTPUT_DIR / "nominate_metrics.json")
     return len(records)
@@ -126,7 +128,9 @@ def export_covotacion_disciplina() -> int:
     El CSV tiene ventanas en filas y partidos en columnas. Se reestructura
     a formato consumible por ECharts heatmap.
     """
-    df = pl.read_csv(BASE_DIR / "analysis/output/dinamica/disciplina_partidista.csv")
+    df = pl.read_csv(
+        BASE_DIR / "analysis/analisis-diputados/output/dinamica/disciplina_partidista.csv"
+    )
 
     party_cols = [c for c in df.columns if c != "partido"]
     # Redondear columnas float de partidos
@@ -148,7 +152,9 @@ def export_covotacion_disciplina() -> int:
 
 def export_covotacion_evolucion() -> int:
     """5. covotacion_evolucion.json -- Evolucion de metricas de co-votacion."""
-    df = pl.read_csv(BASE_DIR / "analysis/output/dinamica/evolucion_metricas.csv")
+    df = pl.read_csv(
+        BASE_DIR / "analysis/analisis-diputados/output/dinamica/evolucion_metricas.csv"
+    )
     records = round_records(df.to_dicts())
     write_json(records, OUTPUT_DIR / "covotacion_evolucion.json")
     return len(records)
@@ -156,7 +162,7 @@ def export_covotacion_evolucion() -> int:
 
 def export_covotacion_stability() -> int:
     """6. covotacion_stability.json -- Stability index entre periodos."""
-    df = pl.read_csv(BASE_DIR / "analysis/output/dinamica/stability_index.csv")
+    df = pl.read_csv(BASE_DIR / "analysis/analisis-diputados/output/dinamica/stability_index.csv")
     records = round_records(df.to_dicts())
     write_json(records, OUTPUT_DIR / "covotacion_stability.json")
     return len(records)
@@ -164,7 +170,7 @@ def export_covotacion_stability() -> int:
 
 def export_poder_completo() -> int:
     """7. poder_completo.json -- Indices de poder por partido y umbral."""
-    df = pl.read_csv(BASE_DIR / "analysis/output/poder_completo.csv")
+    df = pl.read_csv(BASE_DIR / "analysis/analisis-diputados/output/poder_completo.csv")
     # Renombrar columnas con caracteres especiales a snake_case para JSON keys
     df = df.rename(
         {

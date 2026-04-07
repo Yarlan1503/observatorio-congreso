@@ -17,18 +17,19 @@ logger = logging.getLogger(__name__)
 # Raíz del proyecto
 PROJECT_ROOT = Path(__file__).parent.parent
 DB_PATH = PROJECT_ROOT / "db" / "congreso.db"
-OUTPUT_DIR = Path(__file__).parent / "output"
-OUTPUT_DIR.mkdir(exist_ok=True)
+OUTPUT_DIR = Path(__file__).parent / "analisis-diputados/output"
 
 # Mapa de argumento de cámara a filtro
 CAMARA_MAP = {"diputados": "D", "senado": "S"}
 
 
-def main(camara: str | None = None):
+def main(camara: str | None = None, output_dir: str | None = None):
     camara_label = camara or "todas las cámaras"
+    out_dir = Path(output_dir) if output_dir else OUTPUT_DIR
+    out_dir.mkdir(parents=True, exist_ok=True)
     logger.info(f"=== ANÁLISIS DE CO-VOTACIÓN ({camara_label.upper()}) ===")
     logger.info(f"BD: {DB_PATH}")
-    logger.info(f"Output: {OUTPUT_DIR}")
+    logger.info(f"Output: {out_dir}")
 
     # --- PRE-LOAD: Initialize constants from DB (dynamic party mappings) ---
     from db.constants import init_constants_from_db
@@ -166,7 +167,7 @@ def main(camara: str | None = None):
     from analysis.visualizacion import generate_all_visualizations
 
     logger.info("\nGenerando visualizaciones y exports...")
-    viz_results = generate_all_visualizations(graph, metrics, str(OUTPUT_DIR))
+    viz_results = generate_all_visualizations(graph, metrics, str(out_dir))
     for name, path in viz_results.items():
         logger.info(f"  {name}: {path}")
 
@@ -174,7 +175,7 @@ def main(camara: str | None = None):
     import pandas as pd
 
     # CSV: matriz partido × partido
-    party_csv = OUTPUT_DIR / "matriz_partidos.csv"
+    party_csv = out_dir / "matriz_partidos.csv"
     party_matrix.to_csv(party_csv)
     logger.info(f"  CSV partidos: {party_csv}")
 
@@ -206,7 +207,7 @@ def main(camara: str | None = None):
                 inter_vals.append(metrics["inter_party_avg"].get(key, 0))
         ld["covotacion_inter_partido_prom"] = sum(inter_vals) / len(inter_vals) if inter_vals else 0
 
-    legislators_csv = OUTPUT_DIR / "metricas_legisladores.csv"
+    legislators_csv = out_dir / "metricas_legisladores.csv"
     pd.DataFrame(legislator_data).to_csv(legislators_csv, index=False)
     logger.info(f"  CSV legisladores: {legislators_csv}")
 
@@ -219,7 +220,7 @@ def main(camara: str | None = None):
     logger.info(f"Peso promedio aristas: {metrics['avg_weight']:.4f}")
     logger.info(f"Comunidades detectadas: {community_analysis['num_communities']}")
     logger.info(f"Modularidad: {community_analysis['modularity']:.4f}")
-    logger.info(f"Archivos generados en: {OUTPUT_DIR}")
+    logger.info(f"Archivos generados en: {out_dir}")
     logger.info("=" * 60)
 
     return {
@@ -241,7 +242,12 @@ if __name__ == "__main__":
         default=None,
         help="Filtrar por cámara (diputados o senado)",
     )
+    parser.add_argument(
+        "--output-dir",
+        default=None,
+        help="Directorio de salida (default: analysis/analisis-diputados/output)",
+    )
     args = parser.parse_args()
 
     camara_filter = CAMARA_MAP.get(args.camara) if args.camara else None
-    main(camara=camara_filter)
+    main(camara=camara_filter, output_dir=args.output_dir)

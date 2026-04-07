@@ -1,12 +1,16 @@
 """
 poder_partidos.py — Índices de Poder Shapley-Shubik y Banzhaf
-Observatorio del Congreso de la Unión (LXVI Legislature, Cámara de Diputados)
+Observatorio del Congreso de la Unión (LXVI Legislature)
 
 Calcula índices de poder legislativo para cada partido basándose en:
 - Shapley-Shubik: poder marginal promedio en todas las permutaciones
 - Banzhaf: poder crítico en todas las coaliciones
 
-Uso: python3 analysis/poder_partidos.py
+Soporta análisis por cámara (Diputados o Senado).
+
+Uso:
+    python3 analysis/poder_partidos.py
+    python3 analysis/poder_partidos.py --camara senado --output-dir analysis/analisis-senado/output
 """
 
 import itertools
@@ -19,7 +23,7 @@ import pandas as pd
 from db.constants import _NAME_TO_ORG, _ORG_ID_TO_NAME, _PARTY_ORG_IDS
 
 DB_PATH = Path(__file__).parent.parent / "db" / "congreso.db"
-OUTPUT_DIR = Path(__file__).parent / "output"
+OUTPUT_DIR = Path(__file__).parent / "analisis-diputados/output"
 OUTPUT_DIR.mkdir(exist_ok=True)
 
 # Alias para compatibilidad interna
@@ -36,29 +40,39 @@ def get_party_name(conn, org_id: str) -> str:
     return ORG_SHORT_NAME.get(org_id, org_id)
 
 
-def get_seats_per_party(conn) -> dict:
+def get_seats_per_party(conn, rol: str = "diputado") -> dict:
     """
     Retorna {org_id: seat_count} con personas únicas asignadas a un solo partido.
 
     Estrategia:
-    1. Obtener todas las memberships a partidos (excluyendo instituciones O08, O09).
+    1. Obtener todas las memberships a partidos (clasificacion='partido').
     2. Para personas con multi-membership a partidos distintos:
        a. Contar votos normalizados por org_id en la tabla vote.
        b. Asignar al org_id donde más votos tiene.
        c. Si empate o sin votos, usar la membership con start_date más reciente.
     3. Para personas con memberships duplicadas al mismo partido: contar una sola vez.
+
+    Args:
+        conn: Conexión SQLite.
+        rol: Filtrar por rol ('diputado' o 'senador').
     """
     cur = conn.cursor()
 
-    # Paso 1: Obtener todas las memberships a partidos (solo diputados)
+    # Obtener org_ids de partidos dinámicamente
+    cur.execute("SELECT id FROM organization WHERE clasificacion = 'partido'")
+    party_org_ids = [row[0] for row in cur.fetchall()]
+    party_placeholders = ",".join(["?"] * len(party_org_ids))
+
+    # Paso 1: Obtener todas las memberships a partidos
     cur.execute(
-        """
+        f"""
         SELECT person_id, org_id, start_date
         FROM membership
-        WHERE org_id IN ('O01','O02','O03','O04','O05','O06','O07','O11')
-        AND rol = 'diputado'
+        WHERE org_id IN ({party_placeholders})
+        AND rol = ?
         ORDER BY person_id, org_id
-        """
+        """,
+        (*party_org_ids, rol),
     )
     rows = cur.fetchall()
 
@@ -224,11 +238,13 @@ def banzhaf(weights: dict, quota: int) -> dict:
 # --- Presentación ---
 
 
-def print_tabla_completa(df: pd.DataFrame, seats: dict, total_seats: int):
+def print_tabla_completa(
+    df: pd.DataFrame, seats: dict, total_seats: int, camara_label: str = "Cámara de Diputados"
+):
     """Imprime la tabla completa de resultados con formato legible."""
 
     print("=" * 100)
-    print("ÍNDICES DE PODER LEGISLATIVO — LXVI LEGISLATURA, CÁMARA DE DIPUTADOS")
+    print(f"ÍNDICES DE PODER LEGISLATIVO — LXVI LEGISLATURA, {camara_label.upper()}")
     print("=" * 100)
 
     # Tabla de escaños
@@ -297,10 +313,14 @@ def print_tabla_completa(df: pd.DataFrame, seats: dict, total_seats: int):
 def _print_coalition_analysis(seats: dict, total_seats: int):
     """Imprime análisis de coaliciones ganadoras por umbral."""
 
+    simple_quota = math.floor(total_seats / 2) + 1
+    calif_quota = math.ceil(2 / 3 * total_seats)
+    tres_cuartos_quota = math.ceil(3 / 4 * total_seats)
+
     thresholds = {
-        "Simple (251/500)": 251,
-        "Calificada 2/3 (334/500)": 334,
-        "3/4 (375/500)": 375,
+        f"Simple ({simple_quota}/{total_seats})": simple_quota,
+        f"Calificada 2/3 ({calif_quota}/{total_seats})": calif_quota,
+        f"3/4 ({tres_cuartos_quota}/{total_seats})": tres_cuartos_quota,
     }
 
     # Coaliciones conocidas
@@ -321,9 +341,9 @@ def _print_coalition_analysis(seats: dict, total_seats: int):
         coal_seats = sum(seats.get(org, 0) for org in org_ids)
         coal_pct = coal_seats / total_seats * 100
 
-        simple = "✓" if coal_seats >= 251 else "✗"
-        calif = "✓" if coal_seats >= 334 else "✗"
-        tres_cuartos = "✓" if coal_seats >= 375 else "✗"
+        simple = "✓" if coal_seats >= simple_quota else "✗"
+        calif = "✓" if coal_seats >= calif_quota else "✗"
+        tres_cuartos = "✓" if coal_seats >= tres_cuartos_quota else "✗"
 
         print(
             f"{coal_name:<45} {coal_seats:>8} {coal_pct:>7.1f}% "
@@ -340,27 +360,42 @@ def _print_coalition_analysis(seats: dict, total_seats: int):
 # --- Main ---
 
 
-def main():
+def main(camara: str = "D", output_dir: Path | None = None):
+    """Ejecuta análisis de poder por partidos.
+
+    Args:
+        camara: 'D' para Diputados, 'S' para Senado.
+        output_dir: Directorio de salida. Si None, usa el default.
+    """
+    rol = "diputado" if camara == "D" else "senador"
+    camara_label = "Cámara de Diputados" if camara == "D" else "Senado de la República"
+    out_dir = Path(output_dir) if output_dir else OUTPUT_DIR
+    out_dir.mkdir(parents=True, exist_ok=True)
+
     conn = sqlite3.connect(DB_PATH)
     conn.execute("PRAGMA journal_mode = WAL")
     conn.execute("PRAGMA busy_timeout = 5000")
-    seats = get_seats_per_party(conn)
-
-    thresholds = {
-        "Simple (251/500)": 251,
-        "Calificada 2/3 (334/500)": 334,
-        "3/4 (375/500)": 375,
-    }
+    seats = get_seats_per_party(conn, rol=rol)
 
     total_seats = sum(seats.values())
+    simple_quota = math.floor(total_seats / 2) + 1
+    calif_quota = math.ceil(2 / 3 * total_seats)
+    tres_cuartos_quota = math.ceil(3 / 4 * total_seats)
+
+    thresholds = {
+        f"Simple ({simple_quota}/{total_seats})": simple_quota,
+        f"Calificada 2/3 ({calif_quota}/{total_seats})": calif_quota,
+        f"3/4 ({tres_cuartos_quota}/{total_seats})": tres_cuartos_quota,
+    }
 
     # Verificar total de escaños
+    default_total = 500 if camara == "D" else 128
     print(f"Total escaños computados: {total_seats}")
     print(
-        "  (La Cámara tiene 500 curules; el exceso refleja diputados que "
+        f"  (La {camara_label} tiene {default_total} curules; el exceso refleja legisladores que "
         "sirvieron durante la legislatura pero fueron reemplazados)"
     )
-    print("  (Solo se cuentan memberships con rol='diputado'; militantes del caso cero excluidos)")
+    print(f"  (Solo se cuentan memberships con rol='{rol}'; militantes del caso cero excluidos)")
 
     # Verificar que los índices suman exactamente 1.0
     results = []
@@ -397,18 +432,37 @@ def main():
     for threshold_name in thresholds:
         slug = threshold_name.split()[0].lower().replace("/", "")
         mask = df["Umbral"] == threshold_name
-        df[mask].to_csv(OUTPUT_DIR / f"poder_{slug}.csv", index=False)
+        df[mask].to_csv(out_dir / f"poder_{slug}.csv", index=False)
 
     # Tabla completa
-    df.to_csv(OUTPUT_DIR / "poder_completo.csv", index=False)
+    df.to_csv(out_dir / "poder_completo.csv", index=False)
 
     # Imprimir resultados
     print()
-    print_tabla_completa(df, seats, total_seats)
+    print_tabla_completa(df, seats, total_seats, camara_label=camara_label)
 
     conn.close()
     return df
 
 
+CAMARA_MAP = {"diputados": "D", "senado": "S"}
+
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Índices de poder Shapley-Shubik y Banzhaf")
+    parser.add_argument(
+        "--camara",
+        choices=["diputados", "senado"],
+        default="diputados",
+        help="Cámara a analizar (default: diputados)",
+    )
+    parser.add_argument(
+        "--output-dir",
+        default=None,
+        help="Directorio de salida (default: analysis/analisis-diputados/output)",
+    )
+    args = parser.parse_args()
+
+    camara_code = CAMARA_MAP[args.camara]
+    main(camara=camara_code, output_dir=args.output_dir)

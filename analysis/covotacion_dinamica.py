@@ -1302,6 +1302,7 @@ def build_windows(
     min_events: int = 30,
     window_size: int | None = None,
     overlap: int | None = None,
+    camara: str | None = None,
 ) -> list[dict]:
     """Construir ventanas temporales cross-legislatura.
 
@@ -1317,6 +1318,8 @@ def build_windows(
         min_events: mínimo de votaciones por ventana (combina pequeñas).
         window_size: tamaño de ventana (solo para strategy='sliding').
         overlap: solapamiento entre ventanas (solo para strategy='sliding').
+        camara: Filtrar por cámara. ``'D'`` para Diputados, ``'S'`` para
+            Senado. Si es ``None``, no filtra.
 
     Returns:
         Lista de dicts, cada uno con:
@@ -1335,12 +1338,17 @@ def build_windows(
     conn.execute("PRAGMA journal_mode = WAL")
     conn.execute("PRAGMA busy_timeout = 5000")
     try:
-        ve_df = pd.read_sql_query(
+        base_query = (
             "SELECT id, start_date, legislatura FROM vote_event "
             "WHERE start_date IS NOT NULL AND start_date != '' "
-            "ORDER BY start_date",
-            conn,
         )
+        params: list[str] = []
+        if camara is not None:
+            camara_org = "O08" if camara == "D" else "O09"
+            base_query += "AND organization_id = ? "
+            params.append(camara_org)
+        base_query += "ORDER BY start_date"
+        ve_df = pd.read_sql_query(base_query, conn, params=params)
     finally:
         conn.close()
 
@@ -1524,6 +1532,7 @@ def analyze_windows(
     db_path: str,
     windows: list[dict],
     min_votes: int = 10,
+    camara: str | None = None,
 ) -> dict:
     """Analizar cada ventana: matriz, grafo, comunidades, métricas.
 
@@ -1534,6 +1543,8 @@ def analyze_windows(
         db_path: ruta al archivo SQLite (congreso.db).
         windows: lista de ventanas (de build_windows).
         min_votes: mínimo de votos para elegibilidad de legislador.
+        camara: Filtrar por cámara. ``'D'`` para Diputados, ``'S'`` para
+            Senado. Si es ``None``, no filtra.
 
     Returns:
         Dict label → {matrix, graph, partition, metrics,
@@ -1544,7 +1555,7 @@ def analyze_windows(
         return {}
 
     # Cargar datos una sola vez
-    votes_df, persons_df, org_map = load_data(db_path)
+    votes_df, persons_df, org_map = load_data(db_path, camara=camara)
     logger.info("Datos cargados para análisis cross-legislatura: %d votos", len(votes_df))
 
     results: dict = {}
