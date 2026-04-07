@@ -94,12 +94,17 @@ class PerfilClient:
     """Cliente HTTP para perfiles del Senado.
 
     Composición sobre SenadoLXVIClient — reusa toda la maquinaria anti-WAF
-    (curl_cffi + impersonate chrome + backoff + session recreation).
+    (curl_cffi + impersonate + backoff + session recreation).
 
-    Usa las MISMAS cookies que el scraper de votaciones (senado_cookies.pkl).
-    Las cookies acumuladas con miles de requests al endpoint de votaciones
-    dan reputación ante Incapsula, permitiendo acceder a /66/senador/{id}
-    sin rate limit. El aislamiento de cookies era la causa del bloqueo WAF.
+    Comparte cookies con el scraper de votaciones (senado_cookies.pkl)
+    para aprovechar la reputación acumulada ante Incapsula.
+
+    Gestión de sesiones:
+    - Sesión activa: fingerprint fijo, cookies compartidas y persistentes.
+    - WAF bloquea: sesión quemada → fingerprint nuevo, cookies descartadas,
+      warm-up a la página principal.
+    - Rotación proactiva: cada MAX_REQUESTS_PER_SESSION requests, cierra sesión
+      y abre nueva con fingerprint rotado (cookies conservadas).
     """
 
     def __init__(self, delay: float = 2.0) -> None:
@@ -591,15 +596,18 @@ class PerfilPipeline:
         self.dry_run = dry_run
 
         # Configuración de pausa ante sesión quemada
-        self._session_pause_base = 300  # 5 minutos base
+        self._session_pause_base = (
+            600  # 10 minutos base (dar tiempo a WAF a expirar bloqueo por IP)
+        )
         self._session_pause_max = 1800  # 30 minutos máximo
         self._session_pause_attempts = 0
 
     def _handle_session_burned(self) -> bool:
         """Maneja una sesión quemada por el WAF.
 
-        Pausa exponencialmente y reintenta. Si se supera el máximo de pausas,
-        retorna False para indicar que se debe abortar.
+        Pausa exponencialmente y reintenta con sesión limpia (nuevo fingerprint,
+        sin cookies quemadas). Si se supera el máximo de pausas, retorna False
+        para indicar que se debe abortar.
 
         Returns:
             True si se debe reintentar, False si se aborta.
@@ -625,10 +633,10 @@ class PerfilPipeline:
         )
         time.sleep(pause_time)
 
-        # Recrear sesión con cookies frescas
-        self.client._client._recreate_session()
+        # Recrear sesión limpia: nuevo fingerprint, sin cookies quemadas, con warm-up
+        self.client._client._recreate_session(skip_cookies=True)
         self.client._client.reset_waf_counter()
-        logger.info("Sesión recreada, reanudando scrapeo")
+        logger.info("Sesión recreada (fingerprint rotado, cookies omitidas, warm-up hecho)")
         return True
 
     def process_one(self, portal_id: int) -> dict:

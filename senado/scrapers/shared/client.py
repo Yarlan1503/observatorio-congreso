@@ -20,6 +20,7 @@ from curl_cffi.requests import BrowserTypeLiteral, Session
 
 from .config import (
     BASE_BACKOFF,
+    BASE_URL_LXVI,
     CACHE_DIR,
     COOKIE_PATH,
     LXVI_AJAX_URL,
@@ -53,15 +54,30 @@ class SenadoLXVIClient:
     AJAX: POST /66/app/votaciones/functions/viewTableVot.php
 
     Usa curl_cffi con impersonate de Chrome para evadir WAF Incapsula.
-    Rota entre versiones de Chrome (JA3 fingerprints diferentes) al recrear
-    sesiones para evitar correlación por TLS fingerprint.
+
+    Estrategia anti-WAF por capas:
+    1. Sesión activa: fingerprint fijo, cookies compartidas y persistentes.
+    2. WAF bloquea: cerrar sesión, descartar cookies quemadas.
+    3. Nueva sesión: nuevo fingerprint del pool, cookies frescas (warm-up).
+    4. Prevención: rotación proactiva cada MAX_REQUESTS_PER_SESSION requests.
     """
 
-    # Targets de impersonate con JA3 hashes diferentes
-    # NOTA: La rotación de JA3 es CONTRAPRODUCENTE con Incapsula —
-    # un cliente que cambia su TLS fingerprint se ve MÁS sospechoso.
-    # Usar solo 'chrome' (fijo) como el scraper de votaciones original.
-    _IMPERSONATE_TARGETS: tuple[BrowserTypeLiteral, ...] = ("chrome",)
+    # Pool de fingerprints con JA3 hashes distintos.
+    # Fuente: curl_cffi BrowserTypeLiteral (v0.7+).
+    # Al recrear sesión tras WAF burn, se rota al siguiente del pool.
+    # Nota: NO rotar fingerprint mid-session activa — solo al recrear.
+    _IMPERSONATE_TARGETS: tuple[BrowserTypeLiteral, ...] = (
+        "chrome",
+        "safari",
+        "chrome116",
+        "chrome131",
+        "edge",
+        "chrome_android",
+    )
+
+    # Límite de requests por sesión antes de rotar proactivamente.
+    # Previene que el WAF detecte patrones de scraping en sesiones largas.
+    MAX_REQUESTS_PER_SESSION: int = 10
 
     # Circuit breaker: después de N WAFs consecutivos, declarar sesión quemada
     WAF_CONSECUTIVE_THRESHOLD = 2
@@ -90,6 +106,7 @@ class SenadoLXVIClient:
         self._last_request_time = 0.0
         self._impersonate_idx = 0
         self._consecutive_wafs = 0
+        self._request_count = 0
 
         # Crear directorio de caché si es necesario
         if self.use_cache:
@@ -98,11 +115,17 @@ class SenadoLXVIClient:
         # Crear sesión con impersonate de Chrome
         self._session = self._create_session()
 
-    def _create_session(self, impersonate: BrowserTypeLiteral | None = None) -> Session:
+    def _create_session(
+        self,
+        impersonate: BrowserTypeLiteral | None = None,
+        skip_existing_cookies: bool = False,
+    ) -> Session:
         """Crea una nueva sesión curl_cffi con impersonate de Chrome.
 
         Args:
             impersonate: Target específico. Si None, usa el actual del ciclo.
+            skip_existing_cookies: Si True, NO carga cookies del .pkl.
+                                  Usar al recrear sesión tras WAF burn.
 
         Returns:
             Sesión configurada con headers y cookies.
@@ -111,8 +134,8 @@ class SenadoLXVIClient:
         session = Session(impersonate=target)
         logger.debug(f"Sesión creada con impersonate={target}")
 
-        # Cargar cookies persistidas si existen
-        if self._cookie_path.exists():
+        # Cargar cookies persistidas si existen (solo si no estamos quemando sesión)
+        if not skip_existing_cookies and self._cookie_path.exists():
             try:
                 with open(self._cookie_path, "rb") as f:
                     cookies_dict = pickle.load(f)
@@ -121,6 +144,8 @@ class SenadoLXVIClient:
                 logger.debug(f"Cookies cargadas desde {self._cookie_path.name}")
             except Exception as e:
                 logger.warning(f"Error cargando cookies: {e}")
+        elif skip_existing_cookies:
+            logger.info("Sesión limpia: omitiendo cookies existentes (WAF burn)")
 
         return session
 
@@ -195,21 +220,44 @@ class SenadoLXVIClient:
         logger.info(f"Backoff: esperando {wait_time:.1f}s (intento {attempt + 1})")
         time.sleep(wait_time)
 
-    def _recreate_session(self) -> None:
-        """Recrea la sesión HTTP con el siguiente impersonate del ciclo.
+    def _recreate_session(self, skip_cookies: bool = False) -> None:
+        """Recrea la sesión HTTP con nuevo fingerprint y warm-up.
 
-        Rota entre versiones de Chrome para cambiar el TLS fingerprint (JA3)
-        y evitar que el WAF nos correlacione por fingerprint.
+        Al recrear tras un WAF burn:
+        1. Rota al siguiente fingerprint del pool (JA3 distinto).
+        2. NO carga cookies quemadas del .pkl.
+        3. Hace warm-up: GET a la página principal para obtener cookies frescas
+           de Incapsula antes de cualquier request real.
+
+        Args:
+            skip_cookies: Si True, no carga cookies existentes (WAF burn).
+                          Si False, las carga normalmente (rotación proactiva).
         """
         # Avanzar al siguiente target en el ciclo
         self._impersonate_idx = (self._impersonate_idx + 1) % len(self._IMPERSONATE_TARGETS)
         target = self._IMPERSONATE_TARGETS[self._impersonate_idx]
-        logger.info(f"Recreando sesión con impersonate={target}...")
+        logger.info(f"Recreando sesión con impersonate={target} (skip_cookies={skip_cookies})...")
+
         with contextlib.suppress(Exception):
             self._session.close()
-        self._session = self._create_session(impersonate=target)
+        self._session = self._create_session(impersonate=target, skip_existing_cookies=skip_cookies)
+        self._request_count = 0
         # Reset circuit breaker al crear nueva sesión
         self._consecutive_wafs = 0
+
+        # Warm-up obligatorio: GET a la página principal para obtener cookies frescas
+        if skip_cookies:
+            logger.info("Warm-up post-burn: GET a página principal del Senado")
+            try:
+                resp = self._session.get(f"{BASE_URL_LXVI}/66/", timeout=30.0, http_version="v1")
+                status = resp.status_code
+                logger.info(f"Warm-up completado (status={status})")
+            except Exception as e:
+                logger.warning(f"Warm-up falló: {e} — continuando con sesión fresca")
+        else:
+            # Rotación proactiva: pausa breve antes de continuar
+            logger.info("Rotación proactiva: pausa 30s antes de nueva sesión")
+            time.sleep(30.0)
 
     def reset_waf_counter(self) -> None:
         """Reinicia el circuit breaker de WAFs consecutivos.
@@ -250,6 +298,9 @@ class SenadoLXVIClient:
     def _fetch_with_retry(self, method: str, url: str, **kwargs) -> str:
         """Ejecuta un request HTTP con reintentos anti-WAF.
 
+        Rota la sesión proactivamente cada MAX_REQUESTS_PER_SESSION requests
+        para prevenir que el WAF detecte patrones de scraping.
+
         Args:
             method: 'GET' o 'POST'.
             url: URL a fetchear.
@@ -261,9 +312,18 @@ class SenadoLXVIClient:
         Raises:
             RuntimeError: Si se agotan los reintentos por WAF.
         """
+        # Rotación proactiva: si alcanzamos el límite, rotar sesión antes del request
+        if self._request_count >= self.MAX_REQUESTS_PER_SESSION:
+            logger.info(
+                f"Rotación proactiva: {self._request_count} requests, "
+                f"límite {self.MAX_REQUESTS_PER_SESSION}"
+            )
+            self._recreate_session(skip_cookies=False)
+
         for attempt in range(MAX_RETRIES):
             try:
                 logger.debug(f"{method}: {url} (intento {attempt + 1})")
+                self._request_count += 1
 
                 if method.upper() == "POST":
                     response = self._session.post(
@@ -286,7 +346,7 @@ class SenadoLXVIClient:
                 if self._is_waf_response(html, response.status_code):
                     if attempt < MAX_RETRIES - 1:
                         self._backoff(attempt)
-                        self._recreate_session()
+                        self._recreate_session(skip_cookies=True)
                         continue
                     else:
                         raise RuntimeError(f"WAF bloqueó después de {MAX_RETRIES} intentos: {url}")
@@ -310,7 +370,7 @@ class SenadoLXVIClient:
                     logger.error(f"Error curl_cffi: {e}")
                     if attempt < MAX_RETRIES - 1:
                         self._backoff(attempt)
-                        self._recreate_session()
+                        self._recreate_session(skip_cookies=True)
                         continue
                 logger.debug(f"Excepción no-curl en attempt {attempt + 1}: {type(e).__name__}: {e}")
                 raise
