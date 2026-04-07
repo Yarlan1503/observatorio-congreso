@@ -32,13 +32,23 @@ logger = logging.getLogger(__name__)
 # Raíz del proyecto
 PROJECT_ROOT = Path(__file__).parent.parent
 DB_PATH = PROJECT_ROOT / "db" / "congreso.db"
-OUTPUT_DIR = Path(__file__).parent / "output" / "dinamica"
+OUTPUT_DIR = Path(__file__).parent / "analisis-diputados/output/dinamica"
+
+
+# Mapa de argumento de cámara a filtro
+CAMARA_MAP = {"diputados": "D", "senado": "S"}
 
 
 def parse_args():
     """Parsear argumentos de línea de comandos."""
     parser = argparse.ArgumentParser(
         description="Análisis dinámico cross-legislatura de grafos de co-votación",
+    )
+    parser.add_argument(
+        "--camara",
+        choices=["diputados", "senado"],
+        default=None,
+        help="Filtrar por cámara (diputados o senado)",
     )
     parser.add_argument(
         "--strategy",
@@ -69,6 +79,11 @@ def parse_args():
         type=int,
         default=None,
         help="Overlap entre ventanas (solo sliding)",
+    )
+    parser.add_argument(
+        "--output-dir",
+        default=None,
+        help="Directorio de salida (default: analysis/analisis-diputados/output/dinamica)",
     )
     return parser.parse_args()
 
@@ -141,16 +156,21 @@ def export_csvs(window_results: dict, evolution: dict, output_dir: Path):
 def main():
     args = parse_args()
 
+    # Resolve paths and camara
+    output_dir = Path(args.output_dir) if args.output_dir else OUTPUT_DIR
+    camara = CAMARA_MAP.get(args.camara) if args.camara else None
+
     # 1. Banner de inicio
     logger.info("=" * 60)
     logger.info("=== ANÁLISIS DINÁMICO CROSS-LEGISLATURA ===")
     logger.info("BD: %s", DB_PATH)
-    logger.info("Output: %s", OUTPUT_DIR)
+    logger.info("Output: %s", output_dir)
     logger.info(
-        "Estrategia: %s | min_events: %d | min_votes: %d",
+        "Estrategia: %s | min_events: %d | min_votes: %d | camara: %s",
         args.strategy,
         args.min_events,
         args.min_votes,
+        camara or "todas",
     )
     logger.info("=" * 60)
 
@@ -159,7 +179,7 @@ def main():
         logger.error("Base de datos no encontrada: %s", DB_PATH)
         sys.exit(1)
 
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     # 3. FASE 1: Construir ventanas
     logger.info("\n--- FASE 1: Construyendo ventanas temporales ---")
@@ -169,6 +189,7 @@ def main():
         min_events=args.min_events,
         window_size=args.window_size,
         overlap=args.overlap,
+        camara=camara,
     )
 
     if not windows:
@@ -192,6 +213,7 @@ def main():
         str(DB_PATH),
         windows,
         min_votes=args.min_votes,
+        camara=camara,
     )
 
     if not window_results:
@@ -260,7 +282,7 @@ def main():
     viz_files = generate_all_dynamic_visualizations(
         window_results,
         evolution,
-        str(OUTPUT_DIR),
+        str(output_dir),
     )
     logger.info("Archivos generados:")
     for name, path in viz_files.items():
@@ -268,13 +290,13 @@ def main():
 
     # 7. FASE 5: Exportar CSVs
     logger.info("\n--- FASE 5: Exportando CSVs ---")
-    export_csvs(window_results, evolution, OUTPUT_DIR)
+    export_csvs(window_results, evolution, output_dir)
 
     # 8. RESUMEN FINAL
     logger.info("\n" + "=" * 60)
     logger.info("=== ANÁLISIS DINÁMICO CROSS-LEGISLATURA COMPLETADO ===")
     logger.info("Estrategia: %s | Ventanas: %d", args.strategy, len(window_results))
-    logger.info("Archivos en: %s", OUTPUT_DIR)
+    logger.info("Archivos en: %s", output_dir)
     logger.info("=" * 60)
 
     return {

@@ -1,0 +1,6 @@
+periodo_origen,periodo_destino,comunidad_origen,comunidad_destino,legisladores
+P1 (Sep-Dic 2024),P2 (Feb-Jul 2025),C0,C0,134
+P1 (Sep-Dic 2024),P2 (Feb-Jul 2025),C1,C1,362
+P2 (Feb-Jul 2025),P3+ (2025-09-09 a 2026-03-17),C0,C0,134
+P2 (Feb-Jul 2025),P3+ (2025-09-09 a 2026-03-17),C1,C1,360
+P2 (Feb-Jul 2025),P3+ (2025-09-09 a 2026-03-17),C1,C0,1

@@ -1,0 +1,31 @@
+Partido,Org_ID,Escaños,Umbral,Nominal_%,Shapley_Shubik_%,Banzhaf_%
+Convergencia,O12,390,Simple (741/1480),26.35,31.19,30.71
+Partido Encuentro Social,O15,368,Simple (741/1480),24.86,30.4,30.24
+O19,O19,64,Simple (741/1480),4.32,2.62,2.14
+Alternativa Socialdemócrata,O14,67,Simple (741/1480),4.53,2.62,2.14
+O18,O18,118,Simple (741/1480),7.97,2.62,2.14
+Nueva Alianza,O13,87,Simple (741/1480),5.88,2.62,2.14
+Independientes,O11,312,Simple (741/1480),21.08,25.63,28.33
+O25,O25,13,Simple (741/1480),0.88,0.24,0.24
+Sin Partido,O16,51,Simple (741/1480),3.45,1.83,1.67
+O26,O26,10,Simple (741/1480),0.68,0.24,0.24
+Convergencia,O12,390,Calificada 2/3 (987/1480),26.35,25.67,25.0
+Partido Encuentro Social,O15,368,Calificada 2/3 (987/1480),24.86,23.1,23.63
+O19,O19,64,Calificada 2/3 (987/1480),4.32,5.36,5.6
+Alternativa Socialdemócrata,O14,67,Calificada 2/3 (987/1480),4.53,5.56,5.87
+O18,O18,118,Calificada 2/3 (987/1480),7.97,11.59,10.79
+Nueva Alianza,O13,87,Calificada 2/3 (987/1480),5.88,6.15,6.42
+Independientes,O11,312,Calificada 2/3 (987/1480),21.08,16.79,16.53
+O25,O25,13,Calificada 2/3 (987/1480),0.88,0.91,0.96
+Sin Partido,O16,51,Calificada 2/3 (987/1480),3.45,4.37,4.78
+O26,O26,10,Calificada 2/3 (987/1480),0.68,0.52,0.41
+Convergencia,O12,390,3/4 (1110/1480),26.35,35.91,30.23
+Partido Encuentro Social,O15,368,3/4 (1110/1480),24.86,24.8,29.77
+O19,O19,64,3/4 (1110/1480),4.32,3.53,2.33
+Alternativa Socialdemócrata,O14,67,3/4 (1110/1480),4.53,3.53,2.33
+O18,O18,118,3/4 (1110/1480),7.97,3.53,2.33
+Nueva Alianza,O13,87,3/4 (1110/1480),5.88,3.53,2.33
+Independientes,O11,312,3/4 (1110/1480),21.08,20.24,27.91
+O25,O25,13,3/4 (1110/1480),0.88,1.39,0.47
+Sin Partido,O16,51,3/4 (1110/1480),3.45,2.14,1.86
+O26,O26,10,3/4 (1110/1480),0.68,1.39,0.47

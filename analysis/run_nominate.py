@@ -46,7 +46,7 @@ logger = logging.getLogger(__name__)
 # Raíz del proyecto
 PROJECT_ROOT = Path(__file__).parent.parent
 DB_PATH = PROJECT_ROOT / "db" / "congreso.db"
-OUTPUT_DIR = Path(__file__).parent / "output" / "nominate"
+OUTPUT_DIR = Path(__file__).parent / "analisis-diputados/output/nominate"
 
 
 # ---------------------------------------------------------------------------
@@ -54,10 +54,20 @@ OUTPUT_DIR = Path(__file__).parent / "output" / "nominate"
 # ---------------------------------------------------------------------------
 
 
+# Mapa de argumento de cámara a filtro
+CAMARA_MAP = {"diputados": "D", "senado": "S"}
+
+
 def parse_args():
     """Parsear argumentos de línea de comandos."""
     parser = argparse.ArgumentParser(
         description="Análisis W-NOMINATE de puntos ideales del Congreso de la Unión",
+    )
+    parser.add_argument(
+        "--camara",
+        choices=["diputados", "senado"],
+        default=None,
+        help="Filtrar por cámara (diputados o senado)",
     )
     parser.add_argument(
         "--legislatura",
@@ -107,11 +117,12 @@ def parse_args():
 # ---------------------------------------------------------------------------
 
 
-def _get_legislaturas(db_path: str) -> list[str]:
+def _get_legislaturas(db_path: str, camara: str | None = None) -> list[str]:
     """Obtener lista de legislaturas con vote_events en la BD.
 
     Args:
         db_path: Ruta al archivo SQLite.
+        camara: Filtro de cámara ('D' o 'S'). Si None, todas.
 
     Returns:
         Lista de nombres de legislatura ordenados.
@@ -120,11 +131,21 @@ def _get_legislaturas(db_path: str) -> list[str]:
     conn.execute("PRAGMA journal_mode = WAL")
     conn.execute("PRAGMA busy_timeout = 5000")
     try:
-        legs_df = pd.read_sql_query(
-            "SELECT DISTINCT legislatura FROM vote_event "
-            "WHERE legislatura IS NOT NULL ORDER BY legislatura",
-            conn,
-        )
+        if camara is not None:
+            camara_org = "O08" if camara == "D" else "O09"
+            legs_df = pd.read_sql_query(
+                "SELECT DISTINCT legislatura FROM vote_event "
+                "WHERE legislatura IS NOT NULL AND organization_id = ? "
+                "ORDER BY legislatura",
+                conn,
+                params=[camara_org],
+            )
+        else:
+            legs_df = pd.read_sql_query(
+                "SELECT DISTINCT legislatura FROM vote_event "
+                "WHERE legislatura IS NOT NULL ORDER BY legislatura",
+                conn,
+            )
     finally:
         conn.close()
     return legs_df["legislatura"].tolist()
@@ -137,6 +158,7 @@ def _run_single_legislatura(
     maxiter: int,
     min_votes: int,
     lopsided_threshold: float = 0.975,
+    camara: str | None = None,
 ) -> tuple[dict, dict]:
     """Ejecutar NOMINATE para una legislatura individual.
 
@@ -147,6 +169,7 @@ def _run_single_legislatura(
         maxiter: Máximo de iteraciones.
         min_votes: Mínimo de votos binarios por legislador.
         lopsided_threshold: Umbral para filtrar lopsided votes.
+        camara: Filtro de cámara ('D' o 'S').
 
     Returns:
         Tupla (vote_data, nominate_result).
@@ -156,6 +179,7 @@ def _run_single_legislatura(
         legislatura=legislatura,
         min_votes=min_votes,
         lopsided_threshold=lopsided_threshold,
+        camara=camara,
     )
     result = run_wnominate(data, dimensions=dimensions, maxiter=maxiter)
     return data, result
@@ -167,6 +191,7 @@ def _run_cross_legislatura(
     maxiter: int,
     min_votes: int,
     lopsided_threshold: float = 0.975,
+    camara: str | None = None,
 ) -> tuple[dict, dict]:
     """Ejecutar NOMINATE con todos los datos combinados (estilo DW-NOMINATE).
 
@@ -176,6 +201,7 @@ def _run_cross_legislatura(
         maxiter: Máximo de iteraciones.
         min_votes: Mínimo de votos binarios por legislador.
         lopsided_threshold: Umbral para filtrar lopsided votes.
+        camara: Filtro de cámara ('D' o 'S').
 
     Returns:
         Tupla (vote_data, nominate_result) con ``legislatura_labels`` adicional
@@ -186,6 +212,7 @@ def _run_cross_legislatura(
         legislatura=None,
         min_votes=min_votes,
         lopsided_threshold=lopsided_threshold,
+        camara=camara,
     )
     result = run_wnominate(data, dimensions=dimensions, maxiter=maxiter)
 
@@ -394,6 +421,7 @@ def main():
     # Paths
     db_path = str(DB_PATH)
     output_dir = Path(args.output_dir) if args.output_dir else OUTPUT_DIR
+    camara = CAMARA_MAP.get(args.camara) if args.camara else None
 
     # Banner de inicio
     logger.info("=" * 60)
@@ -423,7 +451,7 @@ def main():
     if args.legislatura:
         legislaturas = [args.legislatura]
     else:
-        legislaturas = _get_legislaturas(db_path)
+        legislaturas = _get_legislaturas(db_path, camara=camara)
 
     if not legislaturas:
         logger.error("No se encontraron legislaturas en la base de datos")
@@ -450,6 +478,7 @@ def main():
                     args.maxiter,
                     args.min_votes,
                     args.lopsided_threshold,
+                    camara=camara,
                 )
                 results_by_leg[leg] = (data, result)
                 _print_legislatura_summary(leg, data, result)
@@ -492,6 +521,7 @@ def main():
                 args.maxiter,
                 args.min_votes,
                 args.lopsided_threshold,
+                camara=camara,
             )
 
             # Resumen textual

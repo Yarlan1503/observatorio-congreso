@@ -1,0 +1,4 @@
+vote_event_id,result,requirement,mayoria_necesaria,a_favor_total,en_contra_total,ausente_total,margin,critical_parties
+
+--- DESGLOSE POR PARTIDO ---
+vote_event_id,partido,org_id,a_favor,en_contra,abstencion,ausente,total,posicion,critico

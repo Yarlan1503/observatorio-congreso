@@ -32,7 +32,7 @@ from db.constants import (
 )
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "db", "congreso.db")
-OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "output")
+OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "analisis-diputados/output")
 
 # --- Constantes ---
 
@@ -121,21 +121,42 @@ def get_requirement(conn, ve_id):
     return row[0] if row else "mayoria_simple"
 
 
-def get_seat_counts(conn):
+def get_seat_counts(conn, camara: str | None = None):
     """
     Retorna {org_id: seat_count} con el máximo de votantes por partido
     en cualquier votación individual. Proxy para escaños efectivos.
 
     Normaliza grupos (nombres vs IDs) ANTES de tomar el máximo,
     ya que VE01 usa nombres ('PT', 'PVEM') y VE03+ usa IDs ('O02', 'O03').
+
+    Args:
+        conn: Conexión SQLite.
+        camara: Si 'D', filtra a Diputados. Si 'S', filtra a Senado.
     """
     cur = conn.cursor()
-    cur.execute("""
-        SELECT vote_event_id, "group", COUNT(*) as cnt
-        FROM vote
-        WHERE "group" IS NOT NULL
-        GROUP BY vote_event_id, "group"
-    """)
+    if camara == "D":
+        cur.execute("""
+            SELECT v.vote_event_id, v."group", COUNT(*) as cnt
+            FROM vote v
+            JOIN vote_event ve ON v.vote_event_id = ve.id
+            WHERE v."group" IS NOT NULL AND ve.organization_id = 'O08'
+            GROUP BY v.vote_event_id, v."group"
+        """)
+    elif camara == "S":
+        cur.execute("""
+            SELECT v.vote_event_id, v."group", COUNT(*) as cnt
+            FROM vote v
+            JOIN vote_event ve ON v.vote_event_id = ve.id
+            WHERE v."group" IS NOT NULL AND ve.organization_id = 'O09'
+            GROUP BY v.vote_event_id, v."group"
+        """)
+    else:
+        cur.execute("""
+            SELECT vote_event_id, "group", COUNT(*) as cnt
+            FROM vote
+            WHERE "group" IS NOT NULL
+            GROUP BY vote_event_id, "group"
+        """)
     # Agrupar por org_id normalizado, tomando el máximo
     seats = {}
     for _, group_val, count in cur.fetchall():
@@ -421,7 +442,7 @@ def build_comparison_table(
         camara: 'D' para Diputados, 'S' para Senado, None para default.
         db_path: Ruta a la BD para calcular asientos dinámicos.
     """
-    seats = get_seat_counts(conn)
+    seats = get_seat_counts(conn, camara=camara)
 
     # Solo partidos con escaños en votaciones
     active_seats = {org: cnt for org, cnt in seats.items() if cnt > 0}
@@ -577,16 +598,21 @@ def analyze_close_votes(conn, analyses, threshold=10):
 # --- Disidentes ---
 
 
-def find_top_dissidents(conn, min_votes=MIN_VOTES):
+def find_top_dissidents(conn, min_votes=MIN_VOTES, camara: str | None = None):
     """
     Encuentra los legisladores que más votaron diferente a su partido.
+
+    Args:
+        conn: Conexión SQLite.
+        min_votes: Mínimo de votaciones para incluir un legislador.
+        camara: Filtro de cámara ('D', 'S' o None).
 
     Returns: [(person_id, person_name, party, dissent_rate, total_votes, dissent_count)]
     """
     cur = conn.cursor()
 
     # Obtener votaciones con resultado
-    ve_ids = get_vote_events_with_results(conn)
+    ve_ids = get_vote_events_with_results(conn, camara=camara)
 
     # Para cada votación, obtener la posición mayoritaria de cada partido
     ve_party_positions = {}
@@ -687,19 +713,30 @@ def find_top_dissidents(conn, min_votes=MIN_VOTES):
 # --- Output ---
 
 
-def save_results(comparison, reforma_analyses, dissidents, all_analyses, close_votes_analysis):
-    """Guarda todos los resultados en CSVs."""
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+def save_results(
+    comparison,
+    reforma_analyses,
+    dissidents,
+    all_analyses,
+    close_votes_analysis,
+    output_dir=OUTPUT_DIR,
+):
+    """Guarda todos los resultados en CSVs.
+
+    Args:
+        output_dir: Directorio de salida. Default: OUTPUT_DIR global.
+    """
+    os.makedirs(output_dir, exist_ok=True)
 
     # 1. poder_empirico.csv
-    with open(os.path.join(OUTPUT_DIR, "poder_empirico.csv"), "w", newline="") as f:
+    with open(os.path.join(output_dir, "poder_empirico.csv"), "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["partido", "org_id", "poder_empirico"])
         for row in comparison:
             writer.writerow([row["partido"], row["org_id"], f"{row['empirico']:.4f}"])
 
     # 2. comparacion_poder.csv
-    with open(os.path.join(OUTPUT_DIR, "comparacion_poder.csv"), "w", newline="") as f:
+    with open(os.path.join(output_dir, "comparacion_poder.csv"), "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(
             [
@@ -726,7 +763,7 @@ def save_results(comparison, reforma_analyses, dissidents, all_analyses, close_v
             )
 
     # 3. votaciones_detalle.csv
-    with open(os.path.join(OUTPUT_DIR, "votaciones_detalle.csv"), "w", newline="") as f:
+    with open(os.path.join(output_dir, "votaciones_detalle.csv"), "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(
             [
@@ -763,7 +800,7 @@ def save_results(comparison, reforma_analyses, dissidents, all_analyses, close_v
             )
 
     # 4. disidentes.csv
-    with open(os.path.join(OUTPUT_DIR, "disidentes.csv"), "w", newline="") as f:
+    with open(os.path.join(output_dir, "disidentes.csv"), "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(
             [
@@ -780,7 +817,7 @@ def save_results(comparison, reforma_analyses, dissidents, all_analyses, close_v
             writer.writerow([i, pid, name, party, f"{rate * 100:.1f}", total, dissent])
 
     # 5. reforma_judicial.csv
-    with open(os.path.join(OUTPUT_DIR, "reforma_judicial.csv"), "w", newline="") as f:
+    with open(os.path.join(output_dir, "reforma_judicial.csv"), "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(
             [
@@ -1115,12 +1152,14 @@ def print_all_results(
 # --- Main ---
 
 
-def main(camara: str | None = None):
+def main(camara: str | None = None, output_dir: str | None = None):
     """Ejecuta análisis de poder empírico.
 
     Args:
         camara: 'D' para Diputados, 'S' para Senado, None para todas.
+        output_dir: Directorio de salida. Si None, usa el default.
     """
+    out_dir = output_dir or OUTPUT_DIR
     conn = sqlite3.connect(DB_PATH)
     conn.execute("PRAGMA journal_mode = WAL")
     conn.execute("PRAGMA busy_timeout = 5000")
@@ -1144,19 +1183,25 @@ def main(camara: str | None = None):
         conn, empirical_power, camara=camara
     )
 
-    # Análisis Reforma Judicial
-    reforma_analyses = analyze_reforma_judicial(conn, ["VE04", "VE05"])
+    # Análisis Reforma Judicial (solo para Diputados)
+    reforma_ve_ids = ["VE04", "VE05"] if camara != "S" else []
+    reforma_analyses = analyze_reforma_judicial(conn, reforma_ve_ids) if reforma_ve_ids else []
 
     # Votaciones cerradas
     close_votes_analysis = analyze_close_votes(conn, analyses, threshold=10)
 
     # Top disidentes
-    dissidents = find_top_dissidents(conn, min_votes=10)
+    dissidents = find_top_dissidents(conn, min_votes=10, camara=camara)
 
     # Guardar CSVs
-    save_results(comparison, reforma_analyses, dissidents, analyses, close_votes_analysis)
+    save_results(
+        comparison, reforma_analyses, dissidents, analyses, close_votes_analysis, output_dir=out_dir
+    )
 
     # Imprimir resultados
+    camara_label = (
+        "Camara de Diputados" if camara == "D" else ("Senado" if camara == "S" else "Congreso")
+    )
     print_all_results(
         comparison,
         quota_simple,
@@ -1169,5 +1214,26 @@ def main(camara: str | None = None):
     conn.close()
 
 
+CAMARA_MAP = {"diputados": "D", "senado": "S"}
+
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Análisis de poder empírico basado en votaciones reales"
+    )
+    parser.add_argument(
+        "--camara",
+        choices=["diputados", "senado"],
+        default=None,
+        help="Filtrar por cámara (diputados o senado)",
+    )
+    parser.add_argument(
+        "--output-dir",
+        default=None,
+        help="Directorio de salida (default: analysis/analisis-diputados/output)",
+    )
+    args = parser.parse_args()
+
+    camara_code = CAMARA_MAP.get(args.camara) if args.camara else None
+    main(camara=camara_code, output_dir=args.output_dir)

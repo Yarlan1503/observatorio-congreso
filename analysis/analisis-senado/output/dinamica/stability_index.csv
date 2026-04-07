@@ -1,0 +1,6 @@
+periodo_origen,periodo_destino,ari
+LX (06-09),LXI (09-12),0.4605
+LXI (09-12),LXII (12-15),0.1404
+LXII (12-15),LXIII (15-18),0.3853
+LXIII (15-18),LXIV (18-21),0.0
+LXIV (18-21),LXV+ (2021-12-15 a 2026-03-25),0.0109

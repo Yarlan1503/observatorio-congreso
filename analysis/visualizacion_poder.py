@@ -31,7 +31,7 @@ import pandas as pd
 # ---------------------------------------------------------------------------
 
 DB_PATH = Path(__file__).parent.parent / "db" / "congreso.db"
-OUTPUT_DIR = Path(__file__).parent / "output"
+OUTPUT_DIR = Path(__file__).parent / "analisis-diputados/output"
 OUTPUT_DIR.mkdir(exist_ok=True)
 
 # Colores por partido (coherentes con visualizacion.py)

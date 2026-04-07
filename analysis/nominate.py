@@ -52,6 +52,7 @@ def prepare_vote_matrix(
     min_votes: int = 10,
     min_participants: int = 10,
     lopsided_threshold: float = 0.975,
+    camara: str | None = None,
 ) -> dict:
     """Construir la matriz binarizada legislators × vote_events para NOMINATE.
 
@@ -75,6 +76,8 @@ def prepare_vote_matrix(
         lopsided_threshold: Umbral para filtrar votaciones lopsided
             (donde la proporción mayoritaria excede este valor).
             ``None`` o 0 deshabilita el filtro. Default: 0.975.
+        camara: Filtrar por cámara. ``'D'`` para Diputados, ``'S'`` para
+            Senado. Si es ``None``, no filtra.
 
     Returns:
         Diccionario con:
@@ -103,21 +106,31 @@ def prepare_vote_matrix(
     conn.execute("PRAGMA busy_timeout = 5000")
     try:
         # ------------------------------------------------------------------
-        # 1. Cargar votos con filtro de legislatura
+        # 1. Cargar votos con filtro de legislatura y/o cámara
         # ------------------------------------------------------------------
+        needs_join = legislatura is not None or camara is not None
+        conditions: list[str] = []
+        params: list[str] = []
+
         if legislatura is not None:
-            vote_query = """
-                SELECT v.voter_id, v.vote_event_id, v.option, v."group"
-                FROM vote v
-                JOIN vote_event ve ON v.vote_event_id = ve.id
-                WHERE ve.legislatura = ?
-            """
-            votes_df = pd.read_sql_query(vote_query, conn, params=[legislatura])
+            conditions.append("ve.legislatura = ?")
+            params.append(legislatura)
+
+        if camara is not None:
+            camara_org = "O08" if camara == "D" else "O09"
+            conditions.append("ve.organization_id = ?")
+            params.append(camara_org)
+
+        if needs_join:
+            where = " AND ".join(conditions)
+            vote_query = (
+                'SELECT v.voter_id, v.vote_event_id, v.option, v."group" '
+                "FROM vote v JOIN vote_event ve ON v.vote_event_id = ve.id "
+                f"WHERE {where}"
+            )
+            votes_df = pd.read_sql_query(vote_query, conn, params=params)
         else:
-            vote_query = """
-                SELECT v.voter_id, v.vote_event_id, v.option, v."group"
-                FROM vote v
-            """
+            vote_query = 'SELECT v.voter_id, v.vote_event_id, v.option, v."group" FROM vote v'
             votes_df = pd.read_sql_query(vote_query, conn)
 
         if votes_df.empty:
