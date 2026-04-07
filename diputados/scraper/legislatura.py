@@ -64,9 +64,7 @@ def url_estadistico(leg: str, votacion_id: int) -> str:
 
     LXVI: estadistico_votacionnplxvi.php?votaciont={votacion_id}
     """
-    return (
-        f"{_base(leg)}/estadistico_votacion{_suffix(leg)}.php?votaciont={votacion_id}"
-    )
+    return f"{_base(leg)}/estadistico_votacion{_suffix(leg)}.php?votaciont={votacion_id}"
 
 
 def url_nominal(leg: str, partido_id: int, votacion_id: int) -> str:
@@ -85,10 +83,7 @@ def url_historial_legislador(leg: str, diputado_id: int, periodo: int) -> str:
 
     LXVI: votaciones_por_pernplxvi.php?iddipt={diputado_id}&pert={periodo}
     """
-    return (
-        f"{_base(leg)}/votaciones_por_per{_suffix(leg)}.php"
-        f"?iddipt={diputado_id}&pert={periodo}"
-    )
+    return f"{_base(leg)}/votaciones_por_per{_suffix(leg)}.php?iddipt={diputado_id}&pert={periodo}"
 
 
 def url_curricula(leg: str, diputado_id: int) -> str:

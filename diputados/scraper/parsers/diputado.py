@@ -19,15 +19,14 @@ Estructura HTML real (verificada contra curricula_1.html):
 """
 
 import re
-from typing import Optional
 
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup
 
 from ..config import PARTY_IMAGE_MAP
 from ..models import FichaDiputado
 
 
-def parse_diputado(html: str, sitl_id: Optional[int] = None) -> Optional[FichaDiputado]:
+def parse_diputado(html: str, sitl_id: int | None = None) -> FichaDiputado | None:
     """Parsea el HTML de la ficha curricular de un diputado.
 
     Args:
@@ -91,7 +90,7 @@ def parse_diputado(html: str, sitl_id: Optional[int] = None) -> Optional[FichaDi
     )
 
 
-def _extraer_nombre(soup: BeautifulSoup) -> Optional[str]:
+def _extraer_nombre(soup: BeautifulSoup) -> str | None:
     """Extrae el nombre del diputado del <h1 class="header-name">."""
     h1 = soup.find("h1", class_="header-name")
     if h1:
@@ -122,7 +121,7 @@ def _extraer_nombre(soup: BeautifulSoup) -> Optional[str]:
     return None
 
 
-def _extraer_partido(soup: BeautifulSoup) -> Optional[str]:
+def _extraer_partido(soup: BeautifulSoup) -> str | None:
     """Extrae el partido del diputado mapeando la imagen del partido."""
     # Buscar imagen en sección de partidos (class="header-gp" o contenedor)
     for img in soup.find_all("img", class_="header-gp"):
@@ -174,18 +173,14 @@ def _extraer_principio(soup: BeautifulSoup) -> str:
             hermano = td.find_next_sibling("td")
             if hermano:
                 strong = hermano.find("strong")
-                valor = (
-                    strong.get_text(strip=True)
-                    if strong
-                    else hermano.get_text(strip=True)
-                )
+                valor = strong.get_text(strip=True) if strong else hermano.get_text(strip=True)
                 if valor:
                     return valor
 
     return ""
 
 
-def _extraer_campo(contenedor: BeautifulSoup, campo: str) -> Optional[str]:
+def _extraer_campo(contenedor: BeautifulSoup, campo: str) -> str | None:
     """Extrae un campo con formato '<p>Campo: <b>valor</b></p>'."""
     for p in contenedor.find_all("p"):
         texto = p.get_text()
@@ -196,7 +191,7 @@ def _extraer_campo(contenedor: BeautifulSoup, campo: str) -> Optional[str]:
     return None
 
 
-def _extraer_por_icono(soup: BeautifulSoup, icon_class: str) -> Optional[str]:
+def _extraer_por_icono(soup: BeautifulSoup, icon_class: str) -> str | None:
     """Extrae el texto del <b> siguiente a un icono Font Awesome."""
     icon = soup.find("i", class_=lambda c: c and icon_class in str(c))
     if icon:
@@ -209,7 +204,7 @@ def _extraer_por_icono(soup: BeautifulSoup, icon_class: str) -> Optional[str]:
     return None
 
 
-def _extraer_suplente(soup: BeautifulSoup) -> Optional[str]:
+def _extraer_suplente(soup: BeautifulSoup) -> str | None:
     """Extrae el nombre del suplente."""
     icon = soup.find("i", class_=lambda c: c and "fa-user-group" in str(c))
     if icon:
@@ -221,7 +216,7 @@ def _extraer_suplente(soup: BeautifulSoup) -> Optional[str]:
     return None
 
 
-def _extraer_sitl_id(soup: BeautifulSoup) -> Optional[int]:
+def _extraer_sitl_id(soup: BeautifulSoup) -> int | None:
     """Extrae el sitl_id de los links del navbar (dipt=NNN)."""
     for link in soup.find_all("a", href=True):
         match = re.search(r"dipt=(\d+)", link["href"])

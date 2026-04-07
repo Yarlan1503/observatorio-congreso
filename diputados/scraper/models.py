@@ -6,8 +6,6 @@ Todos usan Pydantic v2 BaseModel.
 """
 
 from pydantic import BaseModel
-from typing import Optional
-
 
 # --- Votaciones (listado por periodo) ---
 
@@ -56,7 +54,7 @@ class VotoNominal(BaseModel):
     numero: int
     nombre: str
     sentido: str
-    diputado_sitl_id: Optional[int] = None
+    diputado_sitl_id: int | None = None
 
 
 class NominalVotacion(BaseModel):
@@ -76,14 +74,14 @@ class FichaDiputado(BaseModel):
 
     nombre: str
     principio_eleccion: str
-    entidad: Optional[str] = None
-    distrito: Optional[str] = None
-    curul: Optional[str] = None
-    fecha_nacimiento: Optional[str] = None
-    email: Optional[str] = None
-    suplente: Optional[str] = None
-    partido: Optional[str] = None
-    sitl_id: Optional[int] = None
+    entidad: str | None = None
+    distrito: str | None = None
+    curul: str | None = None
+    fecha_nacimiento: str | None = None
+    email: str | None = None
+    suplente: str | None = None
+    partido: str | None = None
+    sitl_id: int | None = None
 
 
 # --- Composición del pleno ---
@@ -97,7 +95,7 @@ class DiputadoComposicion(BaseModel):
     """
 
     nombre: str
-    sitl_id: Optional[int] = None
+    sitl_id: int | None = None
 
 
 class ComposicionPartido(BaseModel):

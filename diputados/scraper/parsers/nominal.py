@@ -19,12 +19,10 @@ Común a todas las legislaturas:
 """
 
 import re
-from typing import Optional
 
 from bs4 import BeautifulSoup
 
 from ..models import NominalVotacion, VotoNominal
-
 
 # Patrones para el resumen final
 _PATRON_RESUMEN = re.compile(
@@ -78,22 +76,17 @@ def parse_nominal(html: str, sitl_id: int, partido_nombre: str) -> NominalVotaci
     )
 
 
-def _extraer_partido(soup: BeautifulSoup) -> Optional[str]:
+def _extraer_partido(soup: BeautifulSoup) -> str | None:
     """Extrae el nombre del partido del span antes de la tabla."""
     # Buscar el span que indica el partido (justo antes de la tabla)
     # LXVI usa Estilo61enex1, otras legislaturas pueden variar
     for class_name in ["Estilo61enex1", "Estilo61enex", "Estilo61encx"]:
         for span in soup.find_all("span", class_=class_name):
             texto = span.get_text(strip=True)
-            if (
-                texto
-                and not texto.startswith("Primer")
-                and "PERIODO" not in texto.upper()
-            ):
+            if texto and not texto.startswith("Primer") and "PERIODO" not in texto.upper():
                 # Evitar que sea el header de la votación o títulos largos
                 if len(texto) < 100 and not any(
-                    kw in texto.upper()
-                    for kw in ["DECRETO", "VOTACIÓN", "LISTADO", "MINUTA"]
+                    kw in texto.upper() for kw in ["DECRETO", "VOTACIÓN", "LISTADO", "MINUTA"]
                 ):
                     return texto
     return None

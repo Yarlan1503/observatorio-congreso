@@ -17,15 +17,14 @@ scrapear las páginas de listado_diputados_gpnp.php por partido.
 """
 
 import re
-from typing import Optional
 
 from bs4 import BeautifulSoup, Tag
 
 from ..config import SITL_PARTY_BY_ID
-from ..models import ComposicionPleno, ComposicionPartido, DiputadoComposicion
+from ..models import ComposicionPartido, ComposicionPleno
 
 
-def parse_composicion(html: str, legislatura: str) -> Optional[ComposicionPleno]:
+def parse_composicion(html: str, legislatura: str) -> ComposicionPleno | None:
     """Parsea el HTML de la página de composición del pleno.
 
     NOTA: Esta página es mayormente visual. El parser extrae links a listados
@@ -44,9 +43,7 @@ def parse_composicion(html: str, legislatura: str) -> Optional[ComposicionPleno]
 
     # Buscar links a listado_diputados_gpnp.php?tipot={party_id}
     # Estos links identifican cada partido
-    party_links = soup.find_all(
-        "a", href=re.compile(r"listado_diputados_gpnp\.php\?tipot=(\d+)")
-    )
+    party_links = soup.find_all("a", href=re.compile(r"listado_diputados_gpnp\.php\?tipot=(\d+)"))
 
     seen_party_ids: set[int] = set()
     for link in party_links:

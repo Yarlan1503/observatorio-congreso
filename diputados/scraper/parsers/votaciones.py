@@ -14,6 +14,7 @@ Estructura HTML real (verificada contra votaciones_p1.html):
 """
 
 import re
+
 from bs4 import BeautifulSoup
 
 from ..models import VotacionRecord

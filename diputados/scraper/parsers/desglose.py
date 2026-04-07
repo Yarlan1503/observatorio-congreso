@@ -15,14 +15,13 @@ Estructura HTML real (verificada contra estadistico_v52.html):
 """
 
 import re
-from typing import Optional
 
 from bs4 import BeautifulSoup
 
-from ..models import DesgloseVotacion, DesglosePartido
+from ..models import DesglosePartido, DesgloseVotacion
 
 
-def parse_desglose(html: str, sitl_id: int) -> Optional[DesgloseVotacion]:
+def parse_desglose(html: str, sitl_id: int) -> DesgloseVotacion | None:
     """Parsea el HTML del desglose estadístico de una votación.
 
     Args:
@@ -61,7 +60,7 @@ def parse_desglose(html: str, sitl_id: int) -> Optional[DesgloseVotacion]:
 
     # Buscar tabla con desglose por partido
     partidos: list[DesglosePartido] = []
-    totales: Optional[DesglosePartido] = None
+    totales: DesglosePartido | None = None
 
     # Buscar la tabla que contiene las filas con partido links
     for table in soup.find_all("table"):
@@ -72,9 +71,7 @@ def parse_desglose(html: str, sitl_id: int) -> Optional[DesgloseVotacion]:
                 continue
 
             # Detectar fila de totales por bgcolor
-            es_total = row.get("bgcolor") == "#343a40" or (
-                celdas[0].get("bgcolor") == "#343a40"
-            )
+            es_total = row.get("bgcolor") == "#343a40" or (celdas[0].get("bgcolor") == "#343a40")
 
             # Nombre del partido (puede ser link o texto directo)
             nombre = celdas[0].get_text(strip=True)

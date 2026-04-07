@@ -5,11 +5,10 @@ Maneja requests con rate limiting, caché file-based con SHA256,
 retry con backoff exponencial, y decodificación automática Latin-1/UTF-8.
 """
 
-import time
 import hashlib
 import logging
+import time
 from pathlib import Path
-from typing import Optional
 
 import httpx
 from bs4 import BeautifulSoup
@@ -17,9 +16,9 @@ from bs4 import BeautifulSoup
 from .config import (
     CACHE_DIR,
     DEFAULT_HEADERS,
+    MAX_RETRIES,
     REQUEST_DELAY,
     REQUEST_TIMEOUT,
-    MAX_RETRIES,
 )
 
 logger = logging.getLogger(__name__)
@@ -42,7 +41,7 @@ class SITLClient:
         delay: float = REQUEST_DELAY,
         timeout: float = REQUEST_TIMEOUT,
         max_retries: int = MAX_RETRIES,
-        cache_dir: Optional[Path] = None,
+        cache_dir: Path | None = None,
     ):
         self.use_cache = use_cache
         self.delay = delay
@@ -81,15 +80,13 @@ class SITLClient:
         except Exception:
             return content.decode("latin-1")
 
-    def _fetch_with_retry(
-        self, url: str, headers: dict, referer: Optional[str] = None
-    ) -> bytes:
+    def _fetch_with_retry(self, url: str, headers: dict, referer: str | None = None) -> bytes:
         """Realiza un GET con retry y backoff exponencial."""
         req_headers = dict(headers)
         if referer:
             req_headers["Referer"] = referer
 
-        last_exc: Optional[Exception] = None
+        last_exc: Exception | None = None
         for attempt in range(1, self.max_retries + 1):
             try:
                 logger.info(f"GET {url} (intento {attempt}/{self.max_retries})")
@@ -100,16 +97,12 @@ class SITLClient:
                 last_exc = exc
                 if attempt < self.max_retries:
                     wait = 2**attempt
-                    logger.warning(
-                        f"Error en intento {attempt}: {exc}. Reintentando en {wait}s..."
-                    )
+                    logger.warning(f"Error en intento {attempt}: {exc}. Reintentando en {wait}s...")
                     time.sleep(wait)
 
         raise last_exc  # type: ignore[misc]
 
-    def get_html(
-        self, url: str, referer: Optional[str] = None, force_refresh: bool = False
-    ) -> str:
+    def get_html(self, url: str, referer: str | None = None, force_refresh: bool = False) -> str:
         """Obtiene HTML de una URL, con caché opcional.
 
         Args:
@@ -143,7 +136,7 @@ class SITLClient:
         return html
 
     def get_soup(
-        self, url: str, referer: Optional[str] = None, force_refresh: bool = False
+        self, url: str, referer: str | None = None, force_refresh: bool = False
     ) -> BeautifulSoup:
         """Obtiene BeautifulSoup de una URL usando parser lxml."""
         html = self.get_html(url, referer=referer, force_refresh=force_refresh)
