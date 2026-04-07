@@ -19,8 +19,6 @@ y continúa desde ahí, garantizando unicidad even si datos previos existen.
 """
 
 import sqlite3
-from typing import Optional
-
 
 # ---------------------------------------------------------------------------
 # Prefijos por tipo de entidad y cámara
@@ -59,7 +57,7 @@ _PAD_WIDTH = 5
 def next_id(
     conn: sqlite3.Connection,
     entity_type: str,
-    camara: Optional[str] = None,
+    camara: str | None = None,
 ) -> str:
     """Genera el siguiente ID secuencial para una entidad.
 
@@ -130,8 +128,7 @@ def _get_max_for_prefix(conn: sqlite3.Connection, table: str, prefix: str) -> in
     """
     try:
         row = conn.execute(
-            f"SELECT id FROM {table} WHERE id LIKE ? "
-            f"ORDER BY LENGTH(id) DESC, id DESC LIMIT 1",
+            f"SELECT id FROM {table} WHERE id LIKE ? ORDER BY LENGTH(id) DESC, id DESC LIMIT 1",
             (prefix + "%",),
         ).fetchone()
 
@@ -149,7 +146,7 @@ def _get_max_for_prefix(conn: sqlite3.Connection, table: str, prefix: str) -> in
 def get_next_id_batch(
     conn: sqlite3.Connection,
     entity_type: str,
-    camara: Optional[str] = None,
+    camara: str | None = None,
     count: int = 1,
 ) -> list[str]:
     """Genera un batch de IDs secuenciales sin consultar la BD por cada uno.
