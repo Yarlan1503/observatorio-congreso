@@ -20,7 +20,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from db.constants import _NAME_TO_ORG, _ORG_ID_TO_NAME, _PARTY_ORG_IDS
+from db.constants import _NAME_TO_ORG, _ORG_ID_TO_NAME, _PARTY_ORG_IDS, init_constants_from_db
 
 DB_PATH = Path(__file__).parent.parent / "db" / "congreso.db"
 OUTPUT_DIR = Path(__file__).parent / "analisis-diputados/output"
@@ -367,6 +367,16 @@ def main(camara: str = "D", output_dir: Path | None = None):
         camara: 'D' para Diputados, 'S' para Senado.
         output_dir: Directorio de salida. Si None, usa el default.
     """
+    global GROUP_TO_ORG, ORG_SHORT_NAME, PARTY_ORGS
+
+    # Inicializar constantes desde la BD para mapeos correctos de partidos.
+    init_constants_from_db(str(DB_PATH))
+    import db.constants as _dbc
+
+    GROUP_TO_ORG = _dbc._NAME_TO_ORG
+    ORG_SHORT_NAME = _dbc._ORG_ID_TO_NAME
+    PARTY_ORGS = set(_dbc._PARTY_ORG_IDS)
+
     rol = "diputado" if camara == "D" else "senador"
     camara_label = "Cámara de Diputados" if camara == "D" else "Senado de la República"
     out_dir = Path(output_dir) if output_dir else OUTPUT_DIR

@@ -30,6 +30,9 @@ def get_or_create_organization(org_ref: str, conn: sqlite3.Connection) -> str | 
     When creating a new organization, sets clasificacion='partido'.
     Callers must commit the connection for the INSERT to persist.
 
+    Race condition safe: wraps INSERT in try/except IntegrityError.
+    If another process created the org concurrently, retries SELECT.
+
     Args:
         org_ref: Abbreviation (MORENA, PAN) or ID (O09).
         conn: Active SQLite connection.
@@ -51,27 +54,36 @@ def get_or_create_organization(org_ref: str, conn: sqlite3.Connection) -> str | 
             logger.warning(f"Organización bloqueada (patrón {pattern.pattern}): '{org_ref}'")
             return None
 
-    # 1. Direct ID
-    row = conn.execute("SELECT id FROM organization WHERE id = ?", (org_ref,)).fetchone()
-    if row:
-        return row[0]
+    def _lookup() -> str | None:
+        """Search for an existing organization by ID, abbr, or nombre."""
+        # 1. Direct ID
+        row = conn.execute("SELECT id FROM organization WHERE id = ?", (org_ref,)).fetchone()
+        if row:
+            return row[0]
 
-    # 2. Exact abbr
-    row = conn.execute("SELECT id FROM organization WHERE abbr = ?", (org_ref,)).fetchone()
-    if row:
-        return row[0]
+        # 2. Exact abbr
+        row = conn.execute("SELECT id FROM organization WHERE abbr = ?", (org_ref,)).fetchone()
+        if row:
+            return row[0]
 
-    # 3. Exact nombre
-    row = conn.execute("SELECT id FROM organization WHERE nombre = ?", (org_ref,)).fetchone()
-    if row:
-        return row[0]
+        # 3. Exact nombre
+        row = conn.execute("SELECT id FROM organization WHERE nombre = ?", (org_ref,)).fetchone()
+        if row:
+            return row[0]
 
-    # 4. Case-insensitive abbr
-    row = conn.execute(
-        "SELECT id FROM organization WHERE UPPER(abbr) = UPPER(?)", (org_ref,)
-    ).fetchone()
-    if row:
-        return row[0]
+        # 4. Case-insensitive abbr
+        row = conn.execute(
+            "SELECT id FROM organization WHERE UPPER(abbr) = UPPER(?)", (org_ref,)
+        ).fetchone()
+        if row:
+            return row[0]
+
+        return None
+
+    # Try lookup first
+    existing = _lookup()
+    if existing:
+        return existing
 
     # 5. Create new organization
     if org_ref.startswith("O") and len(org_ref) > 1 and org_ref[1:].isdigit():
@@ -90,11 +102,26 @@ def get_or_create_organization(org_ref: str, conn: sqlite3.Connection) -> str | 
 
     clasificacion = "partido"
 
-    conn.execute(
-        """INSERT OR IGNORE INTO organization
-           (id, nombre, abbr, clasificacion)
-           VALUES (?, ?, ?, ?)""",
-        (org_id, nombre, abbr, clasificacion),
-    )
-    logger.info(f"Organización creada: {org_id} ({nombre}, abbr={abbr})")
+    try:
+        conn.execute(
+            """INSERT INTO organization
+               (id, nombre, abbr, clasificacion)
+               VALUES (?, ?, ?, ?)""",
+            (org_id, nombre, abbr, clasificacion),
+        )
+        logger.info(f"Organización creada: {org_id} ({nombre}, abbr={abbr})")
+    except sqlite3.IntegrityError:
+        # Another process created it concurrently — retry lookup
+        logger.info(f"Organización ya existe (race): {org_id}, re-buscando")
+        existing = _lookup()
+        if existing:
+            return existing
+        # If still not found, the INSERT conflict was on nombre UNIQUE
+        # Try lookup by nombre
+        row = conn.execute("SELECT id FROM organization WHERE nombre = ?", (nombre,)).fetchone()
+        if row:
+            return row[0]
+        # Unexpected — re-raise
+        raise
+
     return org_id

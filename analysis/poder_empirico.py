@@ -29,6 +29,7 @@ from db.constants import (
     MIN_VOTES,
     TOTAL_SEATS,
     get_total_seats,
+    init_constants_from_db,
 )
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "db", "congreso.db")
@@ -36,10 +37,13 @@ OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "analisis-diputados/output"
 
 # --- Constantes ---
 
-# Alias para compatibilidad interna
+# Alias para compatibilidad interna (se refrescan en main() tras init_constants_from_db)
 GROUP_TO_ORG = _NAME_TO_ORG
 ORG_SHORT_NAME = _ORG_ID_TO_NAME
 PARTY_ORGS = list(_PARTY_ORG_IDS)
+
+# Total de asientos dinámico (se ajusta en main() según cámara)
+_total_seats_for_analysis = TOTAL_SEATS
 
 
 # --- Helpers ---
@@ -121,42 +125,101 @@ def get_requirement(conn, ve_id):
     return row[0] if row else "mayoria_simple"
 
 
-def get_seat_counts(conn, camara: str | None = None):
+def _get_latest_legislatura(conn, camara: str) -> str | None:
+    """Retorna la legislatura más reciente con datos sustanciales para una cámara.
+
+    Filtra legislaturas con al menos 100 votos para evitar VEs de prueba
+    (ej. caso cero) que contaminen los conteos de escaños.
+    """
+    org_id = CAMARA_DIPUTADOS_ID if camara == "D" else CAMARA_SENADO_ID
+    cur = conn.cursor()
+    cur.execute(
+        """
+        SELECT ve.legislatura
+        FROM vote_event ve
+        JOIN vote v ON v.vote_event_id = ve.id
+        WHERE ve.organization_id = ? AND ve.legislatura IS NOT NULL
+        GROUP BY ve.legislatura
+        HAVING COUNT(v.id) > 100
+        ORDER BY ve.legislatura DESC
+        LIMIT 1
+    """,
+        (org_id,),
+    )
+    row = cur.fetchone()
+    return row[0] if row else None
+
+
+def get_seat_counts(conn, camara: str | None = None, legislatura: str | None = None):
     """
     Retorna {org_id: seat_count} con el máximo de votantes por partido
-    en cualquier votación individual. Proxy para escaños efectivos.
+    en cualquier votación individual de la legislatura especificada.
+    Proxy para escaños efectivos.
 
     Normaliza grupos (nombres vs IDs) ANTES de tomar el máximo,
     ya que VE01 usa nombres ('PT', 'PVEM') y VE03+ usa IDs ('O02', 'O03').
 
+    Si no se especifica legislatura, usa la más reciente para la cámara dada.
+    Esto evita escaños inflados al tomar el MAX entre legislaturas.
+
     Args:
         conn: Conexión SQLite.
         camara: Si 'D', filtra a Diputados. Si 'S', filtra a Senado.
+        legislatura: Legislatura específica ('LXVI', 'LXIV', etc.).
+            Si es None, usa la más reciente para la cámara.
     """
+    # Determine legislatura: use latest for the given cámara if not specified
+    effective_camara = camara or "D"
+    if legislatura is None:
+        legislatura = _get_latest_legislatura(conn, effective_camara)
+
     cur = conn.cursor()
     if camara == "D":
-        cur.execute("""
+        cur.execute(
+            """
             SELECT v.vote_event_id, v."group", COUNT(*) as cnt
             FROM vote v
             JOIN vote_event ve ON v.vote_event_id = ve.id
             WHERE v."group" IS NOT NULL AND ve.organization_id = 'O08'
+            AND ve.legislatura = ?
             GROUP BY v.vote_event_id, v."group"
-        """)
+        """,
+            (legislatura,),
+        )
     elif camara == "S":
-        cur.execute("""
+        cur.execute(
+            """
             SELECT v.vote_event_id, v."group", COUNT(*) as cnt
             FROM vote v
             JOIN vote_event ve ON v.vote_event_id = ve.id
             WHERE v."group" IS NOT NULL AND ve.organization_id = 'O09'
+            AND ve.legislatura = ?
             GROUP BY v.vote_event_id, v."group"
-        """)
+        """,
+            (legislatura,),
+        )
     else:
-        cur.execute("""
-            SELECT vote_event_id, "group", COUNT(*) as cnt
-            FROM vote
-            WHERE "group" IS NOT NULL
-            GROUP BY vote_event_id, "group"
-        """)
+        # No camera filter — use legislatura if available
+        if legislatura:
+            cur.execute(
+                """
+                SELECT v.vote_event_id, v."group", COUNT(*) as cnt
+                FROM vote v
+                JOIN vote_event ve ON v.vote_event_id = ve.id
+                WHERE v."group" IS NOT NULL AND ve.legislatura = ?
+                GROUP BY v.vote_event_id, v."group"
+            """,
+                (legislatura,),
+            )
+        else:
+            cur.execute(
+                """
+                SELECT vote_event_id, "group", COUNT(*) as cnt
+                FROM vote
+                WHERE "group" IS NOT NULL
+                GROUP BY vote_event_id, "group"
+            """
+            )
     # Agrupar por org_id normalizado, tomando el máximo
     seats = {}
     for _, group_val, count in cur.fetchall():
@@ -265,8 +328,8 @@ def analyze_vote_event(conn, ve_id):
     total_asistentes = a_favor_total + en_contra_total + abstencion_total
 
     if requirement == "mayoria_calificada":
-        # 2/3 del total de la Cámara (500)
-        mayoria_necesaria = math.ceil(2 / 3 * TOTAL_SEATS)  # 334
+        # 2/3 del total de la Cámara (500 Diputados / 128 Senado)
+        mayoria_necesaria = math.ceil(2 / 3 * _total_seats_for_analysis)  # 334 o 86
     else:
         # Mayoría simple: ceil(asistentes / 2)
         mayoria_necesaria = math.ceil(total_asistentes / 2)
@@ -890,6 +953,7 @@ def print_all_results(
     close_votes_analysis,
     dissidents,
     all_analyses,
+    out_dir=OUTPUT_DIR,
 ):
     """Imprime todos los resultados numéricos."""
 
@@ -1145,7 +1209,7 @@ def print_all_results(
     print(f"  Votaciones con al menos un partido critico: {with_critical}")
 
     print()
-    print(f"Archivos CSV generados en: {OUTPUT_DIR}/")
+    print(f"Archivos CSV generados en: {out_dir}/")
     print(SEP)
 
 
@@ -1159,7 +1223,23 @@ def main(camara: str | None = None, output_dir: str | None = None):
         camara: 'D' para Diputados, 'S' para Senado, None para todas.
         output_dir: Directorio de salida. Si None, usa el default.
     """
+    global GROUP_TO_ORG, ORG_SHORT_NAME, PARTY_ORGS, _total_seats_for_analysis
+
     out_dir = output_dir or OUTPUT_DIR
+
+    # Inicializar constantes desde la BD para mapeos correctos de partidos.
+    # Necesario porque la BD tiene IDs distintos (O11=MORENA, O12=PAN...)
+    # vs. los hardcoded para Diputados LXVI (O01=Morena, O04=PAN...).
+    init_constants_from_db(DB_PATH)
+    import db.constants as _dbc
+
+    GROUP_TO_ORG = _dbc._NAME_TO_ORG
+    ORG_SHORT_NAME = _dbc._ORG_ID_TO_NAME
+    PARTY_ORGS = list(_dbc._PARTY_ORG_IDS)
+
+    # Ajustar total de asientos según cámara
+    _total_seats_for_analysis = get_total_seats(DB_PATH, camara or "D")
+
     conn = sqlite3.connect(DB_PATH)
     conn.execute("PRAGMA journal_mode = WAL")
     conn.execute("PRAGMA busy_timeout = 5000")
@@ -1209,6 +1289,7 @@ def main(camara: str | None = None, output_dir: str | None = None):
         close_votes_analysis,
         dissidents,
         analyses,
+        out_dir=out_dir,
     )
 
     conn.close()
