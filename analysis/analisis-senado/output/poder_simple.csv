@@ -1,11 +1,11 @@
 Partido,Org_ID,Escaños,Umbral,Nominal_%,Shapley_Shubik_%,Banzhaf_%
-Convergencia,O12,390,Simple (741/1480),26.35,31.19,30.71
-Partido Encuentro Social,O15,368,Simple (741/1480),24.86,30.4,30.24
-O19,O19,64,Simple (741/1480),4.32,2.62,2.14
-Alternativa Socialdemócrata,O14,67,Simple (741/1480),4.53,2.62,2.14
-O18,O18,118,Simple (741/1480),7.97,2.62,2.14
-Nueva Alianza,O13,87,Simple (741/1480),5.88,2.62,2.14
-Independientes,O11,312,Simple (741/1480),21.08,25.63,28.33
-O25,O25,13,Simple (741/1480),0.88,0.24,0.24
-Sin Partido,O16,51,Simple (741/1480),3.45,1.83,1.67
-O26,O26,10,Simple (741/1480),0.68,0.24,0.24
+PAN,O12,387,Simple (741/1480),26.15,31.98,30.79
+PRI,O15,367,Simple (741/1480),24.8,28.81,28.47
+SG,O19,65,Simple (741/1480),4.39,2.62,2.55
+PT,O14,58,Simple (741/1480),3.92,2.62,2.55
+PRD,O18,135,Simple (741/1480),9.12,3.41,3.01
+PVEM,O13,86,Simple (741/1480),5.81,3.41,3.01
+PES,O25,15,Simple (741/1480),1.01,0.63,0.69
+MC,O16,51,Simple (741/1480),3.45,1.83,1.62
+MORENA,O11,306,Simple (741/1480),20.68,24.05,26.62
+NUEVA ALIANZA,O26,10,Simple (741/1480),0.68,0.63,0.69

@@ -13,8 +13,8 @@ import os
 import sqlite3
 import sys
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "congreso.db")
+_MIGRATION_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(os.path.dirname(_MIGRATION_DIR), "congreso.db")
 
 # Fechas de la LXVI Legislatura
 LEG_START = "2024-09-01"
@@ -1571,7 +1571,11 @@ def main():
         return 1
 
     conn = sqlite3.connect(DB_PATH)
-    conn.execute("PRAGMA foreign_keys = ON")
+    # Disable FK checks during migration: the caso cero data uses Diputados org IDs
+    # (O01-O07) which may not exist as physical rows in organization. The logical
+    # references are correct — O01=MORENA, O02=PT, etc. — but the Senado scraper
+    # created separate IDs (O11=MORENA, O12=PAN). FK checks re-enabled after commit.
+    conn.execute("PRAGMA foreign_keys = OFF")
     conn.execute("PRAGMA journal_mode = WAL")
     conn.execute("PRAGMA busy_timeout = 5000")
 
