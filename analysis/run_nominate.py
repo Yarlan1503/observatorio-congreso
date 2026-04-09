@@ -115,6 +115,12 @@ def parse_args():
         default=15,
         help="Número de workers para paralelizar NOMINATE (default: 15, 1=secuencial)",
     )
+    parser.add_argument(
+        "--exclude-legislatura",
+        action="append",
+        default=[],
+        help="Excluir legislatura del análisis (se puede repetir). Ej: --exclude-legislatura LXVI",
+    )
     return parser.parse_args()
 
 
@@ -206,6 +212,7 @@ def _run_cross_legislatura(
     lopsided_threshold: float = 0.975,
     camara: str | None = None,
     n_workers: int = 1,
+    exclude_legislaturas: list[str] | None = None,
 ) -> tuple[dict, dict]:
     """Ejecutar NOMINATE con todos los datos combinados (estilo DW-NOMINATE).
 
@@ -217,6 +224,7 @@ def _run_cross_legislatura(
         lopsided_threshold: Umbral para filtrar lopsided votes.
         camara: Filtro de cámara ('D' o 'S').
         n_workers: Workers para paralelizar (1=secuencial).
+        exclude_legislaturas: Lista de legislaturas a excluir (ej: ``['LXVI']``).
 
     Returns:
         Tupla (vote_data, nominate_result) con ``legislatura_labels`` adicional
@@ -228,6 +236,7 @@ def _run_cross_legislatura(
         min_votes=min_votes,
         lopsided_threshold=lopsided_threshold,
         camara=camara,
+        exclude_legislaturas=exclude_legislaturas,
     )
     result = run_wnominate(
         data,
@@ -474,6 +483,11 @@ def main():
     else:
         legislaturas = _get_legislaturas(db_path, camara=camara)
 
+    if args.exclude_legislatura:
+        excluded = set(args.exclude_legislatura)
+        legislaturas = [l for l in legislaturas if l not in excluded]
+        logger.info("Legislaturas excluidas: %s", ", ".join(sorted(excluded)))
+
     if not legislaturas:
         logger.error("No se encontraron legislaturas en la base de datos")
         sys.exit(1)
@@ -545,6 +559,7 @@ def main():
                 args.lopsided_threshold,
                 camara=camara,
                 n_workers=args.n_workers,
+                exclude_legislaturas=args.exclude_legislatura or None,
             )
 
             # Resumen textual

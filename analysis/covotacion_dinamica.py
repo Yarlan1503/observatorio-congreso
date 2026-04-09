@@ -1303,6 +1303,7 @@ def build_windows(
     window_size: int | None = None,
     overlap: int | None = None,
     camara: str | None = None,
+    exclude_legislaturas: list[str] | None = None,
 ) -> list[dict]:
     """Construir ventanas temporales cross-legislatura.
 
@@ -1320,6 +1321,8 @@ def build_windows(
         overlap: solapamiento entre ventanas (solo para strategy='sliding').
         camara: Filtrar por cámara. ``'D'`` para Diputados, ``'S'`` para
             Senado. Si es ``None``, no filtra.
+        exclude_legislaturas: Lista de legislaturas a excluir (ej: ``['LXVI']``).
+            Si es ``None`` o vacía, no excluye ninguna.
 
     Returns:
         Lista de dicts, cada uno con:
@@ -1347,6 +1350,10 @@ def build_windows(
             camara_org = "O08" if camara == "D" else "O09"
             base_query += "AND organization_id = ? "
             params.append(camara_org)
+        if exclude_legislaturas:
+            placeholders = ",".join("?" for _ in exclude_legislaturas)
+            base_query += f"AND legislatura NOT IN ({placeholders}) "
+            params.extend(exclude_legislaturas)
         base_query += "ORDER BY start_date"
         ve_df = pd.read_sql_query(base_query, conn, params=params)
     finally:
