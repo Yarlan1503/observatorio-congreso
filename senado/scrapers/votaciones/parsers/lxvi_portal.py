@@ -244,16 +244,10 @@ def parse_votacion_page(html: str, senado_id: int) -> SenVotacionDetail:
         body_text = soup.get_text()
         legislature = _parse_legislature(body_text)
 
-    # Si aún no hay legislatura, default a LXVI — el portal /66/ es el
-    # portal de la LXVI Legislatura. Las legislaturas anteriores (LX-LXV)
-    # incluyen explícitamente "LX LEGISLATURA" en el h3, pero la LXVI
-    # (legislatura actual) no lo hace porque es implícito.
-    if not legislature:
-        legislature = "LXVI"
-
     # -------------------------------------------------------------------------
-    # 3. Fecha: <div class="col-sm-12 text-center"><strong>Martes 05 ...</strong></div>
+    # 2b. Extraer fecha antes del fallback (necesaria para inferir legislatura)
     # -------------------------------------------------------------------------
+    # También se usa más abajo para descripción y formato dd/mm/yyyy.
     fecha_divs = soup.find_all(
         "div",
         class_=lambda c: c and "col-sm-12" in c.split() if c else False,
@@ -263,6 +257,36 @@ def parse_votacion_page(html: str, senado_id: int) -> SenVotacionDetail:
         if re.search(r"\d{1,2}\s+de\s+\w+\s+de\s+\d{4}", div_text, re.IGNORECASE):
             fecha_raw = div_text
             break
+
+    # Si aún no hay legislatura, inferir por fecha de la votación.
+    # Cada legislatura dura 3 años: LX (2006-2009), LXI (2009-2012), ...,
+    # LXV (2021-08/2024-08), LXVI (2024-09/2027-08).
+    # La LXV termina en agosto 2024; la LXVI inicia en septiembre 2024.
+    if not legislature:
+        fecha_iso = _parse_fecha_natural_to_iso(fecha_raw) if fecha_raw else ""
+        if fecha_iso:
+            year = int(fecha_iso[:4])
+            month = int(fecha_iso[5:7])
+            if year < 2009:
+                legislature = "LX"
+            elif year < 2012:
+                legislature = "LXI"
+            elif year < 2015:
+                legislature = "LXII"
+            elif year < 2018:
+                legislature = "LXIII"
+            elif year < 2021:
+                legislature = "LXIV"
+            elif year < 2024 or (year == 2024 and month < 9):
+                legislature = "LXV"
+            else:
+                legislature = "LXVI"
+        else:
+            legislature = "LXVI"  # último recurso
+
+    # -------------------------------------------------------------------------
+    # 3. Fecha: ya extraída en paso 2b (fecha_raw y fecha_divs disponibles)
+    # -------------------------------------------------------------------------
 
     # -------------------------------------------------------------------------
     # 4. Descripción: <div class="col-sm-12 text-justify">TEXTO</div>

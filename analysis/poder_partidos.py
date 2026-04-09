@@ -164,33 +164,61 @@ def get_seats_per_party(conn, rol: str = "diputado") -> dict:
 
 def shapley_shubik(weights: dict, quota: int) -> dict:
     """
-    Calcula el índice Shapley-Shubik.
+    Calcula el índice Shapley-Shubik usando programación dinámica O(n²W).
 
     weights: {player_id: weight}
     quota: umbral para ganar
 
     Returns: {player_id: float} donde la suma = 1.0
 
-    Algoritmo: Para cada permutación de jugadores, sumar pesos acumulativamente.
-    El jugador que hace que la suma pase el umbral es el "pivotal".
-    Índice = veces pivotal / total permutaciones.
+    Algoritmo DP: Para cada jugador i, computa dp[s][w] = número de
+    subconjuntos de tamaño s con peso total w usando todos los jugadores
+    excepto i. El índice SS_i es:
 
-    Con 8 jugadores, 8! = 40,320 — perfectamente computable.
+        SS_i = Σ_{s,w: w < quota, w + w_i >= quota}
+               dp_i[s][w] * s! * (n-1-s)! / n!
+
+    Complejidad: O(n²W) donde n = jugadores, W = quota.
+    Con 13 partidos y quota ~1951, son ~330K operaciones por jugador.
     """
     players = list(weights.keys())
     n = len(players)
-    pivotal_count = {p: 0 for p in players}
-    total_perms = math.factorial(n)
+    n_fact = math.factorial(n)
+    max_w = quota - 1
 
-    for perm in itertools.permutations(players):
-        cumulative = 0
-        for player in perm:
-            cumulative += weights[player]
-            if cumulative >= quota:
-                pivotal_count[player] += 1
-                break
+    result = {}
 
-    return {p: pivotal_count[p] / total_perms for p in players}
+    for player_i in players:
+        w_i = weights[player_i]
+
+        # DP: dp[s][w] = número de subconjuntos de tamaño s con peso w
+        # usando jugadores distintos de player_i
+        dp = [[0] * (max_w + 1) for _ in range(n)]
+        dp[0][0] = 1
+
+        for p in players:
+            if p == player_i:
+                continue
+            w_j = weights[p]
+            for s in range(n - 2, -1, -1):
+                for w in range(max_w - w_j, -1, -1):
+                    if dp[s][w]:
+                        dp[s + 1][w + w_j] += dp[s][w]
+
+        # Sumar contribuciones donde player_i es pivotal:
+        # w < quota Y w + w_i >= quota
+        phi_i = 0
+        w_min = max(0, quota - w_i)
+        for s in range(n):
+            s_fact = math.factorial(s)
+            rest_fact = math.factorial(n - 1 - s)
+            for w in range(w_min, quota):
+                if dp[s][w]:
+                    phi_i += dp[s][w] * s_fact * rest_fact
+
+        result[player_i] = phi_i / n_fact
+
+    return result
 
 
 def banzhaf(weights: dict, quota: int) -> dict:

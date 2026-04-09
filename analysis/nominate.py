@@ -25,6 +25,7 @@ Funciones principales:
 import logging
 import sqlite3
 from collections import Counter
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 import numpy as np
@@ -319,7 +320,121 @@ def _get_primary_party(votes_df: pd.DataFrame) -> dict[str, str]:
 
 
 # ---------------------------------------------------------------------------
-# Función 2: run_wnominate
+# Función 2a: Workers para paralelización de W-NOMINATE
+# ---------------------------------------------------------------------------
+def _bill_worker(task: tuple) -> tuple[int, np.ndarray]:
+    """Worker para optimizar parámetros de la votación j (picklable, top-level).
+
+    Recibe todos los datos necesarios como argumento explícito para ser
+    compatible con multiprocessing.  Cada worker es independiente — no
+    comparte estado mutable con otros workers.
+
+    Args:
+        task: Tupla (j, params_j, coords_subset, votes_subset,
+              beta_val, w_val, dims, opt_opts).
+
+    Returns:
+        Tupla (j, new_params_j) con los parámetros optimizados.
+    """
+    (j, params_j, coords_subset, votes_subset, beta_val, w_val, dims, opt_opts) = task
+
+    n_obs = len(votes_subset)
+    if n_obs == 0:
+        return j, params_j
+
+    dim_weights = np.ones(dims)
+    if dims > 1:
+        dim_weights[1:] = w_val
+
+    def neg_ll(p_flat: np.ndarray) -> float:
+        O_j = p_flat[:dims]
+        P_j = p_flat[dims:]
+
+        yea_pole = O_j + P_j
+        nay_pole = O_j - P_j
+
+        diff_yea = coords_subset - yea_pole[np.newaxis, :]
+        diff_yea_w = diff_yea * dim_weights[np.newaxis, :]
+        dist2_yea = (diff_yea_w**2).sum(axis=1)
+
+        diff_nay = coords_subset - nay_pole[np.newaxis, :]
+        diff_nay_w = diff_nay * dim_weights[np.newaxis, :]
+        dist2_nay = (diff_nay_w**2).sum(axis=1)
+
+        logit = beta_val * (np.exp(-dist2_yea) - np.exp(-dist2_nay))
+        logit = np.clip(logit, -30, 30)
+
+        p_yea = norm.cdf(logit)
+        p_correct = np.where(votes_subset == 1.0, p_yea, 1.0 - p_yea)
+        p_correct = np.clip(p_correct, _P_FLOOR, 1.0)
+
+        return -np.sum(np.log(p_correct))
+
+    result = minimize(neg_ll, params_j, method="Nelder-Mead", options=opt_opts)
+    return j, result.x
+
+
+def _leg_worker(task: tuple) -> tuple[int, np.ndarray]:
+    """Worker para optimizar punto ideal del legislador i (picklable, top-level).
+
+    Recibe todos los datos necesarios como argumento explícito para ser
+    compatible con multiprocessing.  Cada worker es independiente.
+
+    Args:
+        task: Tupla (i, coords_i, bill_params_subset, votes_subset,
+              beta_val, w_val, dims, opt_opts).
+
+    Returns:
+        Tupla (i, new_coords_i) con las coordenadas optimizadas.
+    """
+    (i, coords_i, bill_params_subset, votes_subset, beta_val, w_val, dims, opt_opts) = task
+
+    n_obs = len(votes_subset)
+    if n_obs == 0:
+        return i, coords_i
+
+    dim_weights = np.ones(dims)
+    if dims > 1:
+        dim_weights[1:] = w_val
+
+    def neg_ll(x_flat: np.ndarray) -> float:
+        x_i = x_flat
+
+        O_j = bill_params_subset[:, :dims]
+        P_j = bill_params_subset[:, dims:]
+
+        yea_pole = O_j + P_j
+        nay_pole = O_j - P_j
+
+        diff_yea = x_i[np.newaxis, :] - yea_pole
+        diff_yea_w = diff_yea * dim_weights[np.newaxis, :]
+        dist2_yea = (diff_yea_w**2).sum(axis=1)
+
+        diff_nay = x_i[np.newaxis, :] - nay_pole
+        diff_nay_w = diff_nay * dim_weights[np.newaxis, :]
+        dist2_nay = (diff_nay_w**2).sum(axis=1)
+
+        logit = beta_val * (np.exp(-dist2_yea) - np.exp(-dist2_nay))
+        logit = np.clip(logit, -30, 30)
+
+        p_yea = norm.cdf(logit)
+        p_correct = np.where(votes_subset == 1.0, p_yea, 1.0 - p_yea)
+        p_correct = np.clip(p_correct, _P_FLOOR, 1.0)
+
+        ll = np.sum(np.log(p_correct))
+
+        # Penalización por salir del hipercubo unitario
+        if np.sum(x_flat**2) > 1.0:
+            ll -= 1e300
+
+        return -ll
+
+    result = minimize(neg_ll, coords_i, method="Nelder-Mead", options=opt_opts)
+    return i, result.x
+
+
+# ---------------------------------------------------------------------------
+# Función 2b: run_wnominate
 # ---------------------------------------------------------------------------
 def run_wnominate(
     vote_data: dict,
@@ -327,6 +442,7 @@ def run_wnominate(
     maxiter: int = 100,
     tol: float = 1e-5,
     seed: int = 42,
+    n_workers: int = 1,
 ) -> dict:
     """Ejecutar el algoritmo W-NOMINATE para estimar puntos ideales.
 
@@ -359,6 +475,10 @@ def run_wnominate(
         maxiter: Máximo de iteraciones del algoritmo alternante.
         tol: Tolerancia de convergencia en log-likelihood.
         seed: Semilla para reproducibilidad.
+        n_workers: Número de procesos para paralelizar la optimización.
+            ``1`` = secuencial (default, idéntico al comportamiento original).
+            ``>1`` = usa ``ProcessPoolExecutor`` con ``max_workers=n_workers``.
+            Recomendado: 15 en máquinas con ≥20 cores.
 
     Returns:
         Diccionario con coordenadas, parámetros y métricas de ajuste.
@@ -370,6 +490,10 @@ def run_wnominate(
     # El parámetro seed se conserva por compatibilidad de interfaz pero
     # no afecta el resultado; la reproducibilidad es inherente al método.
     _ = seed
+
+    use_parallel = n_workers > 1
+    if use_parallel:
+        logger.info("Paralelización habilitada: %d workers (ProcessPoolExecutor)", n_workers)
 
     vote_matrix = vote_data["matrix"].astype(np.float64)
     n_legs, n_votes = vote_matrix.shape
@@ -709,51 +833,99 @@ def run_wnominate(
     # ------------------------------------------------------------------
     prev_ll = -np.inf
     converged = False
+    pool: ProcessPoolExecutor | None = None
 
-    for iteration in range(1, maxiter + 1):
-        # --- Paso a: Optimizar parámetros de cada votación ---
-        for j in range(n_votes):
-            bill_params[j] = _optimize_bill_j(bill_params[j], j)
+    if use_parallel:
+        pool = ProcessPoolExecutor(max_workers=n_workers)
 
-        # --- Paso b: Optimizar puntos ideales de cada legislador ---
-        for i in range(n_legs):
-            coordinates[i] = _optimize_leg_i(coordinates[i], i)
+    try:
+        for iteration in range(1, maxiter + 1):
+            # --- Paso a: Optimizar parámetros de cada votación ---
+            if use_parallel and pool is not None:
+                tasks = []
+                for j in range(n_votes):
+                    leg_idx = vote_leg_indices[j]
+                    tasks.append(
+                        (
+                            j,
+                            bill_params[j].copy(),
+                            coordinates[leg_idx].copy(),
+                            vote_matrix[leg_idx, j].copy(),
+                            beta,
+                            w,
+                            dimensions,
+                            opt_opts,
+                        )
+                    )
+                chunksize = max(1, len(tasks) // (n_workers * 4))
+                for j, new_p in pool.map(_bill_worker, tasks, chunksize=chunksize):
+                    bill_params[j] = new_p
+            else:
+                for j in range(n_votes):
+                    bill_params[j] = _optimize_bill_j(bill_params[j], j)
 
-        # --- Paso c: Optimizar parámetros globales ---
-        beta, w = _optimize_globals(coordinates, bill_params)
+            # --- Paso b: Optimizar puntos ideales de cada legislador ---
+            if use_parallel and pool is not None:
+                tasks = []
+                for i in range(n_legs):
+                    ve_idx = leg_vote_indices[i]
+                    tasks.append(
+                        (
+                            i,
+                            coordinates[i].copy(),
+                            bill_params[ve_idx].copy(),
+                            vote_matrix[i, ve_idx].copy(),
+                            beta,
+                            w,
+                            dimensions,
+                            opt_opts,
+                        )
+                    )
+                chunksize = max(1, len(tasks) // (n_workers * 4))
+                for i, new_c in pool.map(_leg_worker, tasks, chunksize=chunksize):
+                    coordinates[i] = new_c
+            else:
+                for i in range(n_legs):
+                    coordinates[i] = _optimize_leg_i(coordinates[i], i)
 
-        # --- Calcular log-likelihood ---
-        current_ll = _total_log_likelihood(coordinates, bill_params, beta, w)
+            # --- Paso c: Optimizar parámetros globales ---
+            beta, w = _optimize_globals(coordinates, bill_params)
 
-        # --- Métricas parciales ---
-        fit_stats = _compute_fit_statistics_impl(
-            coordinates, bill_params, vote_matrix, beta, w, dimensions, obs_mask
-        )
+            # --- Calcular log-likelihood ---
+            current_ll = _total_log_likelihood(coordinates, bill_params, beta, w)
 
-        logger.info(
-            "Iteración %d/%d: LL=%.2f, β=%.3f, w=%.3f, class_rate=%.2f%%, APRE=%.4f",
-            iteration,
-            maxiter,
-            current_ll,
-            beta,
-            w,
-            fit_stats["classification_rate"] * 100,
-            fit_stats["apre"],
-        )
+            # --- Métricas parciales ---
+            fit_stats = _compute_fit_statistics_impl(
+                coordinates, bill_params, vote_matrix, beta, w, dimensions, obs_mask
+            )
 
-        # --- Verificar convergencia ---
-        if iteration > 1 and np.isfinite(current_ll) and np.isfinite(prev_ll):
-            if abs(current_ll - prev_ll) < tol:
-                converged = True
-                logger.info(
-                    "Convergencia alcanzada en iteración %d (ΔLL=%.6f < tol=%.6f)",
-                    iteration,
-                    abs(current_ll - prev_ll),
-                    tol,
-                )
-                break
+            logger.info(
+                "Iteración %d/%d: LL=%.2f, β=%.3f, w=%.3f, class_rate=%.2f%%, APRE=%.4f",
+                iteration,
+                maxiter,
+                current_ll,
+                beta,
+                w,
+                fit_stats["classification_rate"] * 100,
+                fit_stats["apre"],
+            )
 
-        prev_ll = current_ll
+            # --- Verificar convergencia ---
+            if iteration > 1 and np.isfinite(current_ll) and np.isfinite(prev_ll):
+                if abs(current_ll - prev_ll) < tol:
+                    converged = True
+                    logger.info(
+                        "Convergencia alcanzada en iteración %d (ΔLL=%.6f < tol=%.6f)",
+                        iteration,
+                        abs(current_ll - prev_ll),
+                        tol,
+                    )
+                    break
+
+            prev_ll = current_ll
+    finally:
+        if pool is not None:
+            pool.shutdown(wait=True)
 
     if not converged:
         delta = (
