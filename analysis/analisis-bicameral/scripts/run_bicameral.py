@@ -169,8 +169,8 @@ def analyze_nominate():
     print("ANÁLISIS 1: NOMINATE COMPARADO")
     print("=" * 80)
 
-    dip_coords = read_csv(DIP_OUTPUT / "nominate" / "coordenadas_cross.csv")
-    sen_coords = read_csv(SEN_OUTPUT / "nominate" / "coordenadas_cross.csv")
+    dip_coords = read_csv(DIP_OUTPUT / "coordenadas_cross.csv")
+    sen_coords = read_csv(SEN_OUTPUT / "coordenadas_cross.csv")
 
     # Normalize party names
     for row in dip_coords:
@@ -332,8 +332,8 @@ def analyze_disciplina():
     print("=" * 80)
 
     # Read disciplina files
-    dip_disc = read_csv(DIP_OUTPUT / "dinamica" / "disciplina_partidista.csv")
-    sen_disc = read_csv(SEN_OUTPUT / "dinamica" / "disciplina_partidista.csv")
+    dip_disc = read_csv(DIP_OUTPUT / "disciplina_partidista.csv")
+    sen_disc = read_csv(SEN_OUTPUT / "disciplina_partidista.csv")
 
     # Parse into structured format: list of {legislatura, partido, disciplina, camara}
     def parse_disciplina(data, camara):
@@ -549,8 +549,8 @@ def analyze_covotacion():
     print("=" * 80)
 
     # Read evolution metrics
-    dip_evol = read_csv(DIP_OUTPUT / "dinamica" / "evolucion_metricas.csv")
-    sen_evol = read_csv(SEN_OUTPUT / "dinamica" / "evolucion_metricas.csv")
+    dip_evol = read_csv(DIP_OUTPUT / "evolucion_metricas.csv")
+    sen_evol = read_csv(SEN_OUTPUT / "evolucion_metricas.csv")
 
     # Read co-votation matrices
     dip_mat = read_csv(DIP_OUTPUT / "matriz_partidos.csv")
@@ -991,12 +991,12 @@ def main():
     # Verify inputs exist
     missing = []
     for path in [
-        DIP_OUTPUT / "nominate" / "coordenadas_cross.csv",
-        SEN_OUTPUT / "nominate" / "coordenadas_cross.csv",
-        DIP_OUTPUT / "dinamica" / "disciplina_partidista.csv",
-        SEN_OUTPUT / "dinamica" / "disciplina_partidista.csv",
-        DIP_OUTPUT / "dinamica" / "evolucion_metricas.csv",
-        SEN_OUTPUT / "dinamica" / "evolucion_metricas.csv",
+        DIP_OUTPUT / "coordenadas_cross.csv",
+        SEN_OUTPUT / "coordenadas_cross.csv",
+        DIP_OUTPUT / "disciplina_partidista.csv",
+        SEN_OUTPUT / "disciplina_partidista.csv",
+        DIP_OUTPUT / "evolucion_metricas.csv",
+        SEN_OUTPUT / "evolucion_metricas.csv",
         DIP_OUTPUT / "matriz_partidos.csv",
         SEN_OUTPUT / "matriz_partidos.csv",
         DIP_OUTPUT / "comparacion_poder.csv",

@@ -147,6 +147,20 @@ TOTAL_SEATS: int = 500
 # Threshold mínimo de votos para incluir legislator en análisis de co-votación
 MIN_VOTES: int = 10
 
+# ---------------------------------------------------------------------------
+# Legislaturas — Periodos constitucionales del Congreso de la Unión
+# Fuente: diputados/scraper/config.py (verificado contra SITL)
+# ---------------------------------------------------------------------------
+LEGISLATURAS: dict[str, dict] = {
+    "LX": {"num": 60, "periodo": "2006-2009", "start": "2006-09-01", "end": "2009-08-31"},
+    "LXI": {"num": 61, "periodo": "2009-2012", "start": "2009-09-01", "end": "2012-08-31"},
+    "LXII": {"num": 62, "periodo": "2012-2015", "start": "2012-09-01", "end": "2015-08-31"},
+    "LXIII": {"num": 63, "periodo": "2015-2018", "start": "2015-09-01", "end": "2018-08-31"},
+    "LXIV": {"num": 64, "periodo": "2018-2021", "start": "2018-09-01", "end": "2021-08-31"},
+    "LXV": {"num": 65, "periodo": "2021-2024", "start": "2021-09-01", "end": "2024-08-31"},
+    "LXVI": {"num": 66, "periodo": "2024-2027", "start": "2024-09-01", "end": "2027-08-31"},
+}
+
 
 # ===========================================================================
 # Funciones dinámicas
