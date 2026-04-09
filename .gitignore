@@ -46,6 +46,9 @@ Thumbs.db
 # Jupyter
 .ipynb_checkpoints/
 
+# GraphML (regenerables, >100MB)
+*.graphml
+
 # Logs de ejecución
 *.log
 *_log.txt
