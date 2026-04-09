@@ -1,18 +1,6 @@
 vote_event_id,result,requirement,mayoria_necesaria,a_favor_total,en_contra_total,ausente_total,margin,critical_parties
-VE04,aprobada,mayoria_calificada,334,359,135,6,25,O01|O02|O03
-VE05,aprobada,mayoria_calificada,334,357,130,13,23,O01|O02|O03
+VE04,,mayoria_simple,0,0,0,0,0,
+VE05,,mayoria_simple,0,0,0,0,0,
 
 --- DESGLOSE POR PARTIDO ---
 vote_event_id,partido,org_id,a_favor,en_contra,abstencion,ausente,total,posicion,critico
-VE04,Morena,O01,250,0,0,5,255,favor,SI
-VE04,PT,O02,47,0,0,0,47,favor,SI
-VE04,PVEM,O03,62,0,0,0,62,favor,SI
-VE04,PAN,O04,0,71,0,0,71,contra,NO
-VE04,PRI,O05,0,37,0,0,37,contra,NO
-VE04,MC,O06,0,27,0,0,27,contra,NO
-VE05,Morena,O01,248,0,0,7,255,favor,SI
-VE05,PT,O02,47,0,0,0,47,favor,SI
-VE05,PVEM,O03,62,0,0,0,62,favor,SI
-VE05,PAN,O04,0,69,0,2,71,contra,NO
-VE05,PRI,O05,0,36,0,1,37,contra,NO
-VE05,MC,O06,0,25,0,2,27,contra,NO

@@ -1,0 +1,1094 @@
+voter_id,nombre,partido,dim_1,dim_2,legislatura
+P00001,"Adame Castillo, Marco Antonio",PAN,0.999144,0.041372,LX
+P00002,"Aguilar Bodegas, José Antonio",PRI,0.97049,0.241143,LX
+P00003,"Alanís Quiñones, Adrián",PRI,0.820678,0.217058,LX
+P00004,"Aldana Prieto, Luis Ricardo",PRI,0.841888,0.539652,LX
+P00005,"Amar Shabshab, Wadi",PAN,0.95466,0.108231,LX
+P00006,"Amaya Téllez, Rodimiro",MORENA,0.999993,0.003779,LX
+P00007,"Angeles Cerón, Esteban Miguel",PRI,0.88564,0.136851,LX
+P00008,"Arias Aparicio, Eduardo",PAN,0.899819,0.291794,LX
+P00009,"Astudillo Flores, Héctor Antonio",PRI,0.790854,0.318426,LX
+P00010,"Ayala Almeida, Joel",PRI,0.787428,0.285697,LX
+P00011,"Bartlett Díaz, Manuel",PRI,0.999959,0.009105,LX
+P00012,"Becerra Rodríguez, Salvador",PAN,0.793624,0.278,LX
+P00013,"Bojórquez Mungaray, Francisco",PRI,0.954667,0.261632,LX
+P00014,"Bonilla Robles, José Eulogio",PRI,0.891098,0.102086,LX
+P00015,"Buganza Salmerón, Gerardo",PAN,0.876226,0.140099,LX
+P00016,"Camacho Quiroz, César",PRI,0.981456,0.013131,LX
+P00018,"Canavati Tafich, Ricardo",PRI,0.926909,0.200315,LX
+P00019,"Cañedo Benitez, Rafael",PRI,0.999841,-0.017831,LX
+P00020,"Cantón Zetina, Oscar",PRI,0.999569,0.02937,LX
+P00021,"Cárdenas Batel, Lázaro",MORENA,0.916405,0.185256,LX
+P00022,"Cárdenas Gutiérrez, Gustavo A",PAN,0.946538,0.290108,LX
+P00023,"Cárdenas Hernández, Raymundo",MORENA,0.953961,0.29993,LX
+P00024,"Castañeda Pérez, José Alberto",PAN,0.874607,0.242264,LX
+P00026,"Castro Castro, José Adalberto",PRI,0.815643,0.322848,LX
+P00027,"Castro Cervantes, Moisés",MORENA,0.908642,0.178475,LX
+P00028,"Chaurand Arzate, Carlos",PRI,0.89204,0.030365,LX
+P00030,"Cisneros Fernández, Joaquín",PRI,0.997503,0.070615,LX
+P00031,"Colosio Fernández, Luis",PRI,0.955362,0.295437,LX
+P00032,"Corral Avila, Ramón",PAN,0.792749,0.276517,LX
+P00033,"Corral Jurado, Javier",PAN,0.852458,0.284473,LX
+P00034,"Corral Romero, María del Carmen",PAN,0.949352,0.257117,LX
+P00035,"Cortina Reynoso, Manuel",PAN,0.93899,0.126243,LX
+P00036,"Cota Osuna, José Carlos",PRI,0.972085,0.051216,LX
+P00037,"Cruz Martínez, Marcos Carlos",MORENA,0.895118,0.137912,LX
+P00038,"Cruz Muñoz, María Elena",PAN,0.994442,0.03599,LX
+P00039,"De la Vega García, Netzahualcóyotl",PRI,0.96026,0.02686,LX
+P00040,"Díaz Castro, Lauro",PRI,0.957671,-0.035745,LX
+P00041,"Domínguez López, Silvia Asunción",PRI,0.912302,0.10447,LX
+P00042,"Escalante Jasso, Aracely",PRI,0.997326,-0.003561,LX
+P00043,"Escandón Cadenas, Rutilio Cruz",MORENA,0.927346,0.206703,LX
+P00044,"Esquivel Reyes, Rita María",PAN,0.999877,0.015712,LX
+P00045,"Fernández de Cevallos Ramos, Diego",PAN,0.749549,-0.324392,LX
+P00046,"Fernández de Cevallos y Urueta, Francisco",PAN,0.584686,-0.486682,LX
+P00047,"Fernández Rodríguez, Marco Antonio",PRI,0.761851,-0.647753,LX
+P00048,"Ferrer Rodríguez, María Esther",PAN,0.586788,-0.48349,LX
+P00049,"Fraile García, Francisco A",PAN,0.598893,-0.800829,LX
+P00050,"Franco Jiménez, Jorge Eduardo",PRI,0.587229,-0.603005,LX
+P00051,"Galván Muñoz, Jesús",PAN,0.500532,-0.476577,LX
+P00052,"Gamboa Patrón, Emilio",PRI,0.561566,-0.51478,LX
+P00053,"García Torres, Antonio",PRI,0.572112,-0.500946,LX
+P00054,"Garza Galindo, Laura Alicia",PRI,0.425903,-0.904768,LX
+P00055,"Gil Elorduy, José Ernesto",PRI,0.544519,-0.838748,LX
+P00056,"Gómez Bravo, Emilia Patricia",PVEM,0.57729,-0.691904,LX
+P00057,"Gómez Esparza, Fernando",PRI,0.70721,-0.707003,LX
+P00058,"Gómez Verónica, Gildardo",PAN,0.673423,-0.425962,LX
+P00059,"González González, Rigoberto",PAN,0.51465,-0.393034,LX
+P00060,"González Hernández, Yolanda Eugenia",PRI,0.476394,-0.520321,LX
+P00061,"González Martínez, Jorge Emilio",PVEM,0.386001,-0.559308,LX
+P00062,"Guerrero López, Judit Magdalena",PRI,0.584148,-0.486842,LX
+P00063,"Gutierrez Barrios, Fernando",PRI,0.511457,-0.815467,LX
+P00065,"Hamdan Amad, Fauzi",PAN,0.58974,-0.478822,LX
+P00066,"Hernández Deras, Ismael A.",PRI,-0.050966,-0.142084,LX
+P00067,"Hernández Genis, Héctor Javier",PAN,0.495514,-0.430097,LX
+P00068,"Montaño Yamuni, Joaquín",PAN,-0.04041,-0.999183,LX
+P00069,"Morgan Alvarez, Rafael Gilberto",PAN,-0.03078,-0.96604,LX
+P00070,"Mota Sánchez, Ramón",PRI,0.087583,-0.996157,LX
+P00072,"Muro González, Ana Bricia",PRI,-0.730802,0.635419,LX
+P00073,"Navarro Quintana, Marcela",PAN,-0.690894,0.560517,LX
+P00074,"Navarro Quintero, Miguel Angel",MORENA,-0.714901,0.624329,LX
+P00075,"Nordhausen González, Jorge Rubén",PAN,-0.734972,0.624289,LX
+P00076,"Ojeda Zubieta, César Raúl",MORENA,-0.793757,0.608234,LX
+P00077,"Osuna Jaime, Héctor Guillermo",PAN,0.855871,0.214714,LX
+P00078,"Borrego Estrada, Genaro",PRI,0.967436,0.253117,LX
+P00079,"Gallegos Soto, Benjamín",PAN,0.549045,-0.545976,LX
+P00080,"Grande Sánchez, José Pascual",PRI,0.68792,-0.499619,LX
+P00081,"Gutiérrez Gutiérrez, Alejandro",PRI,0.552644,-0.553504,LX
+P00082,"Haghenbeck Cámara, José Antonio",PAN,0.577081,-0.539622,LX
+P00083,"Herbert Pérez, Guillermo",PAN,-0.111242,-0.701145,LX
+P00084,"Hernández Enríquez, Silvia",PRI,0.305875,-0.771871,LX
+P00085,"Herrera Beltrán, Fidel",PRI,-0.865042,0.478372,LX
+P00086,"Herrera Mendoza, Jose Guillermo",MORENA,-0.91467,0.03077,LX
+P00087,"Jackson Ramírez, Jesús Enrique",PRI,-0.720884,-0.215531,LX
+P00088,"Jáuregui Robles, César",PAN,-0.924747,-0.380581,LX
+P00089,"Jiménez González, David",PRI,-0.840647,-0.522533,LX
+P00090,"Joaquín Coldwell, Addy Cecilia",PAN,-0.808191,-0.58892,LX
+P00091,"Jones Jones, Jeffrey Max",PAN,-0.863765,0.109885,LX
+P00092,"Larios Córdova, Héctor",PAN,-0.839478,-0.415737,LX
+P00093,"Larregui Nagel, Erika",PVEM,-0.982684,0.185287,LX
+P00094,"Lavara Mejía, Gloria",PVEM,-0.831244,-0.475049,LX
+P00095,"López Nelio Santiago, Daniel",MORENA,-0.816351,-0.306107,LX
+P00096,"López Sollano, Saúl",MORENA,-0.931499,-0.363743,LX
+P00097,"Lozano Armengol, Jorge",PAN,-0.990378,0.138391,LX
+P00098,"Luebbert Gutiérrez, Oscar",PRI,-0.978307,-0.207163,LX
+P00099,"Madero Quiroga, Adalberto Arturo",PAN,-0.985694,0.168545,LX
+P00100,"Madrazo Limón, Carlos",PAN,-0.870542,-0.334623,LX
+P00101,"Madrid Tovilla, Arely",PRI,-0.799224,-0.519608,LX
+P00102,"Margáin Berlanga, Fernando",PAN,-0.929435,-0.068905,LX
+P00103,"Margaiz Ramírez, Filomena",PAN,-0.744679,-0.467142,LX
+P00104,"Medina Plascencia, Carlos",PAN,-0.998351,0.057405,LX
+P00105,"Mendez de la Luz, Armando",MORENA,-0.809969,0.06521,LX
+P00106,"Méndez Lanz, Víctor Manuel",PRI,-0.948619,0.31642,LX
+P00107,"Méndez Márquez, Victoria Eugenia",PRI,-0.830536,-0.389688,LX
+P00108,"Méndez Meneses, Apolonio",PAN,-0.885562,-0.247572,LX
+P00109,"Aguilar González, Micaela",PAN,0.823958,0.361519,LX
+P00110,"Alaniz Posada, Ricardo",PAN,0.79255,0.285277,LX
+P00112,"Calderón Hinojosa, Luisa María",PAN,0.80486,0.310499,LX
+P00113,"Castañeda Álvarez, Erasmo",MORENA,0.976972,0.035871,LX
+P00114,"Cruz López, Oscar",MORENA,0.979119,0.203283,LX
+P00115,"González Parás, José Natividad",PRI,0.47278,-0.579548,LX
+P00116,"Madero García, Lydia",PAN,-0.871207,-0.327937,LX
+P00117,"Melgoza Radillo, Rafael",MORENA,-0.829537,-0.460711,LX
+P00118,"Oliva Ramírez, Juan Manuel",PAN,-0.877665,0.479275,LX
+P00119,"Ortega Martínez, Jesús",MORENA,-0.903874,0.427799,LX
+P00120,"Martínez Mireles, Alberto Miguel",PAN,-0.707183,-0.140172,LX
+P00121,"Burgos Ochoa, Leticia",MORENA,0.916184,0.191002,LX
+P00122,"Gerardo Higuera, Ricardo",MORENA,0.551466,0.005838,LX
+P00123,"Gómez Flores, Omar Raymundo",PRI,0.423123,-0.689186,LX
+P00124,"González Zarur, Mariano",PRI,0.553772,-0.532145,LX
+P00125,"Michel Camarena, Héctor",PRI,-0.068089,-0.997679,LX
+P00126,"Ovando Martínez, Eduardo",PRI,-0.011604,-0.999932,LX
+P00127,"Ling Altamirano, Héctor Federico",PAN,-0.921929,-0.194054,LX
+P00128,"Palacios Cordero, Blas Rafael",MORENA,0.979797,0.055055,LX
+P00129,"López Sánchez, Jorge Abel",PRI,-0.824872,-0.470399,LX
+P00628,"Paredes Lara, Orlando Alberto",PRI,0.584049,-0.485429,LX
+P00629,"Patrón Laviada, Patricio José",PAN,0.976943,0.213499,LX
+P00630,"Pérez de Alva Blanco, Roberto",PRI,0.852378,0.42748,LX
+P00631,"Porras Bautista, Eleuterio",PAN,0.017716,-0.967691,LX
+P00632,"Ramírez García, María del Carmen",MORENA,0.794121,0.315362,LX
+P00633,"Remes Ojeda, Antonio de Jesús",PAN,0.894406,0.137706,LX
+P00637,"Rico Samaniego, Luis Alberto",PAN,-0.200665,0.677506,LX
+P00640,"Ríos Alvarez, Serafín",MORENA,-0.820641,-0.315759,LX
+P00648,"Rojas Gutiérrez, Carlos",PRI,0.749833,0.197523,LX
+P00650,"Romero Castillo, Cecilia",PAN,0.593466,-0.250577,LX
+P00651,"Roque Villanueva, Humberto",PRI,0.593466,-0.250577,LX
+P00655,"Dip. Álvarez y Mazarrasa, Jaime Aguilar",PRI,0.547138,0.135396,LX
+P00656,"Andrade Quezada, Humberto",PAN,0.65532,0.208985,LX
+P00657,"Dip. Anaya Mota, Claudia Edith",MORENA,0.82248,-0.568793,LX
+P00658,"Anaya Llamas, José Guillermo",PAN,0.550861,0.298884,LX
+P00660,"Dip. Antuña Batista, Fidel",PAN,0.66395,0.211093,LX
+P00664,"Arce, René",PVEM,0.496881,-0.593171,LX
+P00001,"Adame Castillo, Marco Antonio",PAN,0.950522,0.310659,LXI
+P00002,"Aguilar Bodegas, José Antonio",PRI,0.953412,-0.098094,LXI
+P00003,"Alanís Quiñones, Adrián",PRI,0.915549,-0.021244,LXI
+P00004,"Aldana Prieto, Luis Ricardo",PRI,0.863493,-0.008273,LXI
+P00005,"Amar Shabshab, Wadi",PAN,0.636773,0.317494,LXI
+P00006,"Amaya Téllez, Rodimiro",MORENA,0.886647,0.387673,LXI
+P00007,"Angeles Cerón, Esteban Miguel",PRI,0.677456,0.24616,LXI
+P00008,"Arias Aparicio, Eduardo",PAN,0.838147,-0.143295,LXI
+P00009,"Astudillo Flores, Héctor Antonio",PRI,0.989371,0.055547,LXI
+P00010,"Ayala Almeida, Joel",PRI,0.756581,0.612683,LXI
+P00011,"Bartlett Díaz, Manuel",PRI,0.776149,0.63055,LXI
+P00012,"Becerra Rodríguez, Salvador",PAN,0.720098,-0.128768,LXI
+P00013,"Bojórquez Mungaray, Francisco",PRI,0.722107,0.264565,LXI
+P00014,"Bonilla Robles, José Eulogio",PRI,0.462179,0.525633,LXI
+P00015,"Buganza Salmerón, Gerardo",PAN,0.601273,0.216009,LXI
+P00016,"Camacho Quiroz, César",PRI,0.896891,0.442252,LXI
+P00017,"Campuzano González, Rómulo",PAN,0.902685,0.054236,LXI
+P00018,"Canavati Tafich, Ricardo",PRI,0.992476,0.048054,LXI
+P00019,"Cañedo Benitez, Rafael",PRI,0.950863,-0.041934,LXI
+P00020,"Cantón Zetina, Oscar",PRI,0.506124,0.302084,LXI
+P00021,"Cárdenas Batel, Lázaro",MORENA,0.757577,0.652746,LXI
+P00022,"Cárdenas Gutiérrez, Gustavo A",PAN,0.909418,0.179232,LXI
+P00023,"Cárdenas Hernández, Raymundo",MORENA,0.784521,0.570944,LXI
+P00024,"Castañeda Pérez, José Alberto",PAN,-0.517035,0.673331,LXI
+P00027,"Castro Cervantes, Moisés",MORENA,0.890734,0.201538,LXI
+P00028,"Chaurand Arzate, Carlos",PRI,0.693826,0.36052,LXI
+P00030,"Cisneros Fernández, Joaquín",PRI,0.108182,0.994118,LXI
+P00031,"Colosio Fernández, Luis",PRI,0.690307,0.306849,LXI
+P00032,"Corral Avila, Ramón",PAN,0.729319,0.684173,LXI
+P00033,"Corral Jurado, Javier",PAN,0.842627,0.526816,LXI
+P00034,"Corral Romero, María del Carmen",PAN,0.837056,-0.088866,LXI
+P00035,"Cortina Reynoso, Manuel",PAN,0.331718,0.669418,LXI
+P00036,"Cota Osuna, José Carlos",PRI,0.999115,-0.042066,LXI
+P00037,"Cruz Martínez, Marcos Carlos",MORENA,0.903116,-0.079418,LXI
+P00038,"Cruz Muñoz, María Elena",PAN,0.891546,-0.195246,LXI
+P00039,"De la Vega García, Netzahualcóyotl",PRI,0.577055,0.350039,LXI
+P00040,"Díaz Castro, Lauro",PRI,0.261009,0.839129,LXI
+P00041,"Domínguez López, Silvia Asunción",PRI,0.606443,0.596522,LXI
+P00042,"Escalante Jasso, Aracely",PRI,0.509677,0.572433,LXI
+P00043,"Escandón Cadenas, Rutilio Cruz",MORENA,0.883773,-0.069066,LXI
+P00044,"Esquivel Reyes, Rita María",PAN,0.891487,0.201173,LXI
+P00045,"Fernández de Cevallos Ramos, Diego",PAN,-0.354712,-0.021292,LXI
+P00046,"Fernández de Cevallos y Urueta, Francisco",PAN,-0.153649,-0.956787,LXI
+P00047,"Fernández Rodríguez, Marco Antonio",PRI,-0.020308,-0.665786,LXI
+P00049,"Fraile García, Francisco A",PAN,0.39468,-0.918818,LXI
+P00050,"Franco Jiménez, Jorge Eduardo",PRI,0.12289,-0.99242,LXI
+P00051,"Galván Muñoz, Jesús",PAN,-0.030004,-0.752629,LXI
+P00052,"Gamboa Patrón, Emilio",PRI,0.108919,-0.577559,LXI
+P00053,"García Torres, Antonio",PRI,-0.090771,-0.571627,LXI
+P00054,"Garza Galindo, Laura Alicia",PRI,-0.144566,-0.77789,LXI
+P00055,"Gil Elorduy, José Ernesto",PRI,-0.01376,-0.6536,LXI
+P00056,"Gómez Bravo, Emilia Patricia",PVEM,-0.111786,-0.682557,LXI
+P00057,"Gómez Esparza, Fernando",PRI,-0.118505,-0.706178,LXI
+P00058,"Gómez Verónica, Gildardo",PAN,0.157457,-0.641499,LXI
+P00059,"González González, Rigoberto",PAN,0.345543,-0.818306,LXI
+P00061,"González Martínez, Jorge Emilio",PVEM,0.135036,-0.646613,LXI
+P00062,"Guerrero López, Judit Magdalena",PRI,0.131891,-0.637451,LXI
+P00063,"Gutierrez Barrios, Fernando",PRI,-0.236658,-0.362646,LXI
+P00065,"Hamdan Amad, Fauzi",PAN,0.134359,-0.642558,LXI
+P00066,"Hernández Deras, Ismael A.",PRI,0.082334,-0.748218,LXI
+P00067,"Hernández Genis, Héctor Javier",PAN,0.122781,-0.659487,LXI
+P00068,"Montaño Yamuni, Joaquín",PAN,0.759022,-0.651065,LXI
+P00069,"Morgan Alvarez, Rafael Gilberto",PAN,0.761031,-0.648716,LXI
+P00070,"Mota Sánchez, Ramón",PRI,0.722225,-0.691643,LXI
+P00072,"Muro González, Ana Bricia",PRI,-0.502333,-1.5e-05,LXI
+P00074,"Navarro Quintero, Miguel Angel",MORENA,-0.670917,0.367633,LXI
+P00075,"Nordhausen González, Jorge Rubén",PAN,-0.588973,0.535883,LXI
+P00076,"Ojeda Zubieta, César Raúl",MORENA,-0.621914,0.171427,LXI
+P00077,"Osuna Jaime, Héctor Guillermo",PAN,-0.172378,0.32294,LXI
+P00078,"Borrego Estrada, Genaro",PRI,0.48889,0.802342,LXI
+P00079,"Gallegos Soto, Benjamín",PAN,-0.001712,-0.609063,LXI
+P00080,"Grande Sánchez, José Pascual",PRI,-0.264706,-0.321523,LXI
+P00081,"Gutiérrez Gutiérrez, Alejandro",PRI,0.162077,-0.640124,LXI
+P00082,"Haghenbeck Cámara, José Antonio",PAN,0.067579,-0.558677,LXI
+P00083,"Herbert Pérez, Guillermo",PAN,-0.219893,-0.491911,LXI
+P00084,"Hernández Enríquez, Silvia",PRI,-0.121964,-0.844543,LXI
+P00085,"Herrera Beltrán, Fidel",PRI,-0.94583,0.324662,LXI
+P00086,"Herrera Mendoza, Jose Guillermo",MORENA,-0.748399,0.465378,LXI
+P00087,"Jackson Ramírez, Jesús Enrique",PRI,-0.743747,-0.168073,LXI
+P00088,"Jáuregui Robles, César",PAN,-0.963324,-0.171921,LXI
+P00089,"Jiménez González, David",PRI,-0.862414,-0.181384,LXI
+P00090,"Joaquín Coldwell, Addy Cecilia",PAN,-0.643008,0.304544,LXI
+P00091,"Jones Jones, Jeffrey Max",PAN,-0.862343,0.506324,LXI
+P00092,"Larios Córdova, Héctor",PAN,-0.805579,-0.019428,LXI
+P00093,"Larregui Nagel, Erika",PVEM,-0.97956,-0.106186,LXI
+P00094,"Lavara Mejía, Gloria",PVEM,-0.911258,-0.18345,LXI
+P00095,"López Nelio Santiago, Daniel",MORENA,-0.860513,-0.434913,LXI
+P00096,"López Sollano, Saúl",MORENA,-0.899876,-0.184191,LXI
+P00097,"Lozano Armengol, Jorge",PAN,-0.993867,0.110581,LXI
+P00098,"Luebbert Gutiérrez, Oscar",PRI,-0.799784,0.206533,LXI
+P00099,"Madero Quiroga, Adalberto Arturo",PAN,-0.981257,0.192703,LXI
+P00100,"Madrazo Limón, Carlos",PAN,-0.958743,-0.260929,LXI
+P00101,"Madrid Tovilla, Arely",PRI,0.811061,-0.584962,LXI
+P00102,"Margáin Berlanga, Fernando",PAN,-0.916361,4e-06,LXI
+P00103,"Margaiz Ramírez, Filomena",PAN,-0.89648,-0.443084,LXI
+P00104,"Medina Plascencia, Carlos",PAN,-0.996518,0.083373,LXI
+P00105,"Mendez de la Luz, Armando",MORENA,-0.886927,-0.179184,LXI
+P00106,"Méndez Lanz, Víctor Manuel",PRI,-0.982472,0.186412,LXI
+P00107,"Méndez Márquez, Victoria Eugenia",PRI,-0.949568,-0.313561,LXI
+P00108,"Méndez Meneses, Apolonio",PAN,-0.809522,-0.341974,LXI
+P00109,"Aguilar González, Micaela",PAN,0.256605,0.904392,LXI
+P00110,"Alaniz Posada, Ricardo",PAN,0.33962,0.89795,LXI
+P00111,"Bours Castelo, Eduardo",PRI,0.561167,0.780114,LXI
+P00112,"Calderón Hinojosa, Luisa María",PAN,0.216548,0.805947,LXI
+P00113,"Castañeda Álvarez, Erasmo",MORENA,0.63793,0.643968,LXI
+P00114,"Cruz López, Oscar",MORENA,0.935194,0.02133,LXI
+P00115,"González Parás, José Natividad",PRI,-0.032519,-0.555404,LXI
+P00116,"Madero García, Lydia",PAN,-0.826423,-0.211203,LXI
+P00117,"Melgoza Radillo, Rafael",MORENA,-0.841321,-0.257078,LXI
+P00118,"Oliva Ramírez, Juan Manuel",PAN,-0.781762,0.623576,LXI
+P00119,"Ortega Martínez, Jesús",MORENA,-0.966176,0.257882,LXI
+P00120,"Martínez Mireles, Alberto Miguel",PAN,-0.883938,-0.392662,LXI
+P00121,"Burgos Ochoa, Leticia",MORENA,0.89683,0.228926,LXI
+P00122,"Gerardo Higuera, Ricardo",MORENA,0.149539,-0.614002,LXI
+P00123,"Gómez Flores, Omar Raymundo",PRI,0.436743,-0.899586,LXI
+P00124,"González Zarur, Mariano",PRI,0.145192,-0.638831,LXI
+P00125,"Michel Camarena, Héctor",PRI,-0.300814,0.261812,LXI
+P00126,"Ovando Martínez, Eduardo",PRI,0.502179,-0.864763,LXI
+P00127,"Ling Altamirano, Héctor Federico",PAN,-0.887867,-0.025845,LXI
+P00129,"López Sánchez, Jorge Abel",PRI,-0.830291,-0.019546,LXI
+P00628,"Paredes Lara, Orlando Alberto",PRI,-0.093744,-0.58261,LXI
+P00629,"Patrón Laviada, Patricio José",PAN,0.887332,0.027096,LXI
+P00630,"Pérez de Alva Blanco, Roberto",PRI,0.801345,0.598202,LXI
+P00631,"Porras Bautista, Eleuterio",PAN,0.644803,-0.726722,LXI
+P00632,"Ramírez García, María del Carmen",MORENA,0.867563,0.05672,LXI
+P00633,"Remes Ojeda, Antonio de Jesús",PAN,0.893393,0.192539,LXI
+P00637,"Rico Samaniego, Luis Alberto",PAN,0.038531,0.82522,LXI
+P00640,"Ríos Alvarez, Serafín",MORENA,-0.851039,-0.03149,LXI
+P00656,"Andrade Quezada, Humberto",PAN,0.961618,0.006251,LXI
+P00659,"Álvarez Mata, Sergio",PAN,-0.676472,0.27577,LXI
+P00661,"Dip. Aragón Castillo, Irene",MORENA,0.163167,-0.647934,LXI
+P00664,"Arce, René",PVEM,0.233396,-0.865555,LXI
+P00670,"Dip. Castillo Juárez, Laura Itzel",PT,0.87043,0.049097,LXI
+P00671,"Dip. Castillo Nájera, Ariel",MORENA,-0.825767,-0.280068,LXI
+P00672,"Dip. Castro Cosío, Víctor Manuel",MORENA,-0.637662,0.120391,LXI
+P00673,"Castro Trenti, Fernando Jorge",PRI,-0.558162,0.442119,LXI
+P00674,"Dip. Cerda Pérez, Rogelio",PRI,-0.492827,0.544787,LXI
+P00675,"Dip. Cervantes Andrade, Raúl",PRI,0.056207,-0.695861,LXI
+P00676,"Dip. Chanona Burguete, Alejandro",MC,-0.327899,0.54481,LXI
+P00677,"Dip. Cobo Terrazas, Diego",PVEM,-0.74392,-0.668269,LXI
+P00678,"Dip. Collado Lara, Beatriz",PAN,0.879427,0.269369,LXI
+P00679,"Contreras Castillo, Armando",MORENA,0.623372,-0.039055,LXI
+P00680,"Contreras Sandoval, Eva",PAN,0.151179,-0.640996,LXI
+P00681,"Coppola Joffroy, Luis Alberto",PAN,-0.590922,0.279262,LXI
+P00684,"Félix Guerra, Heriberto",PAN,-0.904865,-0.225137,LXI
+P00685,"Dip. Flores Domínguez, Emilio Ramón Ramiro",PAN,0.205921,-0.903974,LXI
+P00687,"Galván Rivas, Andrés",PAN,-0.926294,0.059329,LXI
+P00688,"Dip. Gálvez Rodríguez, Fernel Arturo",MORENA,-0.073185,-0.794587,LXI
+P00689,"Dip. Gamboa Patrón, Emilio",PRI,0.012938,-0.884269,LXI
+P00690,"García Cervantes, Ricardo Francisco",PAN,0.312122,-0.027163,LXI
+P00691,"García Lizardi, Francisco Alcibíades",MC,0.342751,0.931651,LXI
+P00692,"García Quiroz, María del Socorro",PRI,-0.839084,-0.047521,LXI
+P00693,"Dip. García Portillo, Arturo",PAN,-0.875716,-0.033187,LXI
+P00694,"García Sánchez, María Cruz",MC,0.794795,0.185166,LXI
+P00697,"Gular Solórzano, Alberto",PRI,0.701204,-0.1337,LXI
+P00698,"Gutiérrez Zurita, Dolores del Carmen",MORENA,-0.841261,-0.234253,LXI
+P00703,"Guzmán Soto, Valentín",MORENA,-0.876331,0.296205,LXI
+P00706,"Hernández García, Ramiro",PRI,0.277642,0.253643,LXI
+P00707,"Hernández González, Maurilio",MORENA,-0.8801,0.150394,LXI
+P00711,"Dip. Hernández Olmos, Paula Angélica",PRI,0.801345,0.598202,LXI
+P00712,"Dip. Hernández Pérez, David",PRI,-0.536875,0.775654,LXI
+P00010,"Ayala Almeida, Joel",PRI,-0.578966,-0.514846,LXII
+P00011,"Bartlett Díaz, Manuel",PT,0.999916,0.012933,LXII
+P00033,"Corral Jurado, Javier",PAN,0.568349,0.275194,LXII
+P00052,"Gamboa Patrón, Emilio",PRI,-0.564093,-0.497333,LXII
+P00061,"González Martínez, Jorge Emilio",PVEM,-0.576663,-0.522182,LXII
+P00092,"Larios Córdova, Héctor",PAN,0.025244,0.99968,LXII
+P00112,"Calderón Hinojosa, Luisa María",PAN,0.195839,0.695544,LXII
+P00730,"Aispuro Torres, José Rosas",PAN,0.073896,0.563688,LXII
+P00731,"Albores Gleason, Roberto Armando",PRI,-0.563933,-0.497641,LXII
+P00732,"Alcalá Ruiz, Blanca María del Socorro",PRI,-0.56492,-0.498513,LXII
+P00733,"Álvarez García, Ivonne Liliana",PRI,-0.567915,-0.502354,LXII
+P00734,"Amador Gaxiola, Daniel",PRI,-0.569299,-0.505825,LXII
+P00735,"Araujo Lara, Angélica del Rosario",PRI,-0.569925,-0.506754,LXII
+P00736,"Arriola Gordillo, Mónica Tzasna",MORENA,0.150851,0.191455,LXII
+P00737,"Ávila Ruiz, Daniel Gabriel",PAN,0.26427,0.964448,LXII
+P00738,"Barbosa Huerta, Miguel",MORENA,0.633768,-0.409569,LXII
+P00739,"Barrera Tapia, María Elena",PVEM,-0.564116,-0.497388,LXII
+P00740,"Barroso Agramont, Ricardo",PRI,-0.525831,-0.487487,LXII
+P00741,"Beristain Navarrete, Luz María",MORENA,0.619346,-0.389289,LXII
+P00742,"Burgos García, Enrique",PRI,-0.564075,-0.497514,LXII
+P00743,"Búrquez Valenzuela, Francisco de Paula",PAN,0.228353,0.93681,LXII
+P00744,"Camacho Solís, Víctor Manuel",MORENA,0.773148,-0.311702,LXII
+P00745,"Casillas Romero, Jesús",PRI,-0.563984,-0.497504,LXII
+P00746,"Cavazos Lerma, Manuel",PRI,-0.513104,-0.484357,LXII
+P00747,"Cervantes Andrade, Raúl",PRI,-0.568093,-0.499079,LXII
+P00748,"Chico Herrera, Miguel Ángel",PRI,-0.566154,-0.498577,LXII
+P00749,"Cordero Arroyo, Ernesto Javier",PAN,0.016786,0.875178,LXII
+P00750,"Cota Jiménez, Manuel Humberto",PRI,-0.564726,-0.499106,LXII
+P00751,"Cuéllar Cisneros, Lorena",MORENA,0.783015,-0.302855,LXII
+P00752,"Cuevas Barron, Gabriela",PAN,0.248134,0.549588,LXII
+P00753,"Dávila Fernández, Adriana",PAN,0.178675,0.799554,LXII
+P00754,"De la Peña Gómez, Angélica",MORENA,0.559493,-0.67691,LXII
+P00755,"Delgado Carrillo, Mario",MORENA,0.860118,-0.510095,LXII
+P00756,"Demédicis Hidalgo, Fidel",MORENA,0.653159,-0.367519,LXII
+P00757,"Díaz Lizama, Rosa Adriana",PAN,0.132141,0.99123,LXII
+P00758,"Díaz Salazar, María Cristina",PRI,-0.565167,-0.498716,LXII
+P00759,"Domínguez Servién, Francisco",PAN,-0.055845,0.998438,LXII
+P00760,"Encinas Rodríguez, Alejandro de Jesús",MORENA,0.815665,-0.274778,LXII
+P00761,"Escudero Morales, Pablo",PVEM,-0.566915,-0.495462,LXII
+P00762,"Fayad Meneses, Omar",PRI,-0.7615,-0.648164,LXII
+P00763,"Fernández Aguirre, Braulio Manuel",PRI,-0.569814,-0.505019,LXII
+P00764,"Flores Escalera, Hilda Esthela",PRI,-0.569113,-0.505828,LXII
+P00765,"Flores Ramírez, Juan Gerardo",PVEM,-0.56399,-0.497509,LXII
+P00766,"Flores Sánchez, Margarita",PRI,-0.56534,-0.502798,LXII
+P00767,"Gándara Camou, Ernesto",PRI,-0.565336,-0.499279,LXII
+P00768,"García Cabeza de Vaca, Francisco",PAN,0.035791,0.82844,LXII
+P00769,"García Gómez, Martha Elena",PAN,0.197439,0.672382,LXII
+P00770,"Garza Galván, Silvia Guadalupe",PAN,0.2214,0.975182,LXII
+P00771,"Gastélum Bajo, Diva Hadamira",PRI,-0.564125,-0.496707,LXII
+P00772,"Gil Zuarth, Roberto",PAN,-0.00084,0.903596,LXII
+P00773,"Gómez del Campo Gurza, Mariana",PAN,0.153156,0.673048,LXII
+P00774,"Gómez González, Arely",PRI,-0.798519,-0.49553,LXII
+P00775,"González Canto, Félix Arturo",PRI,-0.528118,-0.492016,LXII
+P00776,"González Cuevas, Isaías",PRI,-0.57062,-0.511395,LXII
+P00777,"Gracia Guzmán, Raúl",PAN,0.330738,0.800499,LXII
+P00778,"Guerra Castillo, Marcela",PRI,-0.411919,-0.445466,LXII
+P00779,"Guevara Espinoza, Ana Gabriela",PT,0.997745,0.067122,LXII
+P00780,"Hermosillo y Celada, Víctor",PAN,0.353574,0.809994,LXII
+P00781,"Hernández Deras, Ismael",PRI,-0.566179,-0.500065,LXII
+P00782,"Hernández Lecona, Lisbeth",PRI,-0.565313,-0.496427,LXII
+P00783,"Herrera Ale, Juana Leticia",PRI,-0.563883,-0.49785,LXII
+P00784,"Herrera Anzaldo, Ana Lilia",PRI,-0.564985,-0.497491,LXII
+P00785,"Herrera Ávila, Fernando",PAN,0.103726,0.798231,LXII
+P00786,"Irízar López, Aarón",PRI,-0.564102,-0.49743,LXII
+P00787,"Juárez Cisneros, René",PRI,-0.564031,-0.497725,LXII
+P00788,"Lavalle Maury, Jorge Luis",PAN,0.062352,0.783611,LXII
+P00789,"López Brito, Francisco Salvador",PAN,0.135976,0.694651,LXII
+P00790,"López Hernández, Adán Augusto",MORENA,0.931051,-0.204219,LXII
+P00791,"Martínez García, Patricio",PRI,-0.513378,-0.485837,LXII
+P00792,"Martínez Martínez, José María",PAN,0.065424,0.997857,LXII
+P00793,"Mayans Canabal, Fernando Enrique",MORENA,0.827755,-0.268913,LXII
+P00794,"Mayans Canabal, Humberto Domingo",PRI,-0.578047,-0.526381,LXII
+P00795,"Mendoza Davis, Carlos",PAN,0.058262,0.904022,LXII
+P00796,"Mendoza Díaz, Sonia",PAN,0.154367,0.964094,LXII
+P00797,"Mendoza Mendoza, Iris Vianey",MORENA,0.746595,-0.354437,LXII
+P00798,"Monreal Ávila, David",PT,0.949507,-0.03425,LXII
+P00799,"Morón Orozco, Raúl",MORENA,0.815341,-0.474841,LXII
+P00800,"Orihuela Bárcenas, José Ascención",PRI,-0.575827,-0.522298,LXII
+P00801,"Orozco Sandoval, Martín",PAN,0.186981,0.932509,LXII
+P00802,"Ortiz Domínguez, Maki Esther",PAN,0.159544,0.565356,LXII
+P00803,"Ortiz González, Graciela",PRI,-0.567599,-0.499575,LXII
+P00804,"Padierna Luna, María de los Dolores",MORENA,0.746692,-0.284071,LXII
+P00805,"Palafox Gutiérrez, Martha",PT,0.896011,0.038439,LXII
+P00806,"Pavlovich Arellano, Claudia Artemiza",PRI,-0.567489,-0.497691,LXII
+P00807,"Pedraza Chávez, Isidro",MORENA,0.581439,-0.467415,LXII
+P00808,"Pedroza Gaitán, César Octavio",PAN,0.219501,0.749384,LXII
+P00809,"Penchyna Grub, David",PRI,-0.568685,-0.503926,LXII
+P00810,"Pérez Magaña, Eviel",PRI,-0.580583,-0.519979,LXII
+P00811,"Pineda Gochi, Ma. del Rocío",PRI,-0.563762,-0.495037,LXII
+P00812,"Pozos Lanz, Raúl Aarón",PRI,-0.565314,-0.49922,LXII
+P00813,"Preciado Rodríguez, Jorge Luis",PAN,0.174148,0.902153,LXII
+P00814,"Puente Salas, Carlos Alberto",PVEM,-0.565613,-0.498645,LXII
+P00815,"Ramírez Hernández, Sofío",PRI,0.616527,-0.786723,LXII
+P00816,"Ríos de la Mora, Itzel Sarahí",PRI,-0.442987,-0.358478,LXII
+P00817,"Ríos Piter, Armando",MORENA,0.623875,-0.480307,LXII
+P00818,"Robledo Aburto, Zoé",MORENA,0.626802,-0.443379,LXII
+P00819,"Robles Montoya, Ángel Benjamín",MORENA,0.615047,-0.585939,LXII
+P00820,"Rojas Hernández, Laura Angélica",PAN,0.24124,0.558546,LXII
+P00821,"Romero Celis, Mely",PRI,-0.565499,-0.498926,LXII
+P00822,"Romero Deschamps, Carlos",PRI,-0.517471,-0.496228,LXII
+P00823,"Romero Hicks, Juan Carlos",PAN,0.270195,0.877641,LXII
+P00824,"Romero Lainas, Adolfo",MORENA,0.613869,-0.714546,LXII
+P00825,"Romo Medina, Miguel",PRI,-0.564087,-0.497403,LXII
+P00826,"Rosas González, Óscar Román",PRI,-0.571843,-0.510901,LXII
+P00827,"Ruffo Appel, Ernesto",PAN,0.321086,0.848931,LXII
+P00828,"Salazar Fernández, Luis Fernando",PAN,0.044658,0.817292,LXII
+P00829,"Salazar Solorio, Rabindranath",MORENA,0.852243,-0.523146,LXII
+P00830,"Saldaña Pérez, María Lucero",PRI,-0.563403,-0.47596,LXII
+P00831,"Salinas Sada, Ninfa",PVEM,-0.574306,-0.50827,LXII
+P00832,"Sánchez Jiménez, Luis",MORENA,0.692099,-0.440061,LXII
+P00833,"Sansores San Román, Layda",PT,0.998168,0.060511,LXII
+P00834,"Tello Cristerna, Alejandro",PRI,-0.566095,-0.499774,LXII
+P00835,"Torres Corzo, Teófilo",PRI,-0.567277,-0.493644,LXII
+P00836,"Torres Graciano, Fernando",PAN,0.177022,0.863332,LXII
+P00837,"Vega Casillas, Salvador",PAN,0.153534,0.581269,LXII
+P00838,"Yunes Landa, Héctor",PRI,-0.571509,-0.501325,LXII
+P00839,"Yunes Márquez, Fernando",PAN,0.065387,0.961788,LXII
+P00840,"Zamora Jiménez, Arturo",PRI,-0.418514,-0.377078,LXII
+P00841,"Barrales Magdaleno, María Alejandra",MORENA,0.597934,-0.424796,LXII
+P00842,"Lozano Alarcón, Javier",PAN,0.062546,0.963668,LXII
+P00843,"Merodio Reza, Lilia Guadalupe",PRI,-0.773924,-0.633276,LXII
+P00844,"Neyra Chávez, Armando",PRI,-0.567992,-0.505823,LXII
+P00845,"Yunes Zorrilla, José Francisco",PRI,-0.566576,-0.501631,LXII
+P00846,"Melgar Bravo, Luis Armando",PVEM,-0.571023,-0.504766,LXII
+P00847,"Torres Peimbert, María Marcela",PAN,0.342873,0.58191,LXII
+P00848,"Blásquez Salinas, Marco Antonio",PT,0.996375,-0.08507,LXII
+P00849,"Sánchez García, Gerardo",PRI,-0.534488,-0.495356,LXII
+P00850,"Ortega Martínez, Ma. del Pilar",PAN,0.223361,0.776252,LXII
+P00851,"Martínez Espinoza, María Verónica",PAN,-0.577194,-0.523701,LXII
+P00852,"Galindo Matías, Norma Alicia",PRI,-0.583135,-0.553931,LXII
+P00890,"Hernández Núñez, Elia",PAN,-0.155571,0.219597,LXII
+P00896,"Oramas Vargas, Arquímedes",PRI,-0.47081,-0.410862,LXII
+P00898,"Urzúa Rivera, Ricardo",PAN,-0.430123,-0.44272,LXII
+P00915,"Acosta Islas, Anabel",PRI,-0.453064,-0.423897,LXII
+P00916,"Aréchiga Ávila, Jorge",PVEM,-0.340472,-0.477688,LXII
+P00917,"Ceseña Burgoin, Ángel Salvador",PRI,-0.453064,-0.423897,LXII
+P00918,"Fernández Sánchez Navarro, Juan Alejandro",PAN,0.221264,0.975214,LXII
+P00919,"Montes Colunga, Vianey",PAN,-0.415083,0.091515,LXII
+P00920,"Quiroga Tamez, Mayela María de Lourdes",PRI,-0.453064,-0.423897,LXII
+P00921,"Trujillo Íñiguez, Agustín",PAN,-0.371073,0.307607,LXII
+P00922,"Cobián Chávez, Irma Zulema",PAN,-0.057178,0.995844,LXII
+P00923,"Clavel Sánchez, Lizette",PAN,0.046267,0.828893,LXII
+P00924,"Domínguez Arvizu, María Hilaria",PAN,-0.453028,-0.423911,LXII
+P00925,"Rocha Acosta, Sonia",PAN,0.334004,0.149606,LXII
+P00926,"Borreguín González, Luciano",PAN,0.628898,-0.586784,LXII
+P00927,"Salinas Balam, Víctor",PRI,-0.461726,-0.432491,LXII
+P00010,"Ayala Almeida, Joel",PRI,0.465107,-0.52147,LXIII
+P00011,"Bartlett Díaz, Manuel",PT,-0.997498,0.070691,LXIII
+P00033,"Corral Jurado, Javier",PAN,-0.622484,0.237715,LXIII
+P00052,"Gamboa Patrón, Emilio",PRI,0.43835,-0.522571,LXIII
+P00092,"Larios Córdova, Héctor",PAN,0.147531,0.34576,LXIII
+P00112,"Calderón Hinojosa, Luisa María",PAN,0.851813,0.523806,LXIII
+P00730,"Aispuro Torres, José Rosas",PAN,0.999876,0.015753,LXIII
+P00731,"Albores Gleason, Roberto Armando",PRI,0.51093,-0.483268,LXIII
+P00732,"Alcalá Ruiz, Blanca María del Socorro",PRI,0.484157,-0.535251,LXIII
+P00733,"Álvarez García, Ivonne Liliana",PRI,0.426491,-0.522093,LXIII
+P00734,"Amador Gaxiola, Daniel",PRI,0.426567,-0.519468,LXIII
+P00735,"Araujo Lara, Angélica del Rosario",PRI,0.429838,-0.506354,LXIII
+P00737,"Ávila Ruiz, Daniel Gabriel",PAN,-0.449729,0.522521,LXIII
+P00738,"Barbosa Huerta, Miguel",MORENA,-0.585895,-0.660354,LXIII
+P00739,"Barrera Tapia, María Elena",PVEM,0.497646,-0.528356,LXIII
+P00740,"Barroso Agramont, Ricardo",PRI,0.410954,-0.5218,LXIII
+P00741,"Beristain Navarrete, Luz María",MORENA,-0.650839,-0.593974,LXIII
+P00742,"Burgos García, Enrique",PRI,0.432409,-0.520056,LXIII
+P00743,"Búrquez Valenzuela, Francisco de Paula",PAN,-0.503233,0.238763,LXIII
+P00745,"Casillas Romero, Jesús",PRI,0.420103,-0.514572,LXIII
+P00746,"Cavazos Lerma, Manuel",PRI,0.418775,-0.514833,LXIII
+P00747,"Cervantes Andrade, Raúl",PRI,0.469333,-0.547117,LXIII
+P00748,"Chico Herrera, Miguel Ángel",PRI,0.77867,-0.627434,LXIII
+P00749,"Cordero Arroyo, Ernesto Javier",PAN,0.457898,-0.031732,LXIII
+P00750,"Cota Jiménez, Manuel Humberto",PRI,0.419201,-0.519897,LXIII
+P00751,"Cuéllar Cisneros, Lorena",MORENA,-0.703016,-0.419485,LXIII
+P00752,"Cuevas Barron, Gabriela",PAN,-0.011535,-0.999933,LXIII
+P00753,"Dávila Fernández, Adriana",PAN,-0.26608,-0.061997,LXIII
+P00754,"De la Peña Gómez, Angélica",MORENA,-0.568271,-0.347345,LXIII
+P00755,"Delgado Carrillo, Mario",MORENA,-0.887559,-0.254278,LXIII
+P00756,"Demédicis Hidalgo, Fidel",MORENA,-0.613968,-0.789328,LXIII
+P00757,"Díaz Lizama, Rosa Adriana",PAN,-0.164352,-0.159871,LXIII
+P00758,"Díaz Salazar, María Cristina",PRI,0.480147,-0.530285,LXIII
+P00760,"Encinas Rodríguez, Alejandro de Jesús",MORENA,-0.778101,-0.342938,LXIII
+P00761,"Escudero Morales, Pablo",PVEM,0.459092,-0.55303,LXIII
+P00762,"Fayad Meneses, Omar",PRI,0.418295,-0.554327,LXIII
+P00764,"Flores Escalera, Hilda Esthela",PRI,0.439367,-0.536352,LXIII
+P00765,"Flores Ramírez, Juan Gerardo",PVEM,0.427942,-0.51255,LXIII
+P00766,"Flores Sánchez, Margarita",PRI,0.417278,-0.497554,LXIII
+P00767,"Gándara Camou, Ernesto",PRI,0.418791,-0.519675,LXIII
+P00768,"García Cabeza de Vaca, Francisco",PAN,0.273487,-0.429795,LXIII
+P00769,"García Gómez, Martha Elena",PAN,-0.332982,0.073677,LXIII
+P00770,"Garza Galván, Silvia Guadalupe",PAN,-0.234135,0.011042,LXIII
+P00771,"Gastélum Bajo, Diva Hadamira",PRI,0.415256,-0.50723,LXIII
+P00772,"Gil Zuarth, Roberto",PAN,0.382028,-0.811552,LXIII
+P00773,"Gómez del Campo Gurza, Mariana",PAN,-0.198817,-0.079245,LXIII
+P00775,"González Canto, Félix Arturo",PRI,0.430432,-0.520874,LXIII
+P00776,"González Cuevas, Isaías",PRI,0.436102,-0.494484,LXIII
+P00777,"Gracia Guzmán, Raúl",PAN,-0.490176,0.450927,LXIII
+P00778,"Guerra Castillo, Marcela",PRI,0.413665,-0.506188,LXIII
+P00779,"Guevara Espinoza, Ana Gabriela",PT,-0.870067,0.457584,LXIII
+P00780,"Hermosillo y Celada, Víctor",PAN,-0.457262,0.717168,LXIII
+P00781,"Hernández Deras, Ismael",PRI,0.503939,-0.507611,LXIII
+P00782,"Hernández Lecona, Lisbeth",PRI,0.437034,-0.503795,LXIII
+P00783,"Herrera Ale, Juana Leticia",PRI,0.240546,-0.498506,LXIII
+P00784,"Herrera Anzaldo, Ana Lilia",PRI,0.41037,-0.508288,LXIII
+P00785,"Herrera Ávila, Fernando",PAN,-0.227047,-0.028941,LXIII
+P00786,"Irízar López, Aarón",PRI,0.413303,-0.509444,LXIII
+P00787,"Juárez Cisneros, René",PRI,0.481306,-0.555593,LXIII
+P00788,"Lavalle Maury, Jorge Luis",PAN,0.377046,-0.317135,LXIII
+P00789,"López Brito, Francisco Salvador",PAN,0.996076,0.088499,LXIII
+P00791,"Martínez García, Patricio",PRI,0.428657,-0.903467,LXIII
+P00792,"Martínez Martínez, José María",PAN,0.997687,0.06797,LXIII
+P00793,"Mayans Canabal, Fernando Enrique",MORENA,-0.742646,-0.107534,LXIII
+P00794,"Mayans Canabal, Humberto Domingo",PRI,0.432812,-0.501859,LXIII
+P00796,"Mendoza Díaz, Sonia",PAN,-0.189554,-0.094603,LXIII
+P00797,"Mendoza Mendoza, Iris Vianey",MORENA,-0.45757,-0.52891,LXIII
+P00798,"Monreal Ávila, David",PT,-0.91651,0.400012,LXIII
+P00799,"Morón Orozco, Raúl",MORENA,-0.61502,-0.690061,LXIII
+P00800,"Orihuela Bárcenas, José Ascención",PRI,0.416273,-0.518029,LXIII
+P00801,"Orozco Sandoval, Martín",PAN,0.240858,-0.50195,LXIII
+P00802,"Ortiz Domínguez, Maki Esther",PAN,-0.30521,3e-05,LXIII
+P00803,"Ortiz González, Graciela",PRI,0.426518,-0.518331,LXIII
+P00804,"Padierna Luna, María de los Dolores",MORENA,-0.762426,-0.346756,LXIII
+P00805,"Palafox Gutiérrez, Martha",PT,-0.6934,0.31609,LXIII
+P00807,"Pedraza Chávez, Isidro",MORENA,-0.574572,-0.683391,LXIII
+P00808,"Pedroza Gaitán, César Octavio",PAN,0.337452,0.023317,LXIII
+P00809,"Penchyna Grub, David",PRI,0.43081,-0.531141,LXIII
+P00810,"Pérez Magaña, Eviel",PRI,0.281987,-0.452166,LXIII
+P00811,"Pineda Gochi, Ma. del Rocío",PRI,0.431568,-0.505853,LXIII
+P00812,"Pozos Lanz, Raúl Aarón",PRI,0.427871,-0.509178,LXIII
+P00813,"Preciado Rodríguez, Jorge Luis",PAN,0.357068,0.137546,LXIII
+P00814,"Puente Salas, Carlos Alberto",PVEM,0.429535,-0.522528,LXIII
+P00815,"Ramírez Hernández, Sofío",PRI,0.475459,-0.540366,LXIII
+P00816,"Ríos de la Mora, Itzel Sarahí",PRI,0.414348,-0.504375,LXIII
+P00817,"Ríos Piter, Armando",MORENA,-0.646927,-0.762545,LXIII
+P00818,"Robledo Aburto, Zoé",MORENA,-0.640225,-0.768184,LXIII
+P00819,"Robles Montoya, Ángel Benjamín",MORENA,-0.682786,-0.267366,LXIII
+P00820,"Rojas Hernández, Laura Angélica",PAN,-0.129414,-0.325608,LXIII
+P00821,"Romero Celis, Mely",PRI,0.421765,-0.542939,LXIII
+P00822,"Romero Deschamps, Carlos",PRI,0.431439,-0.500409,LXIII
+P00823,"Romero Hicks, Juan Carlos",PAN,-0.403,0.333571,LXIII
+P00824,"Romero Lainas, Adolfo",MORENA,-0.326675,-0.708826,LXIII
+P00825,"Romo Medina, Miguel",PRI,0.42917,-0.517668,LXIII
+P00826,"Rosas González, Óscar Román",PRI,0.477379,-0.5282,LXIII
+P00827,"Ruffo Appel, Ernesto",PAN,-0.509128,0.335737,LXIII
+P00828,"Salazar Fernández, Luis Fernando",PAN,-0.184004,-0.112256,LXIII
+P00829,"Salazar Solorio, Rabindranath",MORENA,-0.894298,-0.207961,LXIII
+P00830,"Saldaña Pérez, María Lucero",PRI,0.410169,-0.506204,LXIII
+P00831,"Salinas Sada, Ninfa",PVEM,0.428781,-0.541572,LXIII
+P00832,"Sánchez Jiménez, Luis",MORENA,-0.596813,-0.357385,LXIII
+P00833,"Sansores San Román, Layda",PT,-0.936215,0.351427,LXIII
+P00834,"Tello Cristerna, Alejandro",PRI,0.340786,-0.78739,LXIII
+P00835,"Torres Corzo, Teófilo",PRI,0.393701,-0.505429,LXIII
+P00836,"Torres Graciano, Fernando",PAN,0.967282,0.253705,LXIII
+P00837,"Vega Casillas, Salvador",PAN,0.314613,-0.103361,LXIII
+P00838,"Yunes Landa, Héctor",PRI,0.408252,-0.508584,LXIII
+P00839,"Yunes Márquez, Fernando",PAN,0.365702,-0.511947,LXIII
+P00840,"Zamora Jiménez, Arturo",PRI,0.796004,-0.605292,LXIII
+P00842,"Lozano Alarcón, Javier",PAN,0.984977,0.088762,LXIII
+P00843,"Merodio Reza, Lilia Guadalupe",PRI,0.4084,-0.503692,LXIII
+P00844,"Neyra Chávez, Armando",PRI,0.420053,-0.517377,LXIII
+P00845,"Yunes Zorrilla, José Francisco",PRI,0.740025,-0.672578,LXIII
+P00846,"Melgar Bravo, Luis Armando",PVEM,0.427443,-0.507187,LXIII
+P00847,"Torres Peimbert, María Marcela",PAN,-0.495495,0.383304,LXIII
+P00848,"Blásquez Salinas, Marco Antonio",PT,-0.780988,0.195338,LXIII
+P00849,"Sánchez García, Gerardo",PRI,0.503613,-0.49956,LXIII
+P00850,"Ortega Martínez, Ma. del Pilar",PAN,-0.240055,0.006788,LXIII
+P00851,"Martínez Espinoza, María Verónica",PRI,0.403486,-0.505822,LXIII
+P00898,"Urzúa Rivera, Ricardo",PRI,0.46174,-0.443604,LXIII
+P00915,"Acosta Islas, Anabel",PRI,0.422246,-0.513267,LXIII
+P00916,"Aréchiga Ávila, Jorge",PVEM,0.424335,-0.509063,LXIII
+P00918,"Fernández Sánchez Navarro, Juan Alejandro",PAN,0.509794,0.076073,LXIII
+P00924,"Domínguez Arvizu, María Hilaria",PAN,0.491222,-0.522206,LXIII
+P00925,"Rocha Acosta, Sonia",PAN,-0.150901,0.385747,LXIII
+P00927,"Salinas Balam, Víctor",PRI,0.314603,-0.502808,LXIII
+P01430,"Fernández Fuentes, Luis Humberto",PAN,-0.636024,-0.691467,LXIII
+P01431,"Tagle Martínez, Martha Angélica",MORENA,-0.702766,0.053005,LXIII
+P01432,"Medina Ramírez, Tereso",PRI,0.431176,-0.508088,LXIII
+P01433,"Merino Campos, Carlos Manuel",PT,-0.98871,0.149843,LXIII
+P01458,"Toledo Luis, Jorge",PRI,0.420717,-0.510432,LXIII
+P01464,"Ayala Ríos, Erika",PRI,0.483615,-0.552058,LXIII
+P01465,"de la Torre Valdez, Yolanda",PRI,0.395808,-0.502312,LXIII
+P01466,"García Guajardo, Sandra Luz",PAN,-0.078328,0.125524,LXIII
+P01467,"Olvera Acevedo, José Marco Antonio",PRI,0.433548,-0.52165,LXIII
+P01468,"Priego Calva, Jesús",PAN,0.41938,-0.526089,LXIII
+P01469,"Santana García, José de Jesús",PAN,0.507535,0.096881,LXIII
+P01470,"García García, Andrea",PAN,0.31101,0.151091,LXIII
+P01471,"Flores Ávalos, Héctor David",PAN,-0.262513,-0.073774,LXIII
+P01472,"Martínez Elizondo, Sylvia Leticia",PAN,0.708975,0.705234,LXIII
+P01474,"Izaguirre Francos, María del Carmen",PRI,0.376356,-0.498852,LXIII
+P01475,"González Rodríguez, María de los Ángeles Verónica",MORENA,-0.818836,-0.574028,LXIII
+P01476,"Menchaca Medrano, Héctor Adrián",PT,-0.997772,0.066714,LXIII
+P01477,"Roldán Benítez, Alejandra",PT,-0.771886,-0.511008,LXIII
+P01478,"Torres López, Amelia",PAN,0.449067,-0.540389,LXIII
+P01480,"Dorantes Martínez, Carmen",PRI,0.428152,-0.509172,LXIII
+P01481,"Hernández Ruiz, Félix Benjamín",PT,-0.749083,-0.206012,LXIII
+P01482,"Cárdenas Fonseca, Manuel",PAN,-0.620053,0.270871,LXIII
+P01483,"Ceballos Llerenas, Hilda",PRI,0.455144,-0.523009,LXIII
+P01486,"Marín Moreno, María Lorena",PAN,0.462235,-0.554667,LXIII
+P01495,"Albarrán Mendoza, Esteban",PRI,0.41213,-0.506812,LXIII
+P01497,"Herrera Guajardo, Laura Guadalupe",PAN,-0.318751,0.253267,LXIII
+P01498,"Leal Islas, Patricia",PAN,0.770232,0.637764,LXIII
+P01499,"García Chávez, Raymundo",PRI,0.494884,-0.533249,LXIII
+P01500,"Guzmán Avilés, María del Rosario",PAN,-0.142211,0.223613,LXIII
+P01524,"Barrón Vivanco, Michelle Arandine",PRI,0.494883,-0.533245,LXIII
+P01555,"Tapia Franco, José María",PRI,0.385862,-0.504103,LXIII
+P01556,"Cesáreo Guzmán, Celestino",MORENA,-0.465887,-0.884844,LXIII
+P01562,"Galicia Ávila, Víctor Manuel Anastasio",PRI,0.28816,-0.517935,LXIII
+P01563,"Rementería Coello, Ainara",PRI,0.313666,-0.505447,LXIII
+P01564,"Zuarth Esquinca, Rubén Antonio",PRI,0.316544,-0.501737,LXIII
+P01565,"Lucia Espejo, Miguel Enrique",PT,-0.776285,-0.630382,LXIII
+P01566,"Berlanga Sánchez, Marlon",PT,-0.874836,-0.484419,LXIII
+P01567,"Loaiza Garzón, Adriana",PAN,-0.30099,0.953627,LXIII
+P01568,"Luque Inzunza, Martha Vianey",PVEM,0.311334,-0.504844,LXIII
+P01570,"Flores Valdez, Anastacia Guadalupe",PRI,0.319364,-0.505892,LXIII
+P01574,"Terán Velázquez, María Esther",PRI,0.321128,-0.504322,LXIII
+P01577,"Esquinca Cano, Froilán",PT,-0.813727,-0.04321,LXIII
+P01579,"González Pérez, Elva Martha",PAN,-0.417203,0.016619,LXIII
+P01580,"Ojesto Martínez Porcayo, María del Carmen",PT,-0.946417,-0.322946,LXIII
+P01581,"Carrasco Zanini Castillo, Eduardo Ernesto",PT,-0.74779,-0.239696,LXIII
+P00074,"Navarro Quintero, Miguel Angel",MORENA,0.334805,0.77854,LXIV
+P00096,"López Sollano, Saúl",MORENA,0.278212,0.09858,LXIV
+P00713,"Hernández Ramos, Minerva",PAN,-0.933512,0.358545,LXIV
+P01584,"Abreu Artiñano, Rocío Adriana",MORENA,0.278878,0.429505,LXIV
+P01585,"Ahued Bardahuil, Ricardo",MORENA,0.716475,-0.186842,LXIV
+P01586,"Álvarez Lima, José Antonio Cruz",MORENA,0.296278,0.453375,LXIV
+P01587,"Añorve Baños, Manuel",PRI,-0.54421,0.166697,LXIV
+P01588,"Arias Solís, Cristóbal",MORENA,0.280979,0.372547,LXIV
+P01589,"Armenta Mier, Alejandro",MORENA,0.298498,0.409791,LXIV
+P01590,"Ávila Vázquez, Katya Elizabeth",MORENA,0.314157,0.394744,LXIV
+P01591,"Ávila Villegas, Eruviel",PRI,-0.574522,0.144723,LXIV
+P01592,"Balderas Espinoza, Claudia Esther",MORENA,0.723331,0.521802,LXIV
+P01593,"Bañuelos, Geovanna",PT,0.8729,-0.213926,LXIV
+P01594,"Batres Guadarrama, Martí",MORENA,0.851232,0.464808,LXIV
+P01595,"Beltrones Sánchez, Sylvana",PRI,-0.66512,-0.063609,LXIV
+P01596,"Benavides Cobos, Gabriela",PVEM,-0.347794,0.077093,LXIV
+P01597,"Bolaños-Cacho Cué, Raúl",PVEM,-0.028655,0.27664,LXIV
+P01599,"Camino Farjat, Verónica Noemí",PVEM,0.403653,-0.105955,LXIV
+P01600,"Caraveo Camarena, Bertha Alicia",MORENA,0.298665,0.423123,LXIV
+P01601,"Cárdenas Mariscal, María Antonia",MORENA,0.628538,0.568136,LXIV
+P01602,"Castañeda Hoeflich, Clemente",MC,-0.650576,-0.607584,LXIV
+P01603,"Castro Castro, Imelda",MORENA,0.631397,0.526469,LXIV
+P01604,"Covarrubias Cervantes, Ma. Guadalupe",MORENA,0.307378,0.415501,LXIV
+P01605,"De la Sierra Arámburo, Nancy",PT,0.970984,-0.239145,LXIV
+P01606,"De León Villard, Sasil",MORENA,0.087584,0.749551,LXIV
+P01607,"Delgadillo García, Verónica",MC,-0.669479,-0.69586,LXIV
+P01608,"Delgado, Dante",MC,-0.655657,-0.755048,LXIV
+P01609,"Dothé Mata, Primo",MORENA,0.745097,0.518208,LXIV
+P01610,"Enríquez Herrera, José Ramón",MORENA,0.295076,0.12213,LXIV
+P01611,"Galaz Caletti, Eva Eugenia",MORENA,0.665548,0.185502,LXIV
+P01612,"García Arrieta, Angélica",MORENA,0.210543,0.36508,LXIV
+P01613,"García Conejo, Antonio",MORENA,-0.537088,0.098629,LXIV
+P01614,"García Sepúlveda, Samuel Alejandro",MC,-0.636739,-0.771078,LXIV
+P01615,"García Yáñez, Ángel",PRI,-0.610281,0.038929,LXIV
+P01616,"Gómez Álvarez, Delfina",MORENA,0.23625,0.32702,LXIV
+P01617,"González Yáñez, Alejandro",PT,0.921606,0.388127,LXIV
+P01618,"Guadiana Tijerina, Santana Armando",MORENA,0.032532,0.500638,LXIV
+P01619,"Gutiérrez Castorena, Daniel",MORENA,0.55538,0.700438,LXIV
+P01620,"Jara Cruz, Salomón",MORENA,0.622025,0.541065,LXIV
+P01621,"Lagunes Soto Ruíz, Alejandra",PVEM,-0.427982,0.028177,LXIV
+P01622,"Luévano Cantú, María Soledad",MORENA,0.298748,0.409956,LXIV
+P01623,"Mancera Espinosa, Miguel Ángel",MORENA,-0.52981,0.040855,LXIV
+P01624,"Martínez Cázares, Germán",MORENA,-0.135026,0.767284,LXIV
+P01625,"Martínez García, Verónica",PRI,-0.664152,0.109686,LXIV
+P01626,"Martínez Hernández, Ifigenia",MORENA,0.182189,0.317026,LXIV
+P01627,"Martínez Miranda, Higinio",MORENA,0.325421,0.78263,LXIV
+P01628,"May Rodríguez, Javier",MORENA,0.21001,0.365649,LXIV
+P01629,"Mayorga Delgado, Nuvia Magdalena",PRI,-0.627567,0.057756,LXIV
+P01630,"Menchaca Salazar, Julio Ramón",MORENA,0.085274,0.595972,LXIV
+P01631,"Méndez Ortiz, Casimiro",MORENA,0.611176,0.564442,LXIV
+P01632,"Meza, Lucy",MORENA,0.048264,0.750346,LXIV
+P01633,"Micher Camarena, Martha Lucía",MORENA,0.614561,0.539391,LXIV
+P01634,"Monreal Ávila, Ricardo",MORENA,0.085834,0.595836,LXIV
+P01635,"Mora Arellano, Elvia Marcela",MORENA,0.402099,0.277753,LXIV
+P01636,"Narro Céspedes, José",MORENA,0.79215,0.610326,LXIV
+P01637,"Noyola Cervantes, Ma. Leonor",PVEM,-0.314906,0.178582,LXIV
+P01638,"Osorio Chong, Miguel Ángel",PRI,-0.631375,0.012315,LXIV
+P01639,"Ostoa Ortega, Aníbal",MORENA,0.279848,0.386688,LXIV
+P01640,"Padilla Peña, Joel",PT,0.732529,-0.064345,LXIV
+P01641,"Paredes Rangel, Beatriz Elena",PRI,-0.613081,4.4e-05,LXIV
+P01642,"Pech Várguez, José Luis",MORENA,0.631668,0.51852,LXIV
+P01643,"Pérez Cuellar, Cruz",MORENA,0.058172,0.684175,LXIV
+P01644,"Pinedo Alonso, Cora Cecilia",PT,0.890256,-0.147796,LXIV
+P01645,"Ramírez Aguilar, Oscar Eduardo",MORENA,0.298285,0.412945,LXIV
+P01646,"Ramírez Marín, Jorge Carlos",PRI,-0.614163,0.306615,LXIV
+P01647,"Rivera Rivera, Ana Lilia",MORENA,0.625803,0.571169,LXIV
+P01648,"Rocha Moya, Rubén",MORENA,0.278888,0.385118,LXIV
+P01649,"Romo Molina, Eunice Renata",MORENA,0.299216,0.411825,LXIV
+P01650,"Rubio Márquez, Vanessa",PRI,-0.66268,0.120917,LXIV
+P01651,"Ruiz Massieu Salinas, Claudia",PRI,-0.632088,0.00822,LXIV
+P01652,"Salazar Solorio, Radamés",MORENA,0.282785,0.386625,LXIV
+P01653,"Salgado Macedonio, J. Félix",MORENA,0.31084,0.367751,LXIV
+P01654,"Sánchez García, Cecilia Margarita",MORENA,0.295698,0.399156,LXIV
+P01655,"Téllez, Lilly",MORENA,-0.336593,0.94165,LXIV
+P01656,"Trasviña Waldenrath, Jesús Lucía",MORENA,0.637424,0.520917,LXIV
+P01657,"Valdez Martínez, Lilia Margarita",MORENA,0.342064,0.769735,LXIV
+P01658,"Vasconcelos, Héctor",MORENA,0.072716,0.584097,LXIV
+P01659,"Velasco Coello, Manuel",PVEM,-0.032049,0.194739,LXIV
+P01660,"Villarreal Anaya, Américo",MORENA,0.342032,0.769802,LXIV
+P01661,"Villegas Canché, Freyda Marybel",MORENA,0.286011,0.383558,LXIV
+P01662,"Zamora Gastélum, Mario",PRI,-0.663096,-0.110596,LXIV
+P01663,"Zamora Guzmán, Rogelio Israel",PVEM,-0.108512,0.372378,LXIV
+P01664,"Zepeda, Juan",MC,-0.739214,-0.673471,LXIV
+P01665,"Álvarez Icaza Longoria, Emilio",MORENA,-0.989229,-0.146375,LXIV
+P01666,"Bermúdez Méndez, José Erandi",PAN,-0.843636,0.34744,LXIV
+P01667,"Castro Cosío, Víctor Manuel",MORENA,-0.445144,0.895458,LXIV
+P01668,"Cruz Blackledge, Gina Andrea",PAN,-0.869873,0.347255,LXIV
+P01669,"Fernández Balboa, Mónica",MORENA,0.72066,0.397298,LXIV
+P01670,"Fócil Pérez, Juan Manuel",MORENA,-0.534881,0.042059,LXIV
+P01671,"Fuentes Solís, Víctor Oswaldo",PAN,-0.873931,0.473678,LXIV
+P01672,"Gálvez Ruiz, Xóchitl",PAN,-0.869371,0.372429,LXIV
+P01673,"Gama Basarte, Marco Antonio",PAN,-0.900326,0.314707,LXIV
+P01674,"García Cabeza de Vaca, Ismael",PAN,-0.943257,0.243352,LXIV
+P01675,"Herrera Ruiz, Gilberto",MORENA,0.840527,0.541769,LXIV
+P01676,"Kempis Martínez, Indira",MC,-0.666734,-0.653001,LXIV
+P01677,"López Rabadán, Kenia",PAN,-0.87569,0.363593,LXIV
+P01678,"Madero Muñoz, Gustavo Enrique",PAN,-0.960069,0.279764,LXIV
+P01679,"Márquez Alvarado, Martha Cecilia",PAN,-0.976153,0.217085,LXIV
+P01680,"Martín del Campo Martín del Campo, Juan Antonio",PAN,-0.848951,0.365562,LXIV
+P01681,"Martínez Simón, Mayuli Latifa",PAN,-0.944558,0.328346,LXIV
+P01682,"Mercado, Patricia",MC,-0.63709,-0.770789,LXIV
+P01683,"Navarro Acevedo, Nadia",PAN,-0.827162,0.37569,LXIV
+P01684,"Núñez Sánchez, Gloria Elizabeth",PAN,-0.842833,0.338907,LXIV
+P01685,"Paz Alonzo, Raúl",PAN,-0.801432,0.387282,LXIV
+P01686,"Piña Gudiño, Blanca Estela",MORENA,0.98873,0.149713,LXIV
+P01687,"Rementería del Puerto, Julen",PAN,-0.880066,0.383499,LXIV
+P01688,"Reynoso Sánchez, Alejandra Noemí",PAN,-0.94507,0.326867,LXIV
+P01689,"Rosales San Román, Indira de Jesús",PAN,-0.908858,0.417094,LXIV
+P01690,"Saldaña Cisneros, María Guadalupe",PAN,-0.914679,0.343259,LXIV
+P01691,"Salgado García, Nestora",MORENA,0.229608,0.779476,LXIV
+P01692,"Vázquez Alatorre, Antares Guadalupe",MORENA,0.945205,0.326477,LXIV
+P01693,"Vázquez Mota, Josefina",PAN,-0.851711,0.382842,LXIV
+P01694,"Zepeda Vidales, Damián",PAN,-0.901604,0.320123,LXIV
+P01695,"Harp Iturribarría, Susana",MORENA,0.655592,0.297265,LXIV
+P01696,"Hernández Mora, M. Citlalli",MORENA,0.985095,0.172009,LXIV
+P01697,"León Gastélum, Alejandra del Carmen",PT,0.937641,-0.347604,LXIV
+P01698,"Valencia de la Mora, Gricelda",MORENA,0.305743,0.420593,LXIV
+P01699,"Gómez Urrutia, Napoleón",MORENA,0.383553,0.372387,LXIV
+P01701,"Kuri González, Mauricio",PAN,-0.892294,0.451456,LXIV
+P01702,"Moreno Valle Rosas, Rafael",PAN,-0.629204,0.147177,LXIV
+P01703,"Murguía Gutiérrez, María Guadalupe",PAN,-0.81125,0.348382,LXIV
+P01704,"Aceves del Olmo, Carlos Humberto",PRI,-0.550976,-0.022663,LXIV
+P01705,"Anaya Mota, Claudia Edith",PRI,-0.822264,-0.086255,LXIV
+P01706,"Murat Hinojosa, Eduardo Enrique",PVEM,-0.351958,0.349137,LXIV
+P01708,"Quiñonez Ruiz, Juan",MC,-0.636213,-0.640111,LXIV
+P01710,"Castañón, Noé",MC,-0.645852,-0.76346,LXIV
+P01712,"Bours Griffith, Arturo",MORENA,0.304804,0.412978,LXIV
+P01714,"Peña Villa, José Alejandro",MORENA,0.304815,0.413079,LXIV
+P01715,"Rodríguez Ramírez, Jesusa",MORENA,0.99901,-0.044481,LXIV
+P01716,"Sánchez Hernández, Gloria",MORENA,0.491662,0.257821,LXIV
+P01717,"Guerrero Sánchez, Martha",MORENA,0.626881,0.536671,LXIV
+P01718,"Haces Barba, Pedro",MORENA,0.417689,0.538775,LXIV
+P01719,"Jiménez Yáñez, Juan José",MORENA,0.310802,0.359356,LXIV
+P01720,"Peralta Suárez, Ovidio Salvador",MORENA,0.525313,0.715025,LXIV
+P01721,"Velázquez Meza, Ricardo",MORENA,0.556771,0.193414,LXIV
+P01722,"Novelo Osuna, Gerardo",MORENA,0.873705,0.08176,LXIV
+P01724,"Rodríguez Domínguez, Martha María",PAN,-0.986968,0.160917,LXIV
+P01726,"Maceda Luna, Omar Obed",MORENA,-0.533609,0.039296,LXIV
+P01727,"González González, María Merced",MORENA,0.47378,0.247726,LXIV
+P01728,"Moya Clemente, Roberto Juan",PAN,-0.723507,0.383576,LXIV
+P01729,"Encinas Meneses, Jesús",MORENA,0.368328,0.512857,LXIV
+P01730,"Molina Ramírez, Joel",MORENA,0.391137,0.193003,LXIV
+P01732,"Lucero Olivas, Miguel Ángel",PT,0.729591,-0.08113,LXIV
+P01734,"Dip. Bonifaz Moedano, Raúl Eduardo",MORENA,0.057838,0.998326,LXIV
+P01737,"Dip. Delgado Carrillo, Mario",MORENA,-0.791895,0.610657,LXIV
+P01747,"Dip. Sauri Riancho, Dulce María",PRI,0.689668,-0.724126,LXIV
+P01759,"Dip. Huerta del Río, María de los Ángeles",MORENA,-0.004232,0.664462,LXIV
+P01764,"Pérez Astorga, Ernesto",MORENA,0.30246,0.462863,LXIV
+P01769,"Moreno Bastida, Ricardo",MORENA,0.39032,0.37008,LXIV
+P01779,"Dip. Olvera Bautista, Simey",MORENA,0.000485,0.55406,LXIV
+P01786,"Dip. Salazar Báez, Josefina",PAN,-0.936996,0.349339,LXIV
+P01790,"Habib Abimerhi, Jorge Alberto",PRI,-0.501403,-0.046666,LXIV
+P01791,"Rueda Gómez, Concepción",MORENA,0.054239,0.245705,LXIV
+P01793,"Sánchez Arredondo, Nancy Guadalupe",MORENA,0.367705,0.429222,LXIV
+P01794,"Galarza Villaseñor, José Alberto",MC,-0.711879,-0.702303,LXIV
+P01807,"Sánchez Sugía, María Celeste",MORENA,0.789193,0.614145,LXIV
+P01808,"Salazar Sáenz, Francisco Javier",PAN,-0.886441,0.297562,LXIV
+P01809,"Ortíz Salinas, Luis David",MC,-0.812157,-0.583439,LXIV
+P01816,"Botello Montes, José Alfredo",PAN,-0.931587,0.363517,LXIV
+P01817,"González Delgadillo, Jesús Horacio",PAN,-0.822693,0.568486,LXIV
+P01818,"Moo Cahuich, Arturo del Carmen",MORENA,0.386395,0.483715,LXIV
+P01819,"Solórzano Fraga, José Alfonso Pascual",MORENA,0.382626,0.485868,LXIV
+P01820,"Villarreal Zavala, Audelia Esthela",PAN,-0.827928,0.560835,LXIV
+P01825,"Pérez Flores, Checo",MORENA,0.382626,0.485818,LXIV
+P01826,"Elenes Angulo, Raúl de Jesús",MORENA,0.382638,0.485819,LXIV
+P01827,"Galindo Quiñones, Heriberto Manuel",PRI,-0.527244,-0.133052,LXIV
+P01829,"Sandoval Urban, Evelia",MORENA,0.382615,0.485871,LXIV
+P01830,"Trejo Pureco, Marco",MORENA,-0.835854,0.548951,LXIV
+P01831,"Gaitán Díaz, María Graciela",PVEM,0.874428,0.485155,LXIV
+P01832,"López Hernández, Ruth Alejandra",MC,-0.660179,-0.751108,LXIV
+P01838,"López García, María Marena",MORENA,0.382658,0.485861,LXIV
+P01839,"Martínez Cárdenas, Laura Susana",PAN,-0.941322,0.337508,LXIV
+P00096,"López Sollano, Saúl",MORENA,0.517883,-0.113646,LXV
+P00713,"Hernández Ramos, Minerva",PAN,-0.860348,0.250418,LXV
+P01584,"Abreu Artiñano, Rocío Adriana",MORENA,0.454378,-0.145969,LXV
+P01586,"Álvarez Lima, José Antonio Cruz",MORENA,0.50783,-0.150888,LXV
+P01587,"Añorve Baños, Manuel",PRI,-0.487222,0.193636,LXV
+P01588,"Arias Solís, Cristóbal",MORENA,0.478079,-0.178768,LXV
+P01589,"Armenta Mier, Alejandro",MORENA,0.530097,-0.140545,LXV
+P01590,"Ávila Vázquez, Katya Elizabeth",MORENA,0.642273,-0.272209,LXV
+P01591,"Ávila Villegas, Eruviel",PRI,-0.198231,-0.465935,LXV
+P01592,"Balderas Espinoza, Claudia Esther",MORENA,0.735408,0.677624,LXV
+P01593,"Bañuelos, Geovanna",PT,0.173542,0.032375,LXV
+P01595,"Beltrones Sánchez, Sylvana",PRI,-0.896716,0.084684,LXV
+P01596,"Benavides Cobos, Gabriela",PVEM,0.454887,-0.352135,LXV
+P01597,"Bolaños-Cacho Cué, Raúl",PVEM,0.162611,-0.014006,LXV
+P01598,"Bonilla Valdez, Jaime",MORENA,0.798277,0.602291,LXV
+P01599,"Camino Farjat, Verónica Noemí",MORENA,0.642193,-0.272396,LXV
+P01600,"Caraveo Camarena, Bertha Alicia",MORENA,0.496924,-0.177556,LXV
+P01601,"Cárdenas Mariscal, María Antonia",MORENA,0.973445,0.228921,LXV
+P01602,"Castañeda Hoeflich, Clemente",MC,-0.756656,-0.291755,LXV
+P01603,"Castro Castro, Imelda",MORENA,0.483264,-0.179358,LXV
+P01604,"Covarrubias Cervantes, Ma. Guadalupe",MORENA,0.494221,-0.181352,LXV
+P01605,"De la Sierra Arámburo, Nancy",MORENA,-0.923739,-0.016037,LXV
+P01606,"De León Villard, Sasil",MORENA,0.491992,-0.167319,LXV
+P01607,"Delgadillo García, Verónica",MC,-0.545292,-0.511417,LXV
+P01608,"Delgado, Dante",MC,-0.758782,-0.293121,LXV
+P01609,"Dothé Mata, Primo",MORENA,0.354417,0.113011,LXV
+P01610,"Enríquez Herrera, José Ramón",MORENA,0.414116,-0.140341,LXV
+P01611,"Galaz Caletti, Eva Eugenia",MORENA,0.329598,-0.163938,LXV
+P01613,"García Conejo, Antonio",MORENA,-0.842315,0.116528,LXV
+P01615,"García Yáñez, Ángel",PRI,-0.445744,0.076502,LXV
+P01616,"Gómez Álvarez, Delfina",MORENA,0.265261,0.177346,LXV
+P01617,"González Yáñez, Alejandro",PT,0.49888,-0.163347,LXV
+P01618,"Guadiana Tijerina, Santana Armando",MORENA,0.552012,0.328947,LXV
+P01619,"Gutiérrez Castorena, Daniel",MORENA,0.495594,-0.17826,LXV
+P01620,"Jara Cruz, Salomón",MORENA,0.463343,0.639437,LXV
+P01621,"Lagunes Soto Ruíz, Alejandra",PVEM,0.787722,-0.61603,LXV
+P01622,"Luévano Cantú, María Soledad",MORENA,0.454888,-0.147069,LXV
+P01623,"Mancera Espinosa, Miguel Ángel",MORENA,-0.569209,-0.119779,LXV
+P01624,"Martínez Cázares, Germán",MORENA,-0.998646,-0.052022,LXV
+P01625,"Martínez García, Verónica",PRI,-0.461604,0.084972,LXV
+P01626,"Martínez Hernández, Ifigenia",MORENA,0.495391,-0.128221,LXV
+P01627,"Martínez Miranda, Higinio",MORENA,0.413531,-0.134568,LXV
+P01629,"Mayorga Delgado, Nuvia Magdalena",PRI,-0.284532,-0.592182,LXV
+P01630,"Menchaca Salazar, Julio Ramón",MORENA,0.470447,0.502074,LXV
+P01631,"Méndez Ortiz, Casimiro",MORENA,0.781597,-0.341022,LXV
+P01632,"Meza, Lucy",MORENA,0.100276,0.053668,LXV
+P01633,"Micher Camarena, Martha Lucía",MORENA,0.741085,-0.152896,LXV
+P01634,"Monreal Ávila, Ricardo",MORENA,0.995597,0.093737,LXV
+P01635,"Mora Arellano, Elvia Marcela",MORENA,0.68182,-0.252263,LXV
+P01636,"Narro Céspedes, José",MORENA,0.461096,-0.161356,LXV
+P01638,"Osorio Chong, Miguel Ángel",PRI,-0.455857,-5e-06,LXV
+P01639,"Ostoa Ortega, Aníbal",MORENA,0.269792,-0.348637,LXV
+P01640,"Padilla Peña, Joel",PT,0.313057,-0.09847,LXV
+P01641,"Paredes Rangel, Beatriz Elena",PRI,-0.454749,0.079004,LXV
+P01642,"Pech Várguez, José Luis",MC,-0.496706,0.423772,LXV
+P01644,"Pinedo Alonso, Cora Cecilia",PT,0.208276,-0.028152,LXV
+P01645,"Ramírez Aguilar, Oscar Eduardo",MORENA,0.525339,-0.137478,LXV
+P01646,"Ramírez Marín, Jorge Carlos",PRI,-0.223342,-0.553346,LXV
+P01647,"Rivera Rivera, Ana Lilia",MORENA,0.493407,-0.178154,LXV
+P01649,"Romo Molina, Eunice Renata",MORENA,0.641768,-0.273256,LXV
+P01651,"Ruiz Massieu Salinas, Claudia",PRI,-0.792918,-0.123131,LXV
+P01653,"Salgado Macedonio, J. Félix",MORENA,0.500138,-0.150288,LXV
+P01654,"Sánchez García, Cecilia Margarita",MORENA,0.237837,0.922868,LXV
+P01655,"Téllez, Lilly",PAN,-0.97992,0.19939,LXV
+P01656,"Trasviña Waldenrath, Jesús Lucía",MORENA,0.47999,-0.124194,LXV
+P01657,"Valdez Martínez, Lilia Margarita",MORENA,0.495663,-0.178442,LXV
+P01658,"Vasconcelos, Héctor",MORENA,0.486849,-0.058795,LXV
+P01659,"Velasco Coello, Manuel",PVEM,0.373275,-0.066756,LXV
+P01660,"Villarreal Anaya, Américo",MORENA,0.470439,0.502049,LXV
+P01661,"Villegas Canché, Freyda Marybel",MORENA,0.484623,-0.186567,LXV
+P01662,"Zamora Gastélum, Mario",PRI,-0.6299,0.286277,LXV
+P01663,"Zamora Guzmán, Rogelio Israel",PVEM,0.518011,-0.163686,LXV
+P01664,"Zepeda, Juan",MC,-0.879986,-0.401132,LXV
+P01665,"Álvarez Icaza Longoria, Emilio",MORENA,-0.996201,-0.087079,LXV
+P01666,"Bermúdez Méndez, José Erandi",PAN,-0.892615,0.3818,LXV
+P01668,"Cruz Blackledge, Gina Andrea",PAN,-0.833867,0.262887,LXV
+P01669,"Fernández Balboa, Mónica",MORENA,0.721159,-0.120251,LXV
+P01670,"Fócil Pérez, Juan Manuel",MORENA,-0.921664,0.103575,LXV
+P01671,"Fuentes Solís, Víctor Oswaldo",PAN,-0.848055,0.529878,LXV
+P01672,"Gálvez Ruiz, Xóchitl",PAN,-0.980294,0.197542,LXV
+P01673,"Gama Basarte, Marco Antonio",MC,-0.545977,0.20137,LXV
+P01674,"García Cabeza de Vaca, Ismael",PAN,-0.745122,0.024751,LXV
+P01675,"Herrera Ruiz, Gilberto",MORENA,0.75303,0.028341,LXV
+P01676,"Kempis Martínez, Indira",MC,-0.810177,-0.310972,LXV
+P01677,"López Rabadán, Kenia",PAN,-0.790782,0.266406,LXV
+P01678,"Madero Muñoz, Gustavo Enrique",MORENA,-0.99653,-0.083238,LXV
+P01679,"Márquez Alvarado, Martha Cecilia",PT,-0.030715,-0.999528,LXV
+P01680,"Martín del Campo Martín del Campo, Juan Antonio",PAN,-0.667337,0.3439,LXV
+P01681,"Martínez Simón, Mayuli Latifa",PAN,-0.754934,0.36117,LXV
+P01682,"Mercado, Patricia",MC,-0.72736,-0.458403,LXV
+P01683,"Navarro Acevedo, Nadia",PAN,-0.867149,0.15913,LXV
+P01684,"Núñez Sánchez, Gloria Elizabeth",MC,-0.694433,-0.105601,LXV
+P01685,"Paz Alonzo, Raúl",MORENA,0.131642,-0.831419,LXV
+P01686,"Piña Gudiño, Blanca Estela",MORENA,0.301846,0.137499,LXV
+P01687,"Rementería del Puerto, Julen",PAN,-0.787509,0.286628,LXV
+P01688,"Reynoso Sánchez, Alejandra Noemí",PAN,-0.842927,0.329923,LXV
+P01689,"Rosales San Román, Indira de Jesús",PAN,-0.829516,0.25436,LXV
+P01690,"Saldaña Cisneros, María Guadalupe",PAN,-0.755556,0.297305,LXV
+P01691,"Salgado García, Nestora",MORENA,0.475985,0.059629,LXV
+P01692,"Vázquez Alatorre, Antares Guadalupe",MORENA,0.642305,-0.272212,LXV
+P01693,"Vázquez Mota, Josefina",PAN,-0.760268,0.295209,LXV
+P01694,"Zepeda Vidales, Damián",PAN,-0.982268,0.187485,LXV
+P01695,"Harp Iturribarría, Susana",MORENA,0.250279,0.046103,LXV
+P01696,"Hernández Mora, M. Citlalli",MORENA,0.48655,-0.180361,LXV
+P01697,"León Gastélum, Alejandra del Carmen",MC,-0.437531,-0.141246,LXV
+P01698,"Valencia de la Mora, Gricelda",MORENA,0.433413,0.147842,LXV
+P01699,"Gómez Urrutia, Napoleón",MORENA,0.495486,-0.195204,LXV
+P01705,"Anaya Mota, Claudia Edith",PRI,-0.87589,-0.08929,LXV
+P01707,"García Hernández, Gabriel",MORENA,0.488684,-0.176943,LXV
+P01708,"Quiñonez Ruiz, Juan",MORENA,0.656251,0.109097,LXV
+P01709,"Sánchez Cordero Dávila, Olga María del Carmen",MORENA,0.469854,0.303148,LXV
+P01710,"Castañón, Noé",MC,-0.701971,-0.310472,LXV
+P01712,"Bours Griffith, Arturo",MORENA,0.515084,-0.095503,LXV
+P01714,"Peña Villa, José Alejandro",MORENA,0.562782,0.150153,LXV
+P01716,"Sánchez Hernández, Gloria",MORENA,0.462904,0.131632,LXV
+P01717,"Guerrero Sánchez, Martha",MORENA,0.516127,-0.213268,LXV
+P01720,"Peralta Suárez, Ovidio Salvador",MORENA,0.501971,-0.178608,LXV
+P01721,"Velázquez Meza, Ricardo",MORENA,0.731747,-0.323165,LXV
+P01722,"Novelo Osuna, Gerardo",MORENA,0.415048,-0.027783,LXV
+P01727,"González González, María Merced",MORENA,0.863527,-0.370095,LXV
+P01728,"Moya Clemente, Roberto Juan",PAN,-0.747833,0.255681,LXV
+P01732,"Lucero Olivas, Miguel Ángel",PT,-0.069769,0.241899,LXV
+P01764,"Pérez Astorga, Ernesto",MORENA,0.361199,0.14776,LXV
+P01769,"Moreno Bastida, Ricardo",MORENA,0.523591,-0.411158,LXV
+P01793,"Sánchez Arredondo, Nancy Guadalupe",MORENA,0.388037,0.273954,LXV
+P01807,"Sánchez Sugía, María Celeste",MORENA,0.616991,0.125664,LXV
+P01808,"Salazar Sáenz, Francisco Javier",PAN,-0.729036,0.684471,LXV
+P01809,"Ortíz Salinas, Luis David",MC,-0.732013,-0.404703,LXV
+P01816,"Botello Montes, José Alfredo",PAN,-0.856906,0.368645,LXV
+P01818,"Moo Cahuich, Arturo del Carmen",MORENA,0.548912,-0.122436,LXV
+P01825,"Pérez Flores, Checo",MORENA,0.503321,0.039983,LXV
+P01826,"Elenes Angulo, Raúl de Jesús",MORENA,0.463018,-0.151232,LXV
+P01831,"Gaitán Díaz, María Graciela",PVEM,0.463551,-0.150636,LXV
+P01832,"López Hernández, Ruth Alejandra",MC,-0.69844,-0.139165,LXV
+P01870,"Cervantes Rojas, Elí César Eduardo",MORENA,0.917051,0.398763,LXV
+P01871,"Cravioto Romero, César Arnulfo",MORENA,0.839692,-0.377685,LXV
+P01885,"Espino de la Peña, Rafael",MORENA,0.990096,0.140395,LXV
+P01886,"Rojas Loreto, Estrella",PAN,-0.771243,0.355068,LXV
+P02377,"Vázquez Saut, Judith Fabiola",MORENA,0.389413,-0.086934,LXV
+P02381,"Gómez Hernández, Adolfo",MORENA,0.494999,-0.185066,LXV
+P02382,"Jiménez Arteaga, Rosa Elena",MORENA,0.495963,-0.186019,LXV
+P02383,"López Vargas, Faustino",MORENA,0.656221,0.109148,LXV
+P02384,"Rojas Mancera, Navor Alberto",MORENA,0.505597,-0.158835,LXV
+P02387,"López Gómez, Gabriela",MORENA,0.701501,0.084315,LXV
+P02388,"Márquez Valdivia, Rogelio",MORENA,0.703484,0.088967,LXV
+P02389,"Jurado Valadez, Adriana Guadalupe",PAN,-0.980922,0.074895,LXV
+P02391,"Larios Esparza, Juan Francisco",PAN,-0.779966,0.322163,LXV
+P02414,"Flores Hurtado, Reyes",MORENA,0.481534,-0.335058,LXV
+P02415,"Gómez Leal, José Ramón",MORENA,0.467503,-0.354122,LXV
+P02447,"Rojas Díaz Durán, Alejandro",MORENA,-0.324261,-0.259293,LXV
+P02450,"Ballesteros Mancilla, Laura Iraís",MC,-0.711746,0.161017,LXV
+P02452,"Tamayo Herrera, Yadhira Yvette",PAN,-0.590272,0.807204,LXV
+P02453,"Aguilar Castillejos, José Antonio",MORENA,0.468635,-0.883391,LXV
+P02455,"Holguín Franco, Omar",MORENA,-0.162976,-0.462822,LXV
+P02459,"López Carreto, Indira Paola",MORENA,0.302764,-0.219101,LXV
+P02460,"Hernández Fernández, Maura",MORENA,0.302785,-0.219156,LXV
+P02461,"Peña Ocampo, Leticia",MORENA,0.302789,-0.219132,LXV
+P00020,"Cantón Zetina, Oscar",MORENA,-0.774423,-0.153649,LXVI
+P00033,"Corral Jurado, Javier",MORENA,-0.679282,-0.117732,LXVI
+P00790,"López Hernández, Adán Augusto",MORENA,-0.787227,-0.146532,LXVI
+P00799,"Morón Orozco, Raúl",MORENA,-0.789662,-0.149381,LXVI
+P00802,"Ortiz Domínguez, Maki Esther",PVEM,-0.973501,-0.228683,LXVI
+P00821,"Romero Celis, Mely",PRI,0.378467,-0.449038,LXVI
+P00828,"Salazar Fernández, Luis Fernando",MORENA,-0.70676,-0.022864,LXVI
+P00846,"Melgar Bravo, Luis Armando",PVEM,-0.675541,-0.479457,LXVI
+P01586,"Álvarez Lima, José Antonio Cruz",MORENA,-0.78897,-0.152322,LXVI
+P01587,"Añorve Baños, Manuel",PRI,0.36406,-0.437838,LXVI
+P01599,"Camino Farjat, Verónica Noemí",MORENA,-0.786766,-0.148792,LXVI
+P01602,"Castañeda Hoeflich, Clemente",MC,0.968306,-0.249768,LXVI
+P01603,"Castro Castro, Imelda",MORENA,-0.791309,-0.14829,LXVI
+P01606,"De León Villard, Sasil",MORENA,-0.766804,-0.152683,LXVI
+P01615,"García Yáñez, Ángel",PRI,0.380508,-0.449332,LXVI
+P01617,"González Yáñez, Alejandro",PT,-0.790879,-0.153594,LXVI
+P01627,"Martínez Miranda, Higinio",MORENA,-0.727328,-0.184272,LXVI
+P01633,"Micher Camarena, Martha Lucía",MORENA,-0.786038,-0.150477,LXVI
+P01639,"Ostoa Ortega, Aníbal",MORENA,-0.791718,-0.148501,LXVI
+P01646,"Ramírez Marín, Jorge Carlos",PVEM,-0.715293,0.000781,LXVI
+P01647,"Rivera Rivera, Ana Lilia",MORENA,-0.765495,-0.239496,LXVI
+P01653,"Salgado Macedonio, J. Félix",MORENA,-0.785465,-0.150805,LXVI
+P01655,"Téllez, Lilly",PAN,0.885763,0.342683,LXVI
+P01656,"Trasviña Waldenrath, Jesús Lucía",MORENA,-0.788504,-0.153255,LXVI
+P01657,"Valdez Martínez, Lilia Margarita",MORENA,-0.78148,-0.155009,LXVI
+P01659,"Velasco Coello, Manuel",PVEM,-0.770102,-0.145371,LXVI
+P01680,"Martín del Campo Martín del Campo, Juan Antonio",PAN,0.439471,0.220477,LXVI
+P01681,"Martínez Simón, Mayuli Latifa",PAN,0.731586,0.41191,LXVI
+P01695,"Harp Iturribarría, Susana",MORENA,-0.769102,-0.166844,LXVI
+P01703,"Murguía Gutiérrez, María Guadalupe",PAN,0.805874,0.592086,LXVI
+P01705,"Anaya Mota, Claudia Edith",PRI,0.389608,-0.458464,LXVI
+P02415,"Gómez Leal, José Ramón",MORENA,-0.792791,-0.159115,LXVI
+P02484,"Aguilar Castillo, Heriberto Marcelo",MORENA,-0.789836,-0.150447,LXVI
+P02485,"Anaya Cortés, Ricardo",PAN,0.579794,0.268668,LXVI
+P02486,"Anaya Gutiérrez, Alberto",PT,-0.756694,-0.316092,LXVI
+P02487,"Angulo Briceño, Pablo Guillermo",PRI,0.607105,-0.327493,LXVI
+P02488,"Arias Trevilla, Alejandra Berenice",MORENA,-0.789856,-0.15052,LXVI
+P02489,"Ascencio Ortega, Reyna Celeste",MORENA,-0.788873,-0.152311,LXVI
+P02490,"Ávalos Zempoalteca, Anabell",PRI,0.388843,-0.46325,LXVI
+P02491,"Ayala Robles, Armando",MORENA,-0.789511,-0.151095,LXVI
+P02492,"Barrales Magdaleno, Alejandra",MC,0.959492,-0.281737,LXVI
+P02493,"Barreda Pavón, Francisco Daniel",MC,0.910241,-0.414078,LXVI
+P02494,"Bugarín, Jasmine María",PVEM,-0.786238,-0.152821,LXVI
+P02495,"Camarillo Medina, Néstor",PRI,0.486382,-0.617299,LXVI
+P02496,"Campuzano González, Gina Gerardina",PAN,0.727053,0.404623,LXVI
+P02497,"Castillo Juárez, Laura Itzel",MORENA,-0.78972,-0.150158,LXVI
+P02498,"Cepeda Salas, Alfonso",MORENA,-0.783701,-0.146618,LXVI
+P02499,"Chávez Treviño, Andrea",MORENA,-0.791189,-0.15193,LXVI
+P02500,"Colosio Riojas, Luis Donaldo",MC,0.950663,-0.310226,LXVI
+P02501,"Corona Nakamura, María del Rocío",PVEM,-0.789793,-0.150486,LXVI
+P02502,"Cortés García, Luisa",MORENA,-0.78979,-0.150485,LXVI
+P02503,"Cortés Mendoza, Marko",PAN,0.632841,0.14035,LXVI
+P02504,"Cruz Castellanos, José Manuel",MORENA,-0.789362,-0.153809,LXVI
+P02505,"Davis Castro, Homero",MORENA,-0.788963,-0.152337,LXVI
+P02506,"Díaz Delgado, Blanca Judith",MORENA,-0.794615,-0.154324,LXVI
+P02507,"Díaz Marmolejo, María de Jesús",PAN,0.60528,0.471805,LXVI
+P02508,"Díaz Robles, Verónica",MORENA,-0.789829,-0.15047,LXVI
+P02509,"Dorantes Lámbarri, Agustín",PAN,0.484333,0.352656,LXVI
+P02510,"Esquer Verdugo, Alejandro",MORENA,-0.771476,-0.146405,LXVI
+P02511,"Esquivel Torres, Laura",PAN,0.679474,0.199295,LXVI
+P02512,"Estrada Mauro, Laura",MORENA,-0.786938,-0.148262,LXVI
+P02513,"Fernández González, Waldo",PVEM,-0.791477,-0.152504,LXVI
+P02514,"Fernández Noroña, Gerardo",MORENA,-0.786393,-0.150597,LXVI
+P02516,"García Medina, Amalia Dolores",MC,0.989461,-0.144802,LXVI
+P02518,"González Hernández, Alma Anahí",MORENA,-0.764393,-0.167293,LXVI
+P02519,"González Márquez, Michel",PAN,0.541192,0.226468,LXVI
+P02520,"González Silva, Ruth",PVEM,-0.700106,-0.143122,LXVI
+P02521,"Guadiana Mandujano, Cecilia Guadalupe",MORENA,-0.690049,-0.170448,LXVI
+P02522,"Guerra Mena, Juanita",PVEM,-0.790108,-0.151382,LXVI
+P02523,"Gutiérrez Escalante, Mariela",MORENA,-0.761625,-0.151223,LXVI
+P02524,"Hernández Aceves, Ana Karen",PT,-0.782223,-0.336675,LXVI
+P02526,"Hernández Villafuerte, Gilberto",PVEM,-0.700612,-0.143867,LXVI
+P02527,"Herrera Dagdug, José Sabino",MORENA,-0.787282,-0.15002,LXVI
+P02528,"Huerta Ladrón de Guevara, Manuel",MORENA,-0.789823,-0.150464,LXVI
+P02529,"Inzunza Cázarez, Enrique",MORENA,-0.79455,-0.160219,LXVI
+P02530,"Jarero Velázquez, Miguel Pavel",MORENA,-0.790564,-0.152463,LXVI
+P02531,"Kantún Can, María Martina",MORENA,-0.789844,-0.150502,LXVI
+P02532,"Loera de la Rosa, Juan Carlos",MORENA,-0.790016,-0.14811,LXVI
+P02533,"Lomelí Bolaños, Carlos",MORENA,-0.783793,-0.14501,LXVI
+P02534,"López Castro, Cynthia Iliana",MORENA,-0.999124,0.041848,LXVI
+P02535,"López Hernández, Edith",MORENA,-0.78977,-0.150082,LXVI
+P02536,"Magaña Fonseca, Virginia",PVEM,-0.789858,-0.150518,LXVI
+P02537,"Márquez Márquez, Miguel",PAN,0.495995,0.307099,LXVI
+P02538,"Mendoza Amezcua, Virgilio",PVEM,-0.790112,-0.159389,LXVI
+P02539,"Mercado Salgado, Víctor",MORENA,-0.794903,-0.162168,LXVI
+P02540,"Mier Velazco, Ignacio",MORENA,-0.786862,-0.148264,LXVI
+P02541,"Mojica Morga, Beatriz",MORENA,-0.788947,-0.152145,LXVI
+P02542,"Morales Toledo, Antonino",MORENA,-0.768211,-0.146464,LXVI
+P02543,"Moreno Cárdenas, Alejandro",PRI,0.391227,-0.468718,LXVI
+P02544,"Ochoa Fernández, Cuauhtémoc",MORENA,-0.766243,-0.144875,LXVI
+P02545,"Olvera Bautista, Simey",MORENA,-0.77705,-0.148127,LXVI
+P02546,"Polevnsky Gurwitz, Yeidckol",PT,-0.783734,-0.33914,LXVI
+P02547,"Ramírez Acuña, Francisco Javier",PAN,0.525695,0.216118,LXVI
+P02548,"Ramírez Padilla, Julieta",MORENA,-0.788904,-0.148915,LXVI
+P02549,"Reyes Hernández, Ivideliza",PAN,0.678495,0.364412,LXVI
+P02550,"Robles Gutiérrez, Beatriz Silvia",MORENA,-0.787032,-0.148942,LXVI
+P02551,"Rodríguez Hernández, Verónica",PAN,0.749856,0.436658,LXVI
+P02552,"Ruiz Ruiz, Karina Isabel",MORENA,-0.790318,-0.151934,LXVI
+P02553,"Ruíz Sandoval, Cristina",PRI,0.463042,-0.582686,LXVI
+P02554,"Ruvalcaba Gámez, Nora",MORENA,-0.789747,-0.151708,LXVI
+P02555,"Sánchez García, Lizeth",PT,-0.783736,-0.338887,LXVI
+P02556,"Sánchez Ramos, Paloma",PRI,0.388379,-0.461007,LXVI
+P02557,"Sánchez Vásquez, Gustavo",PAN,0.395682,0.075094,LXVI
+P02558,"Sanmiguel Sánchez, Imelda",PAN,0.569441,0.25663,LXVI
+P02559,"Saucedo Reyes, Araceli",MORENA,-0.789475,-0.15477,LXVI
+P02560,"Segura Vázquez, Eugenio",MORENA,-0.790458,-0.153676,LXVI
+P02561,"Sheffield Padilla, Francisco Ricardo",MORENA,-0.79376,-0.160147,LXVI
+P02562,"Sosa Ruíz, Olga Patricia",MORENA,-0.788025,-0.151515,LXVI
+P02563,"Tello Espinosa, Claudia",MORENA,-0.421888,-0.185499,LXVI
+P02564,"Toledo Zamora, Karla Guadalupe",PRI,0.551744,-0.399451,LXVI
+P02565,"Valles Sampedro, Lorenia Iveth",MORENA,-0.769806,-0.151793,LXVI
+P02566,"Vargas Del Villar, Enrique",PAN,0.845311,0.534272,LXVI
+P02567,"Vázquez Robles, Mario Humberto",PAN,0.592233,0.438481,LXVI
+P02568,"Viggiano Austria, Carolina",PRI,0.595407,-0.273458,LXVI
+P02569,"Vila Dosal, Mauricio",PAN,0.51897,0.378046,LXVI
+P02570,"Yunes Márquez, Miguel Ángel",MORENA,-0.99371,-0.111982,LXVI
+P02571,"Zapata Bello, Rolando Rodrigo",PRI,0.361961,-0.411984,LXVI
+P02572,"Zatarain García, Susana",PAN,0.770205,0.427815,LXVI
+P02573,"Bañuelos De La Torre, Geovanna",PT,-0.822484,-0.568784,LXVI
+P02574,"Monreal Ávila, Saúl",MORENA,-0.7492,-0.145271,LXVI
+P02575,"Silva Romo, Luis Alfonso",PVEM,-0.786462,-0.154011,LXVI
+P02576,"Murat Hinojosa, Alejandro",MORENA,-0.795642,-0.159312,LXVI
+P02579,"Reyes Carmona, Emmanuel",MORENA,-0.758296,3.5e-05,LXVI
+P02580,"Beltrones Rivera, Manlio Fabio",MORENA,0.875978,0.48235,LXVI
+P02581,"Riquelme Solís, Miguel Ángel",PRI,0.380764,-0.449076,LXVI
+P02585,"Castrejón Trujillo, Karen",PVEM,-0.784475,-0.140365,LXVI
+P02586,"Chavira De La Rosa, María Guadalupe",MORENA,-0.793992,-0.138871,LXVI
+P02587,"Chíguil Figueroa, Francisco",MORENA,-0.799291,-0.140007,LXVI
+P02590,"Ortiz Hernández, Tabita",MC,0.999605,0.028103,LXVI
+P02595,"Arriaga Márquez, Bertha Estela",PAN,0.481186,0.154507,LXVI
+P02598,"Bonilla Herrera, Raquel",MORENA,-0.909388,0.41595,LXVI
+P02599,"Evangelista Aniceto, Carlos Alberto",MORENA,-0.915571,-0.390206,LXVI
+P02602,"Pérez Pérez, Francisco Arturo",MORENA,-0.999979,0.006507,LXVI
+P02603,"Gutiérrez Santoyo, María Luisa",MORENA,0.711147,0.703043,LXVI
+P02610,"Falcón Venegas, Sandra Luz",MORENA,-0.81605,-0.108726,LXVI
+P02681,"Dip. Aguilar Gil, Lilia",PT,-0.977033,0.213088,LXVI
+P02682,"Dip. Álvarez Nemer, Mónica Angélica",MORENA,-0.977033,0.213088,LXVI
+P02684,"Dip. Fernández Samaniego, José Armando",MORENA,-0.97688,0.213789,LXVI
+P02685,"Dip. Gómez Maldonado, Maiella Martha Gabriela",MORENA,-0.977033,0.213088,LXVI
+P02687,"Dip. Miranda Barrera, Luis Enrique",PVEM,-0.97688,0.213789,LXVI
+P02691,"Dip. Valdés Peña, Jesús",MORENA,-0.977033,0.213088,LXVI
+P02695,"Novoa Toscano, David",PAN,-0.161709,-0.075761,LXVI
+P02696,"Sobrino Argaez, Carlos Hernando",PRI,0.527119,-0.425253,LXVI
+P02721,"Jaimes Archundia, Erik Iván",MORENA,0.983016,0.183519,LXVI
+P02723,"Bolaños Azocar, Raymundo",PAN,0.543698,0.304027,LXVI
+P02724,"García Gordillo, Edna Geraldina",PRI,0.527156,-0.425202,LXVI
