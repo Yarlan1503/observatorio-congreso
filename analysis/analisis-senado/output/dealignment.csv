@@ -1,0 +1,7 @@
+partido,n_legislaturas,leg_first,leg_last,disciplina_first,disciplina_last,delta_disciplina,tendencia,es_dealignment
+PT,6,LXI,LXVI,1.0,0.9854,-0.0146,0.001421,False
+MC,4,LXI,LXVI,0.9879,0.9839,-0.004,-0.00226,False
+PRI,7,LX,LXVI,0.9437,0.992,0.0483,0.004991,False
+PVEM,7,LX,LXVI,0.9297,0.9829,0.0532,0.002099,False
+PAN,7,LX,LXVI,0.9176,0.9747,0.0572,0.00899,False
+MORENA,7,LX,LXVI,0.9236,0.9929,0.0693,0.012995,False

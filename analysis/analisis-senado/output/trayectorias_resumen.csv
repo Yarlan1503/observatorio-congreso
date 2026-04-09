@@ -1,0 +1,382 @@
+voter_id,nombre,genero,n_legs,legislaturas,partidos,estabilidad_nominate_d1,movimiento_ideologico,delta_disciplina_mean,es_switcher
+P00001,"Adame Castillo, Marco Antonio",M,2,LX;LXI,PAN,0.318629,0.460603,0.0003,False
+P00002,"Aguilar Bodegas, José Antonio",M,2,LX;LXI,PRI,0.341646,0.710407,0.0195,False
+P00003,"Alanís Quiñones, Adrián",M,2,LX;LXI,PRI,0.420175,0.726801,0.0113,False
+P00004,"Aldana Prieto, Luis Ricardo",M,2,LX;LXI,PRI,0.367652,0.894609,0.0135,False
+P00005,"Amar Shabshab, Wadi",M,2,LX;LXI,PAN,0.124033,0.178828,0.0256,False
+P00006,"Amaya Téllez, Rodimiro",M,2,LX;LXI,MORENA,0.271883,0.438754,0.0588,False
+P00007,"Angeles Cerón, Esteban Miguel",M,2,LX;LXI,PRI,0.202265,0.293652,0.0001,False
+P00008,"Arias Aparicio, Eduardo",M,2,LX;LXI,PAN,0.308651,0.756423,0.0019,False
+P00009,"Astudillo Flores, Héctor Antonio",M,2,LX;LXI,PRI,0.494321,0.826798,0.0128,False
+P00010,"Ayala Almeida, Joel",M,4,LX;LXI;LXII;LXIII,PRI,0.502039,0.756851,0.0107,False
+P00011,"Bartlett Díaz, Manuel",M,4,LX;LXI;LXII;LXIII,PRI;PT,0.940506,1.501292,0.0107,True
+P00012,"Becerra Rodríguez, Salvador",M,2,LX;LXI,PAN,0.29867,0.725165,0.0129,False
+P00013,"Bojórquez Mungaray, Francisco",M,2,LX;LXI,PRI,0.185594,0.313986,0.0082,False
+P00014,"Bonilla Robles, José Eulogio",M,2,LX;LXI,PRI,0.042849,0.259772,0.0119,False
+P00015,"Buganza Salmerón, Gerardo",M,2,LX;LXI,PAN,0.154085,0.239989,0.0075,False
+P00016,"Camacho Quiroz, César",M,2,LX;LXI,PRI,0.292281,0.487057,0.0042,False
+P00018,"Canavati Tafich, Ricardo",M,2,LX;LXI,PRI,0.400365,0.655843,0.0064,False
+P00019,"Cañedo Benitez, Rafael",M,2,LX;LXI,PRI,0.318963,0.49532,0.0103,False
+P00020,"Cantón Zetina, Oscar",M,3,LX;LXI;LXVI,PRI;MORENA,0.501765,0.930533,0.0332,True
+P00021,"Cárdenas Batel, Lázaro",M,2,LX;LXI,MORENA,0.237563,0.450171,0.004,False
+P00022,"Cárdenas Gutiérrez, Gustavo A",M,2,LX;LXI,PAN,0.32643,0.543747,0.0058,False
+P00023,"Cárdenas Hernández, Raymundo",M,2,LX;LXI,MORENA,0.230554,0.341539,0.0099,False
+P00024,"Castañeda Pérez, José Alberto",M,2,LX;LXI,PAN,0.651206,0.957114,0.0647,False
+P00027,"Castro Cervantes, Moisés",M,2,LX;LXI,MORENA,0.339729,0.504221,0.0047,False
+P00028,"Chaurand Arzate, Carlos",M,2,LX;LXI,PRI,0.209344,0.334941,0.0032,False
+P00030,"Cisneros Fernández, Joaquín",M,2,LX;LXI,PRI,0.2882,0.862897,0.0311,False
+P00031,"Colosio Fernández, Luis",M,2,LX;LXI,PRI,0.162122,0.281384,0.0016,False
+P00032,"Corral Avila, Ramón",M,2,LX;LXI,PAN,0.304591,0.493264,0.0135,False
+P00033,"Corral Jurado, Javier",M,5,LX;LXI;LXII;LXIII;LXVI,PAN;MORENA,0.63293,0.833799,0.0982,True
+P00034,"Corral Romero, María del Carmen",F,2,LX;LXI,PAN,0.27275,0.6536,0.0012,False
+P00035,"Cortina Reynoso, Manuel",M,2,LX;LXI,PAN,0.085244,0.39356,0.0201,False
+P00036,"Cota Osuna, José Carlos",M,2,LX;LXI,PRI,0.373353,0.594716,0.008,False
+P00037,"Cruz Martínez, Marcos Carlos",M,2,LX;LXI,MORENA,0.358676,0.645156,0.0096,False
+P00038,"Cruz Muñoz, María Elena",F,2,LX;LXI,PAN,0.280299,0.573738,0.0023,False
+P00039,"De la Vega García, Netzahualcóyotl",M,2,LX;LXI,PRI,0.076996,0.184702,0.0012,False
+P00040,"Díaz Castro, Lauro",M,2,LX;LXI,PRI,0.149675,0.740285,0.0001,False
+P00041,"Domínguez López, Silvia Asunción",F,2,LX;LXI,PRI,0.131673,0.372646,0.005,False
+P00042,"Escalante Jasso, Aracely",F,2,LX;LXI,PRI,0.001877,0.406055,0.0022,False
+P00043,"Escandón Cadenas, Rutilio Cruz",M,2,LX;LXI,MORENA,0.321935,0.645047,0.0081,False
+P00044,"Esquivel Reyes, Rita María",F,2,LX;LXI,PAN,0.275759,0.390096,0.0004,False
+P00045,"Fernández de Cevallos Ramos, Diego",M,2,LX;LXI,PAN,0.444686,0.640215,0.0219,False
+P00046,"Fernández de Cevallos y Urueta, Francisco",M,2,LX;LXI,PAN,0.181712,0.718014,0.0271,False
+P00047,"Fernández Rodríguez, Marco Antonio",M,2,LX;LXI,PRI,0.211401,0.366839,0.0224,False
+P00049,"Fraile García, Francisco A",M,2,LX;LXI,PAN,0.203222,0.427399,0.0236,False
+P00050,"Franco Jiménez, Jorge Eduardo",M,2,LX;LXI,PRI,0.01578,0.590211,0.0161,False
+P00051,"Galván Muñoz, Jesús",M,2,LX;LXI,PAN,0.033463,0.474624,0.0248,False
+P00052,"Gamboa Patrón, Emilio",M,4,LX;LXI;LXII;LXIII,PRI,0.350058,0.384301,0.0231,False
+P00053,"García Torres, Antonio",M,2,LX;LXI,PRI,0.128156,0.319907,0.0174,False
+P00054,"Garza Galindo, Laura Alicia",F,2,LX;LXI,PRI,0.063187,0.113557,0.0439,False
+P00055,"Gil Elorduy, José Ernesto",M,2,LX;LXI,PRI,0.053027,0.075548,0.0051,False
+P00056,"Gómez Bravo, Emilia Patricia",F,2,LX;LXI,PVEM,0.146775,0.278533,0.0707,False
+P00057,"Gómez Esparza, Fernando",M,2,LX;LXI,PRI,0.243444,0.395528,0.0171,False
+P00058,"Gómez Verónica, Gildardo",F,2,LX;LXI,PAN,0.020843,0.41027,0.0245,False
+P00059,"González González, Rigoberto",M,2,LX;LXI,PAN,0.227224,0.699963,0.0218,False
+P00061,"González Martínez, Jorge Emilio",M,3,LX;LXI;LXII,PVEM,0.273524,0.332524,0.0413,False
+P00062,"Guerrero López, Judit Magdalena",F,2,LX;LXI,PRI,0.023858,0.345914,0.0101,False
+P00063,"Gutierrez Barrios, Fernando",M,2,LX;LXI,PRI,0.190715,0.377056,0.0132,False
+P00065,"Hamdan Amad, Fauzi",M,2,LX;LXI,PAN,0.021691,0.358796,0.0223,False
+P00066,"Hernández Deras, Ismael A.",M,2,LX;LXI,PRI,0.437431,1.012862,0.0325,False
+P00067,"Hernández Genis, Héctor Javier",M,2,LX;LXI,PAN,0.080005,0.438337,0.012,False
+P00068,"Montaño Yamuni, Joaquín",M,2,LX;LXI,PAN,0.917325,1.3066,0.031,False
+P00069,"Morgan Alvarez, Rafael Gilberto",M,2,LX;LXI,PAN,0.911959,1.295741,0.035,False
+P00070,"Mota Sánchez, Ramón",M,2,LX;LXI,PRI,0.800377,1.137354,0.0148,False
+P00072,"Muro González, Ana Bricia",F,2,LX;LXI,PRI,0.495692,1.077698,0.0666,False
+P00074,"Navarro Quintero, Miguel Angel",M,3,LX;LXI;LXIV,MORENA,0.863741,1.719861,0.08,False
+P00075,"Nordhausen González, Jorge Rubén",M,2,LX;LXI,PAN,0.435337,0.668935,0.1614,False
+P00076,"Ojeda Zubieta, César Raúl",M,2,LX;LXI,MORENA,0.453773,0.890202,0.0935,False
+P00077,"Osuna Jaime, Héctor Guillermo",M,2,LX;LXI,PAN,0.389073,0.55442,0.09,False
+P00078,"Borrego Estrada, Genaro",M,2,LX;LXI,PRI,0.007657,0.383719,0.0019,False
+P00079,"Gallegos Soto, Benjamín",M,2,LX;LXI,PAN,0.047621,0.265212,0.0317,False
+P00080,"Grande Sánchez, José Pascual",M,2,LX;LXI,PRI,0.335768,0.474964,0.0258,False
+P00081,"Gutiérrez Gutiérrez, Alejandro",M,2,LX;LXI,PRI,0.067887,0.296244,0.0191,False
+P00082,"Haghenbeck Cámara, José Antonio",M,2,LX;LXI,PAN,0.017608,0.212837,0.0087,False
+P00083,"Herbert Pérez, Guillermo",M,2,LX;LXI,PAN,0.261891,0.370784,0.0363,False
+P00084,"Hernández Enríquez, Silvia",F,2,LX;LXI,PRI,0.038079,0.276129,0.008,False
+P00085,"Herrera Beltrán, Fidel",M,2,LX;LXI,PRI,0.270562,0.50641,0.0107,False
+P00086,"Herrera Mendoza, Jose Guillermo",M,2,LX;LXI,MORENA,0.447661,0.684286,0.0161,False
+P00087,"Jackson Ramírez, Jesús Enrique",,2,LX;LXI,PRI,0.31503,0.466814,0.0761,False
+P00088,"Jáuregui Robles, César",M,2,LX;LXI,PAN,0.300995,0.426201,0.0041,False
+P00089,"Jiménez González, David",M,2,LX;LXI,PRI,0.314244,0.470261,0.0643,False
+P00090,"Joaquín Coldwell, Addy Cecilia",F,2,LX;LXI,PAN,0.448563,0.956425,0.0052,False
+P00091,"Jones Jones, Jeffrey Max",M,2,LX;LXI,PAN,0.329507,0.516191,0.0557,False
+P00092,"Larios Córdova, Héctor",M,4,LX;LXI;LXII;LXIII,PAN,0.751709,1.706513,0.0564,False
+P00093,"Larregui Nagel, Erika",F,2,LX;LXI,PVEM,0.330157,0.667984,0.0223,False
+P00094,"Lavara Mejía, Gloria",F,2,LX;LXI,PVEM,0.272408,0.399054,0.0213,False
+P00095,"López Nelio Santiago, Daniel",M,2,LX;LXI,MORENA,0.298851,0.530695,0.0458,False
+P00096,"López Sollano, Saúl",M,4,LX;LXI;LXIV;LXV,MORENA,0.984141,1.982889,0.0748,False
+P00097,"Lozano Armengol, Jorge",M,2,LX;LXI,PAN,0.324933,0.505226,0.1087,False
+P00098,"Luebbert Gutiérrez, Oscar",M,2,LX;LXI,PRI,0.456066,0.686039,0.0677,False
+P00099,"Madero Quiroga, Adalberto Arturo",M,2,LX;LXI,PAN,0.33057,0.492975,0.0369,False
+P00100,"Madrazo Limón, Carlos",M,2,LX;LXI,PAN,0.266114,0.393638,0.0638,False
+P00101,"Madrid Tovilla, Arely",F,2,LX;LXI,PRI,1.49127,2.124507,0.1723,False
+P00102,"Margáin Berlanga, Fernando",M,2,LX;LXI,PAN,0.337861,0.491491,0.0525,False
+P00103,"Margaiz Ramírez, Filomena",F,2,LX;LXI,PAN,0.222273,0.356574,0.0573,False
+P00104,"Medina Plascencia, Carlos",M,2,LX;LXI,PAN,0.328706,0.490567,0.0117,False
+P00105,"Mendez de la Luz, Armando",F,2,LX;LXI,MORENA,0.274887,0.580999,0.0261,False
+P00106,"Méndez Lanz, Víctor Manuel",M,2,LX;LXI,PRI,0.303489,0.529866,0.0348,False
+P00107,"Méndez Márquez, Victoria Eugenia",F,2,LX;LXI,PRI,0.244522,0.364094,0.013,False
+P00108,"Méndez Meneses, Apolonio",M,2,LX;LXI,PAN,0.384374,0.61362,0.0773,False
+P00109,"Aguilar González, Micaela",F,2,LX;LXI,PAN,0.058406,0.387503,0.0047,False
+P00110,"Alaniz Posada, Ricardo",M,2,LX;LXI,PAN,0.023621,0.449712,0.0157,False
+P00112,"Calderón Hinojosa, Luisa María",F,4,LX;LXI;LXII;LXIII,PAN,0.291297,0.618764,0.0363,False
+P00113,"Castañeda Álvarez, Erasmo",M,2,LX;LXI,MORENA,0.108551,0.46582,0.018,False
+P00114,"Cruz López, Oscar",M,2,LX;LXI,MORENA,0.322223,0.581547,0.0153,False
+P00115,"González Parás, José Natividad",M,2,LX;LXI,PRI,0.015977,0.169857,0.0094,False
+P00116,"Madero García, Lydia",F,2,LX;LXI,PAN,0.361832,0.516625,0.0724,False
+P00117,"Melgoza Radillo, Rafael",M,2,LX;LXI,MORENA,0.321709,0.455208,0.094,False
+P00118,"Oliva Ramírez, Juan Manuel",M,2,LX;LXI,PAN,0.397197,0.562404,0.0852,False
+P00119,"Ortega Martínez, Jesús",M,2,LX;LXI,MORENA,0.283472,0.531679,0.006,False
+P00120,"Martínez Mireles, Alberto Miguel",M,2,LX;LXI,PAN,0.204712,0.529961,0.0718,False
+P00121,"Burgos Ochoa, Leticia",F,2,LX;LXI,MORENA,0.338743,0.498425,0.0059,False
+P00122,"Gerardo Higuera, Ricardo",M,2,LX;LXI,MORENA,0.059644,0.817376,0.0325,False
+P00123,"Gómez Flores, Omar Raymundo",M,2,LX;LXI,PRI,0.357782,0.650167,0.0176,False
+P00124,"González Zarur, Mariano",M,2,LX;LXI,PRI,0.054922,0.310218,0.0191,False
+P00125,"Michel Camarena, Héctor",M,2,LX;LXI,PRI,0.171835,1.108751,0.0032,False
+P00126,"Ovando Martínez, Eduardo",M,2,LX;LXI,PRI,0.712267,1.009198,0.0262,False
+P00127,"Ling Altamirano, Héctor Federico",M,2,LX;LXI,PAN,0.353125,0.499659,0.1533,False
+P00129,"López Sánchez, Jorge Abel",M,2,LX;LXI,PRI,0.325965,0.532529,0.0616,False
+P00628,"Paredes Lara, Orlando Alberto",M,2,LX;LXI,PRI,0.13872,0.350396,0.0161,False
+P00629,"Patrón Laviada, Patricio José",M,2,LX;LXI,PAN,0.28927,0.548757,0.0113,False
+P00630,"Pérez de Alva Blanco, Roberto",M,2,LX;LXI,PRI,0.31446,0.444717,0.0065,False
+P00631,"Porras Bautista, Eleuterio",M,2,LX;LXI,PAN,0.79406,1.123946,0.0122,False
+P00632,"Ramírez García, María del Carmen",F,2,LX;LXI,MORENA,0.404253,0.719885,0.0053,False
+P00633,"Remes Ojeda, Antonio de Jesús",M,2,LX;LXI,PAN,0.351726,0.512013,0.0167,False
+P00637,"Rico Samaniego, Luis Alberto",M,2,LX;LXI,PAN,0.509131,0.72026,0.0125,False
+P00640,"Ríos Alvarez, Serafín",M,2,LX;LXI,MORENA,0.308045,0.446916,0.0027,False
+P00656,"Andrade Quezada, Humberto",M,2,LX;LXI,PAN,0.570245,0.89248,0.0307,False
+P00664,"Arce, René",M,2,LX;LXI,PVEM,0.159071,0.52116,0.0004,False
+P00713,"Hernández Ramos, Minerva",F,2,LXIV;LXV,PAN,0.020553,0.18787,0.0875,False
+P00730,"Aispuro Torres, José Rosas",M,2,LXII;LXIII,PAN,0.548466,0.838715,0.0104,False
+P00731,"Albores Gleason, Roberto Armando",M,2,LXII;LXIII,PRI,0.653743,0.955991,0.0004,False
+P00732,"Alcalá Ruiz, Blanca María del Socorro",F,2,LXII;LXIII,PRI,0.635509,0.91905,0.1779,False
+P00733,"Álvarez García, Ivonne Liliana",F,2,LXII;LXIII,PRI,0.596851,0.869593,0.0178,False
+P00734,"Amador Gaxiola, Daniel",M,2,LXII;LXIII,PRI,0.597883,0.872494,0.017,False
+P00735,"Araujo Lara, Angélica del Rosario",F,2,LXII;LXIII,PRI,0.600639,0.879825,0.0325,False
+P00737,"Ávila Ruiz, Daniel Gabriel",M,2,LXII;LXIII,PAN,0.611174,0.890206,0.0292,False
+P00738,"Barbosa Huerta, Miguel",M,2,LXII;LXIII,MORENA,0.968732,1.37017,0.0241,False
+P00739,"Barrera Tapia, María Elena",F,2,LXII;LXIII,PVEM,0.644479,0.932666,0.0417,False
+P00740,"Barroso Agramont, Ricardo",M,2,LXII;LXIII,PRI,0.556107,0.810158,0.0124,False
+P00741,"Beristain Navarrete, Luz María",F,2,LXII;LXIII,MORENA,1.004457,1.420722,0.0671,False
+P00742,"Burgos García, Enrique",M,2,LXII;LXIII,PRI,0.59832,0.870942,0.0006,False
+P00743,"Búrquez Valenzuela, Francisco de Paula",M,2,LXII;LXIII,PAN,0.62361,0.998959,0.0091,False
+P00745,"Casillas Romero, Jesús",M,2,LXII;LXIII,PRI,0.589554,0.860234,0.0133,False
+P00746,"Cavazos Lerma, Manuel",M,2,LXII;LXIII,PRI,0.552638,0.806332,0.0291,False
+P00747,"Cervantes Andrade, Raúl",M,2,LXII;LXIII,PRI,0.627271,0.905335,0.0036,False
+P00748,"Chico Herrera, Miguel Ángel",M,2,LXII;LXIII,PRI,0.844634,1.198671,0.0131,False
+P00749,"Cordero Arroyo, Ernesto Javier",M,2,LXII;LXIII,PAN,0.205613,0.737774,0.0458,False
+P00750,"Cota Jiménez, Manuel Humberto",M,2,LXII;LXIII,PRI,0.589441,0.85917,0.0199,False
+P00751,"Cuéllar Cisneros, Lorena",F,2,LXII;LXIII,MORENA,1.157083,1.640206,0.0387,False
+P00752,"Cuevas Barron, Gabriela",F,2,LXII;LXIII,PAN,0.289914,1.382844,0.0217,False
+P00753,"Dávila Fernández, Adriana",F,2,LXII;LXIII,PAN,0.42079,0.86858,0.0137,False
+P00754,"De la Peña Gómez, Angélica",F,2,LXII;LXIII,MORENA,0.90375,1.394762,0.0915,False
+P00755,"Delgado Carrillo, Mario",M,2,LXII;LXIII,MORENA,1.342095,1.958914,0.0098,False
+P00756,"Demédicis Hidalgo, Fidel",M,2,LXII;LXIII,MORENA,1.002294,1.430531,0.0579,False
+P00757,"Díaz Lizama, Rosa Adriana",F,2,LXII;LXIII,PAN,0.315953,1.024787,0.104,False
+P00758,"Díaz Salazar, María Cristina",F,2,LXII;LXIII,PRI,0.632848,0.916469,0.0199,False
+P00760,"Encinas Rodríguez, Alejandro de Jesús",M,2,LXII;LXIII,MORENA,1.233263,1.751485,0.0128,False
+P00761,"Escudero Morales, Pablo",M,2,LXII;LXIII,PVEM,0.619196,0.892271,0.0172,False
+P00762,"Fayad Meneses, Omar",M,2,LXII;LXIII,PRI,0.727941,1.078854,0.0424,False
+P00764,"Flores Escalera, Hilda Esthela",F,2,LXII;LXIII,PRI,0.606803,0.880769,0.0019,False
+P00765,"Flores Ramírez, Juan Gerardo",M,2,LXII;LXIII,PVEM,0.595101,0.868336,0.0182,False
+P00766,"Flores Sánchez, Margarita",F,2,LXII;LXIII,PRI,0.588516,0.864583,0.0164,False
+P00767,"Gándara Camou, Ernesto",M,2,LXII;LXIII,PRI,0.589583,0.859459,0.0542,False
+P00768,"García Cabeza de Vaca, Francisco",M,2,LXII;LXIII,PAN,0.061776,1.03308,0.0336,False
+P00769,"García Gómez, Martha Elena",F,2,LXII;LXIII,PAN,0.481365,0.774734,0.0843,False
+P00770,"Garza Galván, Silvia Guadalupe",F,2,LXII;LXIII,PAN,0.428412,0.952742,0.0022,False
+P00771,"Gastélum Bajo, Diva Hadamira",F,2,LXII;LXIII,PRI,0.586227,0.857317,0.0849,False
+P00772,"Gil Zuarth, Roberto",M,2,LXII;LXIII,PAN,0.164428,1.504373,0.0048,False
+P00773,"Gómez del Campo Gurza, Mariana",F,2,LXII;LXIII,PAN,0.355183,0.725463,0.05,False
+P00775,"González Canto, Félix Arturo",M,2,LXII;LXIII,PRI,0.571497,0.832596,0.0177,False
+P00776,"González Cuevas, Isaías",M,2,LXII;LXIII,PRI,0.60556,0.890958,0.0114,False
+P00777,"Gracia Guzmán, Raúl",M,2,LXII;LXIII,PAN,0.686774,0.978719,0.0055,False
+P00778,"Guerra Castillo, Marcela",F,2,LXII;LXIII,PRI,0.477476,0.69587,0.0053,False
+P00779,"Guevara Espinoza, Ana Gabriela",F,2,LXII;LXIII,PT,1.427043,2.111032,0.054,False
+P00780,"Hermosillo y Celada, Víctor",M,2,LXII;LXIII,PAN,0.679648,0.970745,0.0102,False
+P00781,"Hernández Deras, Ismael",M,2,LXII;LXIII,PRI,0.650387,0.946037,0.0021,False
+P00782,"Hernández Lecona, Lisbeth",F,2,LXII;LXIII,PRI,0.602466,0.880334,0.0061,False
+P00783,"Herrera Ale, Juana Leticia",F,2,LXII;LXIII,PRI,0.462517,0.692762,0.0378,False
+P00784,"Herrera Anzaldo, Ana Lilia",F,2,LXII;LXIII,PRI,0.58338,0.853354,0.002,False
+P00785,"Herrera Ávila, Fernando",M,2,LXII;LXIII,PAN,0.340192,0.767753,0.022,False
+P00786,"Irízar López, Aarón",M,2,LXII;LXIII,PRI,0.584829,0.855027,0.0295,False
+P00787,"Juárez Cisneros, René",M,2,LXII;LXIII,PRI,0.632865,0.911193,0.0325,False
+P00788,"Lavalle Maury, Jorge Luis",M,2,LXII;LXIII,PAN,0.116222,0.887247,0.0651,False
+P00789,"López Brito, Francisco Salvador",M,2,LXII;LXIII,PAN,0.501882,0.803818,0.0275,False
+P00790,"López Hernández, Adán Augusto",M,2,LXII;LXVI,MORENA,1.0374,1.468699,0.1602,False
+P00791,"Martínez García, Patricio",M,2,LXII;LXIII,PRI,0.559819,0.813898,0.0106,False
+P00792,"Martínez Martínez, José María",F,2,LXII;LXIII,PAN,0.552909,1.050172,0.0154,False
+P00793,"Mayans Canabal, Fernando Enrique",M,2,LXII;LXIII,MORENA,1.216742,1.764427,0.0039,False
+P00794,"Mayans Canabal, Humberto Domingo",M,2,LXII;LXIII,PRI,0.608485,0.897055,0.0029,False
+P00796,"Mendoza Díaz, Sonia",F,2,LXII;LXIII,PAN,0.349489,0.965879,0.0363,False
+P00797,"Mendoza Mendoza, Iris Vianey",F,2,LXII;LXIII,MORENA,0.957774,1.355588,0.1968,False
+P00798,"Monreal Ávila, David",M,2,LXII;LXIII,PT,1.425774,2.122589,0.05,False
+P00799,"Morón Orozco, Raúl",M,3,LXII;LXIII;LXVI,MORENA,0.854684,1.394947,0.0348,False
+P00800,"Orihuela Bárcenas, José Ascención",M,2,LXII;LXIII,PRI,0.59522,0.873454,0.0197,False
+P00801,"Orozco Sandoval, Martín",M,2,LXII;LXIII,PAN,0.068204,1.209456,0.0496,False
+P00802,"Ortiz Domínguez, Maki Esther",F,3,LXII;LXIII;LXVI,PAN;PVEM,0.452254,1.179523,0.0403,True
+P00803,"Ortiz González, Graciela",F,2,LXII;LXIII,PRI,0.596647,0.869549,0.0888,False
+P00804,"Padierna Luna, María de los Dolores",F,2,LXII;LXIII,MORENA,1.173408,1.667748,0.125,False
+P00805,"Palafox Gutiérrez, Martha",F,2,LXII;LXIII,PT,1.230184,1.811975,0.0028,False
+P00807,"Pedraza Chávez, Isidro",M,2,LXII;LXIII,MORENA,0.923724,1.306406,0.0568,False
+P00808,"Pedroza Gaitán, César Octavio",M,2,LXII;LXIII,PAN,0.022896,0.498265,0.0147,False
+P00809,"Penchyna Grub, David",M,2,LXII;LXIII,PRI,0.600449,0.872776,0.0453,False
+P00810,"Pérez Magaña, Eviel",M,2,LXII;LXIII,PRI,0.503629,0.771554,0.0861,False
+P00811,"Pineda Gochi, Ma. del Rocío",F,2,LXII;LXIII,PRI,0.597504,0.872676,0.0592,False
+P00812,"Pozos Lanz, Raúl Aarón",M,2,LXII;LXIII,PRI,0.595988,0.870815,0.0831,False
+P00813,"Preciado Rodríguez, Jorge Luis",M,2,LXII;LXIII,PAN,0.023044,0.536742,0.0548,False
+P00814,"Puente Salas, Carlos Alberto",M,2,LXII;LXIII,PVEM,0.597376,0.869327,0.0073,False
+P00815,"Ramírez Hernández, Sofío",M,2,LXII;LXIII,PRI,0.20605,0.557441,0.3939,False
+P00816,"Ríos de la Mora, Itzel Sarahí",F,2,LXII;LXIII,PRI,0.499927,0.711854,0.0205,False
+P00817,"Ríos Piter, Armando",M,2,LXII;LXIII,MORENA,1.004893,1.422136,0.0516,False
+P00818,"Robledo Aburto, Zoé",F,2,LXII;LXIII,MORENA,1.002224,1.420602,0.0234,False
+P00819,"Robles Montoya, Ángel Benjamín",M,2,LXII;LXIII,MORENA,1.024007,1.548179,0.0796,False
+P00820,"Rojas Hernández, Laura Angélica",F,2,LXII;LXIII,PAN,0.368392,0.837163,0.1185,False
+P00821,"Romero Celis, Mely",F,3,LXII;LXIII;LXVI,PRI,0.613341,1.196675,0.0311,False
+P00822,"Romero Deschamps, Carlos",M,2,LXII;LXIII,PRI,0.56468,0.829582,0.005,False
+P00823,"Romero Hicks, Juan Carlos",M,2,LXII;LXIII,PAN,0.582321,0.881791,0.0074,False
+P00824,"Romero Lainas, Adolfo",M,2,LXII;LXIII,MORENA,0.771365,1.115811,0.0366,False
+P00825,"Romo Medina, Miguel",M,2,LXII;LXIII,PRI,0.596038,0.868351,0.0186,False
+P00826,"Rosas González, Óscar Román",M,2,LXII;LXIII,PRI,0.635612,0.92345,0.0068,False
+P00827,"Ruffo Appel, Ernesto",M,2,LXII;LXIII,PAN,0.69335,1.02094,0.0011,False
+P00828,"Salazar Fernández, Luis Fernando",M,3,LXII;LXIII;LXVI,PAN;MORENA,0.260954,0.968606,0.067,True
+P00829,"Salazar Solorio, Rabindranath",M,2,LXII;LXIII,MORENA,1.341291,1.973349,0.0768,False
+P00830,"Saldaña Pérez, María Lucero",F,2,LXII;LXIII,PRI,0.582119,0.84686,0.085,False
+P00831,"Salinas Sada, Ninfa",F,2,LXII;LXIII,PVEM,0.602989,0.87489,0.078,False
+P00832,"Sánchez Jiménez, Luis",M,2,LXII;LXIII,MORENA,1.017699,1.472574,0.0011,False
+P00833,"Sansores San Román, Layda",F,2,LXII;LXIII,PT,1.474116,2.148534,0.0492,False
+P00834,"Tello Cristerna, Alejandro",M,2,LXII;LXIII,PRI,0.534961,0.758828,0.1537,False
+P00835,"Torres Corzo, Teófilo",M,2,LXII;LXIII,PRI,0.573214,0.839207,0.0219,False
+P00836,"Torres Graciano, Fernando",M,2,LXII;LXIII,PAN,0.452498,0.744645,0.0115,False
+P00837,"Vega Casillas, Salvador",M,2,LXII;LXIII,PAN,0.0076,0.455901,0.0692,False
+P00838,"Yunes Landa, Héctor",M,2,LXII;LXIII,PRI,0.586495,0.858521,0.0156,False
+P00839,"Yunes Márquez, Fernando",M,2,LXII;LXIII,PAN,0.106054,1.253882,0.0075,False
+P00840,"Zamora Jiménez, Arturo",M,2,LXII;LXIII,PRI,0.752494,1.064187,0.009,False
+P00842,"Lozano Alarcón, Javier",M,2,LXII;LXIII,PAN,0.545957,1.006737,0.0021,False
+P00843,"Merodio Reza, Lilia Guadalupe",F,2,LXII;LXIII,PRI,0.729729,1.092469,0.0011,False
+P00844,"Neyra Chávez, Armando",M,2,LXII;LXIII,PRI,0.592353,0.865439,0.0013,False
+P00845,"Yunes Zorrilla, José Francisco",M,2,LXII;LXIII,PRI,0.817606,1.157719,0.0077,False
+P00846,"Melgar Bravo, Luis Armando",M,3,LXII;LXIII;LXVI,PVEM,0.453305,0.151018,0.0302,False
+P00847,"Torres Peimbert, María Marcela",F,2,LXII;LXIII,PAN,0.699116,0.989162,0.0262,False
+P00848,"Blásquez Salinas, Marco Antonio",M,2,LXII;LXIII,PT,1.363086,1.993829,0.053,False
+P00849,"Sánchez García, Gerardo",M,2,LXII;LXIII,PRI,0.627748,0.915753,0.0,False
+P00850,"Ortega Martínez, Ma. del Pilar",F,2,LXII;LXIII,PAN,0.433985,0.81789,0.0071,False
+P00851,"Martínez Espinoza, María Verónica",F,2,LXII;LXIII,PAN;PRI,0.587145,0.866231,0.131,True
+P00898,"Urzúa Rivera, Ricardo",M,2,LXII;LXIII,PAN;PRI,0.524342,0.775784,0.0447,True
+P00915,"Acosta Islas, Anabel",F,2,LXII;LXIII,PRI,0.512637,0.738275,0.0137,False
+P00916,"Aréchiga Ávila, Jorge",M,2,LXII;LXIII,PVEM,0.4345,0.645429,0.0279,False
+P00918,"Fernández Sánchez Navarro, Juan Alejandro",M,2,LXII;LXIII,PAN,0.097721,0.684384,0.0207,False
+P00924,"Domínguez Arvizu, María Hilaria",F,2,LXII;LXIII,PAN,0.561385,0.804582,0.0216,False
+P00925,"Rocha Acosta, Sonia",F,2,LXII;LXIII,PAN,0.44918,0.78724,0.1414,False
+P00927,"Salinas Balam, Víctor",M,2,LXII;LXIII,PRI,0.442647,0.645761,0.0,False
+P01584,"Abreu Artiñano, Rocío Adriana",F,2,LXIV;LXV,MORENA,0.05181,0.29111,0.083,False
+P01586,"Álvarez Lima, José Antonio Cruz",M,3,LXIV;LXV;LXVI,MORENA,0.506131,0.855079,0.0051,False
+P01587,"Añorve Baños, Manuel",M,3,LXIV;LXV;LXVI,PRI,0.692776,1.203269,0.0137,False
+P01588,"Arias Solís, Cristóbal",M,2,LXIV;LXV,MORENA,0.067083,0.274495,0.0179,False
+P01589,"Armenta Mier, Alejandro",M,2,LXIV;LXV,MORENA,0.091478,0.287368,0.0207,False
+P01590,"Ávila Vázquez, Katya Elizabeth",F,2,LXIV;LXV,MORENA,0.159726,0.436252,0.0082,False
+P01591,"Ávila Villegas, Eruviel",M,2,LXIV;LXV,PRI,0.193791,0.418986,0.0167,False
+P01592,"Balderas Espinoza, Claudia Esther",F,2,LXIV;LXV,MORENA,0.063748,0.458508,0.0408,False
+P01593,"Bañuelos, Geovanna",F,2,LXIV;LXV,PT,0.566808,0.966531,0.0459,False
+P01595,"Beltrones Sánchez, Sylvana",F,2,LXIV;LXV,PRI,0.23605,0.553921,0.0065,False
+P01596,"Benavides Cobos, Gabriela",F,2,LXIV;LXV,PVEM,0.495294,0.713436,0.0062,False
+P01597,"Bolaños-Cacho Cué, Raúl",M,2,LXIV;LXV,PVEM,0.062958,0.08909,0.0628,False
+P01599,"Camino Farjat, Verónica Noemí",F,3,LXIV;LXV;LXVI,PVEM;MORENA,0.57573,0.972765,0.0117,True
+P01600,"Caraveo Camarena, Bertha Alicia",F,2,LXIV;LXV,MORENA,0.067903,0.321615,0.0291,False
+P01601,"Cárdenas Mariscal, María Antonia",F,2,LXIV;LXV,MORENA,0.171599,0.246902,0.0044,False
+P01602,"Castañeda Hoeflich, Clemente",M,3,LXIV;LXV;LXVI,MC,1.15446,2.01666,0.0362,False
+P01603,"Castro Castro, Imelda",F,3,LXIV;LXV;LXVI,MORENA,0.607214,1.198347,0.0046,False
+P01604,"Covarrubias Cervantes, Ma. Guadalupe",F,2,LXIV;LXV,MORENA,0.059831,0.314706,0.0016,False
+P01605,"De la Sierra Arámburo, Nancy",F,2,LXIV;LXV,PT;MORENA,1.412059,2.062752,0.0519,True
+P01606,"De León Villard, Sasil",F,3,LXIV;LXV;LXVI,MORENA,0.451582,0.803219,0.0233,False
+P01607,"Delgadillo García, Verónica",F,2,LXIV;LXV,MC,0.015526,0.478682,0.0199,False
+P01608,"Delgado, Dante",M,2,LXIV;LXV,MC,0.145208,0.783068,0.0018,False
+P01609,"Dothé Mata, Primo",M,2,LXIV;LXV,MORENA,0.34854,0.505355,0.0038,False
+P01610,"Enríquez Herrera, José Ramón",M,2,LXIV;LXV,MORENA,0.011887,0.035497,0.1036,False
+P01611,"Galaz Caletti, Eva Eugenia",F,2,LXIV;LXV,MORENA,0.30984,0.441706,0.0105,False
+P01613,"García Conejo, Antonio",M,2,LXIV;LXV,MORENA,0.288115,0.512969,0.0097,False
+P01615,"García Yáñez, Ángel",M,3,LXIV;LXV;LXVI,PRI,0.709686,1.266436,0.0176,False
+P01616,"Gómez Álvarez, Delfina",F,2,LXIV;LXV,MORENA,0.051773,0.1616,0.0093,False
+P01617,"González Yáñez, Alejandro",M,3,LXIV;LXV;LXVI,PT,0.730958,1.456385,0.0308,False
+P01618,"Guadiana Tijerina, Santana Armando",M,2,LXIV;LXV,MORENA,0.295041,0.434733,0.0827,False
+P01619,"Gutiérrez Castorena, Daniel",M,2,LXIV;LXV,MORENA,0.114562,0.606985,0.0352,False
+P01620,"Jara Cruz, Salomón",M,2,LXIV;LXV,MORENA,0.184492,0.470981,0.0531,False
+P01621,"Lagunes Soto Ruíz, Alejandra",F,2,LXIV;LXV,PVEM,0.787345,1.167328,0.0694,False
+P01622,"Luévano Cantú, María Soledad",F,2,LXIV;LXV,MORENA,0.03812,0.268752,0.0375,False
+P01623,"Mancera Espinosa, Miguel Ángel",M,2,LXIV;LXV,MORENA,0.100147,0.194357,0.0361,False
+P01624,"Martínez Cázares, Germán",M,2,LXIV;LXV,MORENA,0.682959,1.099586,0.0201,False
+P01625,"Martínez García, Verónica",F,2,LXIV;LXV,PRI,0.070936,0.287117,0.0198,False
+P01626,"Martínez Hernández, Ifigenia",F,2,LXIV;LXV,MORENA,0.14918,0.25974,0.0036,False
+P01627,"Martínez Miranda, Higinio",M,3,LXIV;LXV;LXVI,MORENA,0.448828,0.996101,0.0038,False
+P01629,"Mayorga Delgado, Nuvia Magdalena",F,2,LXIV;LXV,PRI,0.170275,0.429962,0.0632,False
+P01630,"Menchaca Salazar, Julio Ramón",M,2,LXIV;LXV,MORENA,0.200071,0.346398,0.0036,False
+P01631,"Méndez Ortiz, Casimiro",M,2,LXIV;LXV,MORENA,0.048219,0.615518,0.0086,False
+P01632,"Meza, Lucy",F,2,LXIV;LXV,MORENA,0.035509,0.40606,0.0297,False
+P01633,"Micher Camarena, Martha Lucía",F,3,LXIV;LXV;LXVI,MORENA,0.660805,1.181288,0.0266,False
+P01634,"Monreal Ávila, Ricardo",M,2,LXIV;LXV,MORENA,0.571012,0.833982,0.0095,False
+P01635,"Mora Arellano, Elvia Marcela",F,2,LXIV;LXV,MORENA,0.125505,0.295519,0.0209,False
+P01636,"Narro Céspedes, José",M,2,LXIV;LXV,MORENA,0.306378,0.645111,0.0456,False
+P01638,"Osorio Chong, Miguel Ángel",M,2,LXIV;LXV,PRI,0.051823,0.290802,0.0317,False
+P01639,"Ostoa Ortega, Aníbal",M,3,LXIV;LXV;LXVI,MORENA,0.434937,0.823601,0.0011,False
+P01640,"Padilla Peña, Joel",M,2,LXIV;LXV,PT,0.368899,0.582726,0.0402,False
+P01641,"Paredes Rangel, Beatriz Elena",F,2,LXIV;LXV,PRI,0.03967,0.376894,0.0888,False
+P01642,"Pech Várguez, José Luis",M,2,LXIV;LXV,MORENA;MC,0.870168,1.246588,0.0385,True
+P01644,"Pinedo Alonso, Cora Cecilia",F,2,LXIV;LXV,PT,0.55452,0.886492,0.0202,False
+P01645,"Ramírez Aguilar, Oscar Eduardo",M,2,LXIV;LXV,MORENA,0.088264,0.285429,0.0041,False
+P01646,"Ramírez Marín, Jorge Carlos",M,3,LXIV;LXV;LXVI,PRI;PVEM,0.144904,0.173757,0.0179,True
+P01647,"Rivera Rivera, Ana Lilia",F,3,LXIV;LXV;LXVI,MORENA,0.592313,1.212629,0.0091,False
+P01649,"Romo Molina, Eunice Renata",F,2,LXIV;LXV,MORENA,0.169934,0.459245,0.0168,False
+P01651,"Ruiz Massieu Salinas, Claudia",F,2,LXIV;LXV,PRI,0.186011,0.309142,0.0893,False
+P01653,"Salgado Macedonio, J. Félix",M,3,LXIV;LXV;LXVI,MORENA,0.50501,0.844324,0.0025,False
+P01654,"Sánchez García, Cecilia Margarita",F,2,LXIV;LXV,MORENA,0.113201,0.832976,0.0175,False
+P01655,"Téllez, Lilly",F,3,LXIV;LXV;LXVI,MORENA;PAN,1.138657,1.51092,0.0433,True
+P01656,"Trasviña Waldenrath, Jesús Lucía",F,3,LXIV;LXV;LXVI,MORENA,0.607384,1.201294,0.0116,False
+P01657,"Valdez Martínez, Lilia Margarita",F,3,LXIV;LXV;LXVI,MORENA,0.509199,1.028733,0.0126,False
+P01658,"Vasconcelos, Héctor",M,2,LXIV;LXV,MORENA,0.220549,0.468182,0.0759,False
+P01659,"Velasco Coello, Manuel",M,3,LXIV;LXV;LXVI,PVEM,0.389358,0.469835,0.0074,False
+P01660,"Villarreal Anaya, Américo",M,2,LXIV;LXV,MORENA,0.01851,0.036883,0.0018,False
+P01661,"Villegas Canché, Freyda Marybel",F,2,LXIV;LXV,MORENA,0.068153,0.292713,0.0106,False
+P01662,"Zamora Gastélum, Mario",M,2,LXIV;LXV,PRI,0.048814,0.69405,0.0093,False
+P01663,"Zamora Guzmán, Rogelio Israel",M,2,LXIV;LXV,PVEM,0.370731,0.577587,0.011,False
+P01664,"Zepeda, Juan",M,2,LXIV;LXV,MC,0.171828,0.616028,0.0109,False
+P01665,"Álvarez Icaza Longoria, Emilio",M,2,LXIV;LXV,MORENA,0.077217,0.369535,0.006,False
+P01666,"Bermúdez Méndez, José Erandi",M,2,LXIV;LXV,PAN,0.106921,0.361263,0.121,False
+P01668,"Cruz Blackledge, Gina Andrea",F,2,LXIV;LXV,PAN,0.046827,0.219591,0.018,False
+P01669,"Fernández Balboa, Mónica",F,2,LXIV;LXV,MORENA,0.071934,0.245849,0.0064,False
+P01670,"Fócil Pérez, Juan Manuel",M,2,LXIV;LXV,MORENA,0.345784,0.604431,0.0062,False
+P01671,"Fuentes Solís, Víctor Oswaldo",M,2,LXIV;LXV,PAN,0.05399,0.358168,0.0193,False
+P01672,"Gálvez Ruiz, Xóchitl",F,2,LXIV;LXV,PAN,0.150722,0.244047,0.0174,False
+P01673,"Gama Basarte, Marco Antonio",M,2,LXIV;LXV,PAN;MC,0.178275,0.310012,0.0256,True
+P01674,"García Cabeza de Vaca, Ismael",M,2,LXIV;LXV,PAN,0.067815,0.121832,0.0167,False
+P01675,"Herrera Ruiz, Gilberto",M,2,LXIV;LXV,MORENA,0.134157,0.290278,0.0057,False
+P01676,"Kempis Martínez, Indira",F,2,LXIV;LXV,MC,0.173717,0.68158,0.1484,False
+P01677,"López Rabadán, Kenia",F,2,LXIV;LXV,PAN,0.012248,0.19731,0.0165,False
+P01678,"Madero Muñoz, Gustavo Enrique",M,2,LXIV;LXV,PAN;MORENA,0.098069,0.155026,0.0006,True
+P01679,"Márquez Alvarado, Martha Cecilia",F,2,LXIV;LXV,PAN;PT,0.596238,1.250081,0.0101,True
+P01680,"Martín del Campo Martín del Campo, Juan Antonio",M,3,LXIV;LXV;LXVI,PAN,0.87681,1.570623,0.0102,False
+P01681,"Martínez Simón, Mayuli Latifa",F,3,LXIV;LXV;LXVI,PAN,1.09832,1.992917,0.0873,False
+P01682,"Mercado, Patricia",F,2,LXIV;LXV,MC,0.136118,0.635955,0.0388,False
+P01683,"Navarro Acevedo, Nadia",F,2,LXIV;LXV,PAN,0.100562,0.161807,0.0481,False
+P01684,"Núñez Sánchez, Gloria Elizabeth",F,2,LXIV;LXV,PAN;MC,0.032647,0.157684,0.0163,True
+P01685,"Paz Alonzo, Raúl",M,2,LXIV;LXV,PAN;MORENA,0.587496,1.243328,0.0389,True
+P01686,"Piña Gudiño, Blanca Estela",F,2,LXIV;LXV,MORENA,0.557988,0.837827,0.0265,False
+P01687,"Rementería del Puerto, Julen",M,2,LXIV;LXV,PAN,0.00684,0.197102,0.0373,False
+P01688,"Reynoso Sánchez, Alejandra Noemí",F,2,LXIV;LXV,PAN,6.1e-05,0.296791,0.0805,False
+P01689,"Rosales San Román, Indira de Jesús",F,2,LXIV;LXV,PAN,0.016184,0.132986,0.0512,False
+P01690,"Saldaña Cisneros, María Guadalupe",F,2,LXIV;LXV,PAN,0.04023,0.254229,0.0088,False
+P01691,"Salgado García, Nestora",F,2,LXIV;LXV,MORENA,0.101928,0.449833,0.0049,False
+P01692,"Vázquez Alatorre, Antares Guadalupe",F,2,LXIV;LXV,MORENA,0.28647,0.507077,0.0361,False
+P01693,"Vázquez Mota, Josefina",F,2,LXIV;LXV,PAN,0.007627,0.206384,0.0161,False
+P01694,"Zepeda Vidales, Damián",M,2,LXIV;LXV,PAN,0.129325,0.243726,0.0019,False
+P01695,"Harp Iturribarría, Susana",F,3,LXIV;LXV;LXVI,MORENA,0.579586,1.161638,0.0167,False
+P01696,"Hernández Mora, M. Citlalli",F,2,LXIV;LXV,MORENA,0.424812,0.603629,0.0634,False
+P01697,"León Gastélum, Alejandra del Carmen",F,2,LXIV;LXV,PT;MC,1.044681,1.559746,0.0541,True
+P01698,"Valencia de la Mora, Gricelda",F,2,LXIV;LXV,MORENA,0.017989,0.032978,0.0093,False
+P01699,"Gómez Urrutia, Napoleón",M,2,LXIV;LXV,MORENA,0.006861,0.274028,0.0199,False
+P01703,"Murguía Gutiérrez, María Guadalupe",F,2,LXIV;LXVI,PAN,1.333261,1.977651,0.0109,False
+P01705,"Anaya Mota, Claudia Edith",F,3,LXIV;LXV;LXVI,PRI,0.902991,1.48039,0.0385,False
+P01708,"Quiñonez Ruiz, Juan",M,2,LXIV;LXV,MC;MORENA,0.841623,1.582526,0.0141,True
+P01710,"Castañón, Noé",M,2,LXIV;LXV,MC,0.111969,0.763328,0.0162,False
+P01712,"Bours Griffith, Arturo",M,2,LXIV;LXV,MORENA,0.076403,0.240397,0.0362,False
+P01714,"Peña Villa, José Alejandro",M,2,LXIV;LXV,MORENA,0.110123,0.158756,0.0,False
+P01716,"Sánchez Hernández, Gloria",F,2,LXIV;LXV,MORENA,0.092622,0.212672,0.0002,False
+P01717,"Guerrero Sánchez, Martha",F,2,LXIV;LXV,MORENA,0.150602,0.503472,0.015,False
+P01720,"Peralta Suárez, Ovidio Salvador",M,2,LXIV;LXV,MORENA,0.088793,0.612899,0.037,False
+P01721,"Velázquez Meza, Ricardo",M,2,LXIV;LXV,MORENA,0.051439,0.234417,0.0445,False
+P01722,"Novelo Osuna, Gerardo",M,2,LXIV;LXV,MORENA,0.396607,0.590356,0.1715,False
+P01727,"González González, María Merced",F,2,LXIV;LXV,MORENA,0.203305,0.433241,0.0998,False
+P01728,"Moya Clemente, Roberto Juan",M,2,LXIV;LXV,PAN,0.089488,0.208613,0.0173,False
+P01732,"Lucero Olivas, Miguel Ángel",M,2,LXIV;LXV,PT,0.63752,1.092365,0.0387,False
+P01764,"Pérez Astorga, Ernesto",M,2,LXIV;LXV,MORENA,0.030753,0.048456,0.0616,False
+P01769,"Moreno Bastida, Ricardo",M,2,LXIV;LXV,MORENA,0.02195,0.48849,0.0,False
+P01793,"Sánchez Arredondo, Nancy Guadalupe",F,2,LXIV;LXV,MORENA,0.05791,0.160874,0.0213,False
+P01807,"Sánchez Sugía, María Celeste",F,2,LXIV;LXV,MORENA,0.194052,0.336509,0.011,False
+P01808,"Salazar Sáenz, Francisco Javier",M,2,LXIV;LXV,PAN,0.039015,0.682877,0.0146,False
+P01809,"Ortíz Salinas, Luis David",M,2,LXIV;LXV,MC,0.015617,0.472987,0.0299,False
+P01816,"Botello Montes, José Alfredo",M,2,LXIV;LXV,PAN,0.01948,0.30013,0.0351,False
+P01818,"Moo Cahuich, Arturo del Carmen",F,2,LXIV;LXV,MORENA,0.04263,0.318179,0.0,False
+P01825,"Pérez Flores, Checo",M,2,LXIV;LXV,MORENA,0.013057,0.153216,0.0252,False
+P01826,"Elenes Angulo, Raúl de Jesús",M,2,LXIV;LXV,MORENA,0.01545,0.34401,0.029,False
+P01831,"Gaitán Díaz, María Graciela",F,2,LXIV;LXV,PVEM,0.362821,0.616669,0.0465,False
+P01832,"López Hernández, Ruth Alejandra",F,2,LXIV;LXV,MC,0.099342,0.91651,0.0004,False
+P02415,"Gómez Leal, José Ramón",M,2,LXV;LXVI,MORENA,0.629093,0.925267,0.0225,False
