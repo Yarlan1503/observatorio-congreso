@@ -109,6 +109,12 @@ def parse_args():
         default=None,
         help="Directorio de salida (default: analysis/output/nominate)",
     )
+    parser.add_argument(
+        "--n-workers",
+        type=int,
+        default=15,
+        help="Número de workers para paralelizar NOMINATE (default: 15, 1=secuencial)",
+    )
     return parser.parse_args()
 
 
@@ -159,6 +165,7 @@ def _run_single_legislatura(
     min_votes: int,
     lopsided_threshold: float = 0.975,
     camara: str | None = None,
+    n_workers: int = 1,
 ) -> tuple[dict, dict]:
     """Ejecutar NOMINATE para una legislatura individual.
 
@@ -170,6 +177,7 @@ def _run_single_legislatura(
         min_votes: Mínimo de votos binarios por legislador.
         lopsided_threshold: Umbral para filtrar lopsided votes.
         camara: Filtro de cámara ('D' o 'S').
+        n_workers: Workers para paralelizar (1=secuencial).
 
     Returns:
         Tupla (vote_data, nominate_result).
@@ -181,7 +189,12 @@ def _run_single_legislatura(
         lopsided_threshold=lopsided_threshold,
         camara=camara,
     )
-    result = run_wnominate(data, dimensions=dimensions, maxiter=maxiter)
+    result = run_wnominate(
+        data,
+        dimensions=dimensions,
+        maxiter=maxiter,
+        n_workers=n_workers,
+    )
     return data, result
 
 
@@ -192,6 +205,7 @@ def _run_cross_legislatura(
     min_votes: int,
     lopsided_threshold: float = 0.975,
     camara: str | None = None,
+    n_workers: int = 1,
 ) -> tuple[dict, dict]:
     """Ejecutar NOMINATE con todos los datos combinados (estilo DW-NOMINATE).
 
@@ -202,6 +216,7 @@ def _run_cross_legislatura(
         min_votes: Mínimo de votos binarios por legislador.
         lopsided_threshold: Umbral para filtrar lopsided votes.
         camara: Filtro de cámara ('D' o 'S').
+        n_workers: Workers para paralelizar (1=secuencial).
 
     Returns:
         Tupla (vote_data, nominate_result) con ``legislatura_labels`` adicional
@@ -214,7 +229,12 @@ def _run_cross_legislatura(
         lopsided_threshold=lopsided_threshold,
         camara=camara,
     )
-    result = run_wnominate(data, dimensions=dimensions, maxiter=maxiter)
+    result = run_wnominate(
+        data,
+        dimensions=dimensions,
+        maxiter=maxiter,
+        n_workers=n_workers,
+    )
 
     # Determinar legislatura principal de cada legislador
     conn = sqlite3.connect(db_path)
@@ -429,12 +449,13 @@ def main():
     logger.info("BD: %s", DB_PATH)
     logger.info("Output: %s", output_dir)
     logger.info(
-        "Modo: %s | Dimensiones: %d | MaxIter: %d | MinVotes: %d | Lopsided: %.3f",
+        "Modo: %s | Dimensiones: %d | MaxIter: %d | MinVotes: %d | Lopsided: %.3f | Workers: %d",
         args.mode,
         args.dimensions,
         args.maxiter,
         args.min_votes,
         args.lopsided_threshold,
+        args.n_workers,
     )
     if args.legislatura:
         logger.info("Legislatura: %s", args.legislatura)
@@ -479,6 +500,7 @@ def main():
                     args.min_votes,
                     args.lopsided_threshold,
                     camara=camara,
+                    n_workers=args.n_workers,
                 )
                 results_by_leg[leg] = (data, result)
                 _print_legislatura_summary(leg, data, result)
@@ -522,6 +544,7 @@ def main():
                 args.min_votes,
                 args.lopsided_threshold,
                 camara=camara,
+                n_workers=args.n_workers,
             )
 
             # Resumen textual
