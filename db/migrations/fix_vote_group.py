@@ -20,14 +20,27 @@ import sys
 from pathlib import Path
 
 # --- Paths ---
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parent.parent  # apunta a db/
 DB_PATH = BASE_DIR / "congreso.db"
 
 # --- Mapeo texto → ID org ---
+# Basado en db.constants._NAME_TO_ORG. Solo entradas textuales (no passthrough O##→O##).
 GROUP_MAP = {
+    # Partidos con representación en el Congreso
     "Morena": "O01",
     "PT": "O02",
     "PVEM": "O03",
+    "PAN": "O04",
+    "PRI": "O05",
+    "MC": "O06",
+    "PRD": "O07",
+    # Independientes y otros
+    "Independientes": "O11",
+    "CONV": "O12",
+    "NA": "O13",
+    "ALT": "O14",
+    "PES": "O15",
+    "SP": "O16",
 }
 
 

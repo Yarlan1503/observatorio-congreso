@@ -54,6 +54,7 @@ def prepare_vote_matrix(
     min_participants: int = 10,
     lopsided_threshold: float = 0.975,
     camara: str | None = None,
+    exclude_legislaturas: list[str] | None = None,
 ) -> dict:
     """Construir la matriz binarizada legislators × vote_events para NOMINATE.
 
@@ -79,6 +80,9 @@ def prepare_vote_matrix(
             ``None`` o 0 deshabilita el filtro. Default: 0.975.
         camara: Filtrar por cámara. ``'D'`` para Diputados, ``'S'`` para
             Senado. Si es ``None``, no filtra.
+        exclude_legislaturas: Lista de legislaturas a excluir del análisis
+            (ej: ``['LXVI']``). Solo aplica cuando ``legislatura`` es ``None``.
+            Si es ``None`` o vacía, no excluye ninguna.
 
     Returns:
         Diccionario con:
@@ -121,6 +125,11 @@ def prepare_vote_matrix(
             camara_org = "O08" if camara == "D" else "O09"
             conditions.append("ve.organization_id = ?")
             params.append(camara_org)
+
+        if exclude_legislaturas and legislatura is None:
+            placeholders = ",".join("?" for _ in exclude_legislaturas)
+            conditions.append(f"ve.legislatura NOT IN ({placeholders})")
+            params.extend(exclude_legislaturas)
 
         if needs_join:
             where = " AND ".join(conditions)

@@ -23,6 +23,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
+import contextlib
 import csv
 import math
 from collections import defaultdict
@@ -31,7 +32,6 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import matplotlib.ticker as mticker
 import numpy as np
 import seaborn as sns
 
@@ -290,7 +290,7 @@ def analyze_nominate():
     fig.tight_layout()
     fig.savefig(BIC_OUTPUT / "nominate_scatter_bicameral.png", dpi=150, bbox_inches="tight")
     plt.close(fig)
-    print(f"  → nominate_scatter_bicameral.png generado")
+    print("  → nominate_scatter_bicameral.png generado")
 
     # --- Plot 2: Bar chart de distancia intra-partido ---
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -315,7 +315,7 @@ def analyze_nominate():
     fig.tight_layout()
     fig.savefig(BIC_OUTPUT / "nominate_distancia_partidos.png", dpi=150, bbox_inches="tight")
     plt.close(fig)
-    print(f"  → nominate_distancia_partidos.png generado")
+    print("  → nominate_distancia_partidos.png generado")
 
     return rows
 
@@ -346,7 +346,7 @@ def analyze_disciplina():
                     continue
                 pn = norm_party(party_raw)
                 if pn in COMMON_PARTIES and val.strip():
-                    try:
+                    with contextlib.suppress(ValueError):
                         result.append(
                             {
                                 "legislatura_raw": leg_raw,
@@ -356,8 +356,6 @@ def analyze_disciplina():
                                 "camara": camara,
                             }
                         )
-                    except ValueError:
-                        pass
         return result
 
     dip_parsed = parse_disciplina(dip_disc, "Diputados")
@@ -412,9 +410,9 @@ def analyze_disciplina():
     avg_delta = np.mean([r["delta_S_menos_D"] for r in rows]) if rows else 0
     print(f"  Delta promedio (S-D): {avg_delta:+.4f}")
     if avg_delta > 0:
-        print(f"  → Senado es más disciplinado en promedio")
+        print("  → Senado es más disciplinado en promedio")
     else:
-        print(f"  → Diputados es más disciplinado en promedio")
+        print("  → Diputados es más disciplinado en promedio")
 
     print(f"\n  {'Partido':<12} {'Legislatura':<20} {'D':>8} {'S':>8} {'Δ(S-D)':>8}")
     print(f"  {'-' * 64}")
@@ -499,7 +497,7 @@ def analyze_disciplina():
     fig.tight_layout()
     fig.savefig(BIC_OUTPUT / "disciplina_lineas_bicameral.png", dpi=150, bbox_inches="tight")
     plt.close(fig)
-    print(f"  → disciplina_lineas_bicameral.png generado")
+    print("  → disciplina_lineas_bicameral.png generado")
 
     # --- Plot 2: Heatmap delta ---
     if rows:
@@ -534,7 +532,7 @@ def analyze_disciplina():
         fig.tight_layout()
         fig.savefig(BIC_OUTPUT / "disciplina_delta_heatmap.png", dpi=150, bbox_inches="tight")
         plt.close(fig)
-        print(f"  → disciplina_delta_heatmap.png generado")
+        print("  → disciplina_delta_heatmap.png generado")
 
     return rows
 
@@ -630,10 +628,8 @@ def analyze_covotacion():
                 if k == "":
                     continue  # Skip the row index column
                 pn = norm_party(k)
-                try:
+                with contextlib.suppress(ValueError, TypeError):
                     vals[pn] = float(v)
-                except (ValueError, TypeError):
-                    pass
             if party_row and party_row != "???" and vals:
                 mat[party_row] = vals
         return mat
@@ -660,7 +656,7 @@ def analyze_covotacion():
         print(f"  Correlación entre matrices de co-votación: {corr:.4f}")
     else:
         corr = None
-        print(f"  No hay suficientes datos para correlación")
+        print("  No hay suficientes datos para correlación")
 
     # --- Plot 1: Modularidad comparada ---
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -673,8 +669,8 @@ def analyze_covotacion():
     sen_mod = {r["leg_norm"]: float(r.get("modularidad", 0)) for r in sen_evol}
 
     x = range(len(legs_all))
-    d_vals = [dip_mod.get(l, None) for l in legs_all]
-    s_vals = [sen_mod.get(l, None) for l in legs_all]
+    d_vals = [dip_mod.get(l) for l in legs_all]
+    s_vals = [sen_mod.get(l) for l in legs_all]
 
     # Plot only non-None values
     d_x = [i for i, v in enumerate(d_vals) if v is not None]
@@ -693,7 +689,7 @@ def analyze_covotacion():
     fig.tight_layout()
     fig.savefig(BIC_OUTPUT / "modularidad_comparada.png", dpi=150, bbox_inches="tight")
     plt.close(fig)
-    print(f"  → modularidad_comparada.png generado")
+    print("  → modularidad_comparada.png generado")
 
     # --- Plot 2: Heatmaps lado a lado ---
     # Use common parties for both matrices
@@ -753,7 +749,7 @@ def analyze_covotacion():
         fig.tight_layout()
         fig.savefig(BIC_OUTPUT / "alianzas_bicameral.png", dpi=150, bbox_inches="tight")
         plt.close(fig)
-        print(f"  → alianzas_bicameral.png generado")
+        print("  → alianzas_bicameral.png generado")
 
     return metrics_rows
 
@@ -826,7 +822,7 @@ def analyze_poder():
         print(
             f"  {r['partido']:<14} {r['escanos_D']:>6} {r['escanos_S']:>6} "
             f"{r['poder_empirico_D']:>8.2f} {r['poder_empirico_S']:>8.2f} "
-            f"{str(r['ratio_S_D']):>8}"
+            f"{r['ratio_S_D']!s:>8}"
         )
 
     # --- 4c: Calificada analysis ---
@@ -869,7 +865,7 @@ def analyze_poder():
             writer.writeheader()
             writer.writerows(calif_rows)
 
-    print(f"\n  Votaciones de mayoría calificada:")
+    print("\n  Votaciones de mayoría calificada:")
     print(
         f"    Diputados: {len(dip_calif)} (aprobadas: {sum(1 for r in dip_calif if r.get('result') == 'aprobada')})"
     )
@@ -877,14 +873,14 @@ def analyze_poder():
         f"    Senado: {len(sen_calif)} (aprobadas: {sum(1 for r in sen_calif if r.get('result') == 'aprobada')})"
     )
 
-    print(f"\n  Partidos críticos en calificada:")
+    print("\n  Partidos críticos en calificada:")
     print(f"  {'Partido':<14} {'Crítico_D':>10} {'Crítico_S':>10}")
     print(f"  {'-' * 38}")
     for r in calif_rows:
         print(f"  {r['partido']:<14} {r['critico_en_D']:>10} {r['critico_en_S']:>10}")
 
     # --- 4d: Disidentes comparison ---
-    print(f"\n  Top disidentes:")
+    print("\n  Top disidentes:")
     print(f"  {'Diputados':<40} {'Senado':<40}")
     print(f"  {'-' * 80}")
     for i in range(max(len(dip_disid), len(sen_disid))):
@@ -971,7 +967,7 @@ def analyze_poder():
     fig.tight_layout()
     fig.savefig(BIC_OUTPUT / "poder_bicameral_barras.png", dpi=150, bbox_inches="tight")
     plt.close(fig)
-    print(f"  → poder_bicameral_barras.png generado")
+    print("  → poder_bicameral_barras.png generado")
 
     return poder_rows
 

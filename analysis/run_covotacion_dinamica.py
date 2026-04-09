@@ -85,6 +85,12 @@ def parse_args():
         default=None,
         help="Directorio de salida (default: analysis/analisis-diputados/output/dinamica)",
     )
+    parser.add_argument(
+        "--exclude-legislatura",
+        action="append",
+        default=[],
+        help="Excluir legislatura del análisis longitudinal (se puede repetir). Ej: --exclude-legislatura LXVI",
+    )
     return parser.parse_args()
 
 
@@ -183,6 +189,8 @@ def main():
 
     # 3. FASE 1: Construir ventanas
     logger.info("\n--- FASE 1: Construyendo ventanas temporales ---")
+    if args.exclude_legislatura:
+        logger.info("Legislaturas excluidas: %s", ", ".join(sorted(args.exclude_legislatura)))
     windows = build_windows(
         str(DB_PATH),
         strategy=args.strategy,
@@ -190,6 +198,7 @@ def main():
         window_size=args.window_size,
         overlap=args.overlap,
         camara=camara,
+        exclude_legislaturas=args.exclude_legislatura or None,
     )
 
     if not windows:
