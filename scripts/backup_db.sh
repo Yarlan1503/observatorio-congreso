@@ -9,6 +9,45 @@ TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 BACKUP_FILE="$BACKUP_DIR/congreso_${TIMESTAMP}.db"
 MAX_BACKUPS=7
 
+# Helper: ejecutar SQL vía sqlite3 CLI o Python fallback
+run_sql() {
+    local db="$1"
+    local sql="$2"
+    if command -v sqlite3 &>/dev/null; then
+        sqlite3 "$db" "$sql"
+    else
+        python3 -c "
+import sqlite3, sys
+conn = sqlite3.connect(sys.argv[1])
+try:
+    result = conn.execute(sys.argv[2]).fetchone()
+    if result:
+        # Para PRAGMA integrity_check, el resultado es una tupla
+        print(result[0] if len(result) == 1 else '|'.join(str(r) for r in result))
+finally:
+    conn.close()
+" "$db" "$sql"
+    fi
+}
+
+# Helper: ejecutar VACUUM INTO vía sqlite3 CLI o Python fallback
+run_vacuum_into() {
+    local db="$1"
+    local dest="$2"
+    if command -v sqlite3 &>/dev/null; then
+        sqlite3 "$db" "VACUUM INTO '${dest}';"
+    else
+        python3 -c "
+import sqlite3, sys
+conn = sqlite3.connect(sys.argv[1])
+try:
+    conn.execute(f'VACUUM INTO \"{sys.argv[2]}\"')
+finally:
+    conn.close()
+" "$db" "$dest"
+    fi
+}
+
 # 1. Crear directorio si no existe
 mkdir -p "$BACKUP_DIR"
 
@@ -20,10 +59,10 @@ fi
 
 # 3. Ejecutar VACUUM INTO
 echo "Creando backup: $(basename "$BACKUP_FILE")"
-sqlite3 "$DB_PATH" "VACUUM INTO '${BACKUP_FILE}';"
+run_vacuum_into "$DB_PATH" "$BACKUP_FILE"
 
 # 4. Verificar integridad del backup
-INTEGRITY=$(sqlite3 "$BACKUP_FILE" "PRAGMA integrity_check;")
+INTEGRITY=$(run_sql "$BACKUP_FILE" "PRAGMA integrity_check;")
 if [[ "$INTEGRITY" != "ok" ]]; then
     echo "ERROR: La verificación de integridad falló: $INTEGRITY"
     exit 1
