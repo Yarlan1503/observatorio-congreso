@@ -16,11 +16,11 @@ Uso:
 """
 
 import argparse
-import logging
 
 from scraper_congreso.senadores.client import SenadoLXVIClient
 from scraper_congreso.senadores.config import DB_PATH, LXVI_VOTACION_URL_TEMPLATE
 from scraper_congreso.senadores.models import SenVotacionDetail, SenVotoNominal
+from scraper_congreso.utils.logging_config import setup_logging
 
 from .loader import (
     CongresoLoader,
@@ -30,13 +30,7 @@ from .loader import (
 from .parsers.lxvi_portal import parse_lxvi_votacion
 from .transformers import inferir_genero, parse_fecha_iso
 
-# Configuración de logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    datefmt="%H:%M:%S",
-)
-logger = logging.getLogger(__name__)
+logger = setup_logging("senado_votaciones")
 
 
 # =============================================================================

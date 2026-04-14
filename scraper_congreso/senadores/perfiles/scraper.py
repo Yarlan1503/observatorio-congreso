@@ -20,11 +20,9 @@ Uso:
 
 import argparse
 import json
-import logging
 import random
 import re
 import sqlite3
-import sys
 import time
 from pathlib import Path
 
@@ -34,6 +32,7 @@ from scraper_congreso.senadores.config import (
     DB_PATH,
     SENADO_ORG_ID,
 )
+from scraper_congreso.utils.logging_config import setup_logging
 
 from .parsers.perfil_parser import SenPerfil, parse_perfil_html
 
@@ -52,17 +51,7 @@ FECHAS_LEGISLATURA: dict[str, tuple[str, str]] = {
     "LXVI": ("2024-09-01", "2027-08-31"),
 }
 
-# --- Logging ---
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    datefmt="%H:%M:%S",
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-    ],
-)
-logger = logging.getLogger(__name__)
+logger = setup_logging("senado_perfiles")
 
 
 # =============================================================================

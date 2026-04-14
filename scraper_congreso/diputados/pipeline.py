@@ -11,11 +11,12 @@ Uso:
 """
 
 import argparse
-import logging
 import re
 import sqlite3
 
 from bs4 import BeautifulSoup
+
+from scraper_congreso.utils.logging_config import setup_logging
 
 from .client import SITLClient
 from .config import DB_PATH, PARTY_SITL_IDS
@@ -34,12 +35,7 @@ from .parsers.nominal import parse_nominal
 from .parsers.votaciones import parse_votaciones
 from .transformers import transformar_votacion
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    datefmt="%H:%M:%S",
-)
-logger = logging.getLogger(__name__)
+logger = setup_logging("diputados")
 
 
 class ScraperPipeline:
