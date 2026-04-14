@@ -42,7 +42,7 @@ class SITLClient:
         timeout: float = REQUEST_TIMEOUT,
         max_retries: int = MAX_RETRIES,
         cache_dir: Path | None = None,
-    ):
+    ) -> None:
         self.use_cache = use_cache
         self.delay = delay
         self.timeout = timeout

@@ -51,7 +51,7 @@ class SenadoCongresoPipeline:
         use_cache: bool = True,
         delay: float = 2.0,
         db_path: str | None = None,
-    ):
+    ) -> None:
         """Inicializa el pipeline.
 
         Args:
@@ -63,7 +63,7 @@ class SenadoCongresoPipeline:
         self.db_path = db_path or str(DB_PATH)
         self.loader = CongresoLoader(db_path=self.db_path)
 
-    def scrape_one(self, votacion_id: int) -> dict:
+    def scrape_one(self, votacion_id: int) -> dict[str, int | str]:
         """Procesa un solo ID para testing.
 
         Args:
@@ -121,7 +121,9 @@ class SenadoCongresoPipeline:
             logger.error(f"Error procesando votacion {votacion_id}: {e}")
             return {"status": "error", "votacion_id": votacion_id, "error": str(e)}
 
-    def scrape_range(self, start: int, end: int, limit: int | None = None) -> dict:
+    def scrape_range(
+        self, start: int, end: int, limit: int | None = None
+    ) -> dict[str, int | list[dict]]:
         """Itera IDs de start a end, procesando cada votación.
 
         Args:

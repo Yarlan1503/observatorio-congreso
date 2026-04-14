@@ -88,7 +88,7 @@ class SenadoLXVIClient:
         delay: float = 2.0,
         cache_dir: Path | None = None,
         cookie_path: Path | None = None,
-    ):
+    ) -> None:
         """Inicializa el cliente.
 
         Args:

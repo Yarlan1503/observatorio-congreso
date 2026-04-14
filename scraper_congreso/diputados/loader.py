@@ -6,45 +6,47 @@ idempotente usando INSERT OR IGNORE. Todo un vote_event se inserta
 en una sola transacción para garantizar consistencia.
 """
 
-import logging
-import sqlite3
+from typing import ClassVar
+
+from scraper_congreso.utils.base_loader import BaseLoader
 
 from .config import DB_PATH
 from .transformers import (
     VotacionCompleta,
 )
 
-logger = logging.getLogger(__name__)
 
-
-class Loader:
+class Loader(BaseLoader):
     """Carga datos Popolo a SQLite con upsert inteligente.
 
     Idempotente: INSERT OR IGNORE para no duplicar datos.
     Transaccional: todo un vote_event se inserta en una sola transacción.
     """
 
-    def __init__(self, db_path: str | None = None):
+    TABLES: ClassVar[list[str]] = [
+        "person",
+        "organization",
+        "membership",
+        "post",
+        "motion",
+        "vote_event",
+        "vote",
+        "count",
+        "area",
+        "actor_externo",
+        "relacion_poder",
+        "evento_politico",
+    ]
+
+    def __init__(self, db_path: str | None = None) -> None:
         """Inicializa el Loader.
 
         Args:
             db_path: Path a la BD. Si es None, usa DB_PATH de config.
         """
-        self.db_path = db_path or str(DB_PATH)
+        super().__init__(db_path or str(DB_PATH))
 
-    def _get_conn(self) -> sqlite3.Connection:
-        """Obtiene conexión a la BD con foreign keys habilitadas.
-
-        Returns:
-            Conexión SQLite configurada con FK y WAL mode.
-        """
-        conn = sqlite3.connect(self.db_path, timeout=30.0)
-        conn.execute("PRAGMA foreign_keys = ON")
-        conn.execute("PRAGMA journal_mode = WAL")
-        conn.execute("PRAGMA busy_timeout = 5000")
-        return conn
-
-    def upsert_votacion(self, votacion: VotacionCompleta) -> dict:
+    def upsert_votacion(self, votacion: VotacionCompleta) -> dict[str, int | str]:
         """Inserta una votación completa en la BD.
 
         Proceso (dentro de una transacción):
@@ -186,7 +188,7 @@ class Loader:
                 stats["counts"] += 1
 
             conn.execute("COMMIT")
-            logger.info(
+            self.logger.info(
                 f"Upsert completado: VE={ve.id}, "
                 f"{stats['votes']} votos, {stats['new_persons']} personas nuevas, "
                 f"{stats['counts']} counts"
@@ -194,62 +196,9 @@ class Loader:
 
         except Exception as e:
             conn.execute("ROLLBACK")
-            logger.error(f"Error en upsert de votación {votacion.vote_event.id}: {e}")
+            self.logger.error(f"Error en upsert de votación {votacion.vote_event.id}: {e}")
             raise
         finally:
             conn.close()
 
         return stats
-
-    def verificar_integridad(self) -> bool:
-        """Verifica integridad referencial de la BD.
-
-        Returns:
-            True si no hay violaciones de FK, False si las hay.
-        """
-        conn = self._get_conn()
-        try:
-            # PRAGMA foreign_key_check retorna filas por cada violación
-            violations = conn.execute("PRAGMA foreign_key_check").fetchall()
-            if violations:
-                for v in violations:
-                    logger.error(
-                        f"Violación FK: tabla={v[0]}, rowid={v[1]}, parent={v[2]}, fkid={v[3]}"
-                    )
-                return False
-            return True
-        finally:
-            conn.close()
-
-    def estadisticas(self) -> dict:
-        """Retorna conteos actuales de todas las tablas.
-
-        Returns:
-            Dict con nombre de tabla → número de registros.
-        """
-        conn = self._get_conn()
-        try:
-            tablas = [
-                "person",
-                "organization",
-                "membership",
-                "post",
-                "motion",
-                "vote_event",
-                "vote",
-                "count",
-                "area",
-                "actor_externo",
-                "relacion_poder",
-                "evento_politico",
-            ]
-            stats = {}
-            for tabla in tablas:
-                try:
-                    row = conn.execute(f"SELECT COUNT(*) FROM {tabla}").fetchone()
-                    stats[tabla] = row[0]
-                except sqlite3.OperationalError:
-                    stats[tabla] = -1  # Tabla no existe
-            return stats
-        finally:
-            conn.close()

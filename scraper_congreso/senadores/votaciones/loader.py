@@ -12,12 +12,13 @@ Transaccional: toda una votación se inserta en una sola transacción.
 """
 
 import json
-import logging
 import sqlite3
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import ClassVar
 
 from scraper_congreso.senadores.config import LXVI_VOTACION_URL_TEMPLATE, SENADO_ORG_ID
+from scraper_congreso.utils.base_loader import BaseLoader
 from scraper_congreso.utils.db_helpers import get_or_create_organization
 from scraper_congreso.utils.db_utils import match_persona_por_nombre
 from scraper_congreso.utils.id_generator import next_id
@@ -27,9 +28,6 @@ from .transformers import (
     determinar_resultado,
     voto_to_option,
 )
-
-logger = logging.getLogger(__name__)
-
 
 # ============================================================
 # Dataclasses para el schema unificado
@@ -79,7 +77,7 @@ class CongresoVotacionRecord:
 # ============================================================
 
 
-class CongresoLoader:
+class CongresoLoader(BaseLoader):
     """Carga datos al schema unificado de congreso.db.
 
     Idempotente: INSERT OR IGNORE para no duplicar datos.
@@ -90,8 +88,16 @@ class CongresoLoader:
             al workspace root.
     """
 
-    def __init__(self, db_path: str = "db/congreso.db"):
-        self.db_path = self._resolve_db_path(db_path)
+    TABLES: ClassVar[list[str]] = [
+        "vote_event",
+        "motion",
+        "person",
+        "membership",
+        "vote",
+    ]
+
+    def __init__(self, db_path: str = "db/congreso.db") -> None:
+        super().__init__(self._resolve_db_path(db_path))
 
     def _resolve_db_path(self, db_path: str) -> Path:
         """Resuelve el path de la BD.
@@ -107,14 +113,6 @@ class CongresoLoader:
             return p
         project_root = Path(__file__).resolve().parent.parent.parent
         return project_root / p
-
-    def _get_conn(self) -> sqlite3.Connection:
-        """Obtiene conexión a la BD con foreign keys y WAL mode."""
-        conn = sqlite3.connect(str(self.db_path), timeout=30.0)
-        conn.execute("PRAGMA foreign_keys = ON")
-        conn.execute("PRAGMA journal_mode = WAL")
-        conn.execute("PRAGMA busy_timeout = 5000")
-        return conn
 
     # ---- Entidades ----
 
@@ -193,7 +191,7 @@ class CongresoLoader:
 
     # ---- Upsert principal ----
 
-    def upsert_votacion(self, votacion: CongresoVotacionRecord) -> dict:
+    def upsert_votacion(self, votacion: CongresoVotacionRecord) -> dict[str, int | str]:
         """Inserta votación completa. Retorna estadísticas.
 
         Proceso (dentro de una transacción):
@@ -231,7 +229,7 @@ class CongresoLoader:
         ).fetchone()
 
         if existing_ve:
-            logger.info(
+            self.logger.info(
                 f"Votación senado_id={votacion.senado_id} ya existe "
                 f"(vote_event={existing_ve[0]}), saltando."
             )
@@ -275,7 +273,7 @@ class CongresoLoader:
                     persona_id = persona_ref
 
                 if persona_id is None:
-                    logger.warning(f"No se encontró persona para membresía: {memb_data}")
+                    self.logger.warning(f"No se encontró persona para membresía: {memb_data}")
                     continue
 
                 # Resolver org_id — crear si no existe
@@ -370,7 +368,7 @@ class CongresoLoader:
                     persona_id = match_persona_por_nombre(nombre, conn)
 
                 if persona_id is None:
-                    logger.warning(f"Voto de '{nombre}' ignorado: persona no encontrada")
+                    self.logger.warning(f"Voto de '{nombre}' ignorado: persona no encontrada")
                     continue
 
                 vote_id = next_id(conn, "vote", camara="S")
@@ -408,7 +406,7 @@ class CongresoLoader:
             stats["status"] = "success"
 
             conn.execute("COMMIT")
-            logger.info(
+            self.logger.info(
                 f"Upsert completado: vote_event={vote_event_id}, "
                 f"motion={motion_id}, {stats['votos']} votos, "
                 f"{stats['personas_nuevas']} personas nuevas, "
@@ -418,7 +416,7 @@ class CongresoLoader:
 
         except Exception as e:
             conn.execute("ROLLBACK")
-            logger.error(f"Error en upsert de votación {votacion.senado_id}: {e}")
+            self.logger.error(f"Error en upsert de votación {votacion.senado_id}: {e}")
             raise
         finally:
             conn.close()
@@ -515,27 +513,6 @@ class CongresoLoader:
 
         return counts_inserted
 
-    # ---- Integridad ----
-
-    def verificar_integridad(self) -> bool:
-        """Verifica integridad referencial de la BD.
-
-        Returns:
-            True si no hay violaciones de FK, False si las hay.
-        """
-        conn = self._get_conn()
-        try:
-            violations = conn.execute("PRAGMA foreign_key_check").fetchall()
-            if violations:
-                for v in violations:
-                    logger.error(
-                        f"Violación FK: tabla={v[0]}, rowid={v[1]}, parent={v[2]}, fkid={v[3]}"
-                    )
-                return False
-            return True
-        finally:
-            conn.close()
-
     def init_schema(self) -> None:
         """Verifica que el schema y datos estáticos de congress.db existan."""
         conn = self._get_conn()
@@ -552,7 +529,7 @@ class CongresoLoader:
                 try:
                     conn.execute(f"SELECT 1 FROM {tabla} LIMIT 1")
                 except sqlite3.OperationalError:
-                    logger.warning(f"Tabla '{tabla}' no existe en la BD")
+                    self.logger.warning(f"Tabla '{tabla}' no existe en la BD")
 
             existing = conn.execute(
                 "SELECT id, nombre, abbr FROM organization WHERE id = 'O09'"
@@ -564,37 +541,15 @@ class CongresoLoader:
                            WHERE id = 'O09'"""
                     )
                     conn.commit()
-                    logger.info("Organización O09 actualizada: Senado de la República")
+                    self.logger.info("Organización O09 actualizada: Senado de la República")
             else:
                 conn.execute(
                     """INSERT OR IGNORE INTO organization (id, nombre, abbr, clasificacion)
                        VALUES ('O09', 'Senado de la República', 'SENADO', 'institucion')"""
                 )
                 conn.commit()
-                logger.info("Organización O09 creada: Senado de la República")
+                self.logger.info("Organización O09 creada: Senado de la República")
 
-            logger.info("Schema de congress.db verificado correctamente")
-        finally:
-            conn.close()
-
-    def estadisticas(self) -> dict:
-        """Retorna conteos actuales de todas las tablas relevantes."""
-        conn = self._get_conn()
-        try:
-            tablas = [
-                "vote_event",
-                "motion",
-                "person",
-                "membership",
-                "vote",
-            ]
-            stats: dict[str, int] = {}
-            for tabla in tablas:
-                try:
-                    row = conn.execute(f"SELECT COUNT(*) FROM {tabla}").fetchone()
-                    stats[tabla] = row[0]
-                except sqlite3.OperationalError:
-                    stats[tabla] = -1
-            return stats
+            self.logger.info("Schema de congress.db verificado correctamente")
         finally:
             conn.close()

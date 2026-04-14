@@ -30,6 +30,7 @@ from .legislatura import (
     url_votaciones_por_periodo,
 )
 from .loader import Loader
+from .models import VotacionRecord
 from .parsers.desglose import parse_desglose
 from .parsers.nominal import parse_nominal
 from .parsers.votaciones import parse_votaciones
@@ -55,7 +56,7 @@ class ScraperPipeline:
         legislatura: str = "LXVI",
         use_cache: bool = True,
         delay: float = 2.0,
-    ):
+    ) -> None:
         """Inicializa el pipeline.
 
         Args:
@@ -112,7 +113,7 @@ class ScraperPipeline:
 
         return results
 
-    def _scrape_single_votacion(self, votacion) -> dict:
+    def _scrape_single_votacion(self, votacion: VotacionRecord) -> dict[str, int | str]:
         """Procesa una votación individual completa.
 
         1. Obtiene desglose por partido
@@ -220,7 +221,7 @@ class ScraperPipeline:
         return sorted(periods)
 
 
-def main():
+def main() -> None:
     """CLI básico para el scraper."""
     parser = argparse.ArgumentParser(
         description="Scraper SITL/INFOPAL para el Observatorio del Congreso"

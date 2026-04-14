@@ -200,7 +200,7 @@ class PerfilEnricher:
     - Idempotente: no sobrescribe valores no-NULL con nuevos datos
     """
 
-    def __init__(self, db_path: str | None = None):
+    def __init__(self, db_path: str | None = None) -> None:
         self.db_path = db_path or str(DB_PATH)
         self._name_cache: dict[str, list[tuple[str, str]]] | None = None
 
@@ -336,7 +336,7 @@ class PerfilEnricher:
         perfil: SenPerfil,
         conn: sqlite3.Connection,
         dry_run: bool = False,
-    ) -> dict:
+    ) -> dict[str, bool | int | str | None]:
         """Enriquece una persona en la BD con datos del perfil.
 
         Args:
@@ -574,7 +574,7 @@ class PerfilPipeline:
         delay: float = 2.0,
         db_path: str | None = None,
         dry_run: bool = False,
-    ):
+    ) -> None:
         self.client = PerfilClient(delay=delay)
         self.enricher = PerfilEnricher(db_path=db_path)
         self.dry_run = dry_run
@@ -623,7 +623,7 @@ class PerfilPipeline:
         logger.info("Sesión recreada (fingerprint rotado, cookies omitidas, warm-up hecho)")
         return True
 
-    def process_one(self, portal_id: int) -> dict:
+    def process_one(self, portal_id: int) -> dict[str, int | str | bool | None]:
         """Procesa un solo perfil de senador.
 
         Args:
@@ -682,7 +682,7 @@ class PerfilPipeline:
         end: int,
         limit: int | None = None,
         ids: list[int] | None = None,
-    ) -> dict:
+    ) -> dict[str, int]:
         """Itera IDs de senadores, procesando cada perfil.
 
         Si se pasa `ids`, usa esa lista directamente (modo --from-listing).
