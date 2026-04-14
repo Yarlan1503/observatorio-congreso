@@ -776,9 +776,9 @@ def _merge_party_power(rows):
             base = max(entries, key=lambda e: int(e.get("escanos", 0)))
 
             # Weighted average for power metrics
-            def weighted_avg(field):
-                weighted = sum(float(e.get(field, 0)) * int(e.get("escanos", 0)) for e in entries)
-                return weighted / total_seats if total_seats > 0 else 0
+            def weighted_avg(field, _entries=entries, _total_seats=total_seats):
+                weighted = sum(float(e.get(field, 0)) * int(e.get("escanos", 0)) for e in _entries)
+                return weighted / _total_seats if _total_seats > 0 else 0
 
             merged_entry = dict(base)  # copy base
             merged_entry["escanos"] = total_seats
