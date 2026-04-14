@@ -5,13 +5,13 @@ Cubre normalize_name(), determinar_requirement(), determinar_tipo_motion(),
 parse_fecha_iso() y MESES_ES.
 
 Uso:
-    pytest utils/tests/test_text_utils.py -v
+    pytest tests/test_text_utils.py -v
 """
 
 import pytest
 
-from senado.scrapers.votaciones.transformers import parse_fecha_iso
-from utils.text_utils import (
+from scraper_congreso.senadores.votaciones.transformers import parse_fecha_iso
+from scraper_congreso.utils.text_utils import (
     MESES_ES,
     determinar_requirement,
     determinar_tipo_motion,

@@ -6,12 +6,12 @@ aprobada/rechazada/empate para las votaciones del Senado,
 incluyendo mayoría calificada (Art. 135 CPEUM, 2/3 de presentes).
 
 Uso:
-    pytest senado/scrapers/votaciones/tests/test_transformers.py -v
+    pytest tests/senadores/test_transformers.py -v
 """
 
 import pytest
 
-from senado.scrapers.votaciones.transformers import determinar_resultado
+from scraper_congreso.senadores.votaciones.transformers import determinar_resultado
 
 
 class TestDeterminarResultadoMayoriasSimple:

@@ -2,7 +2,7 @@
 test_waf_detection.py — Tests unitarios para detección de WAF Incapsula.
 
 Uso:
-    pytest senado/scrapers/tests/test_waf_detection.py -v
+    pytest tests/senadores/test_waf_detection.py -v
 """
 
 from unittest.mock import MagicMock, patch
@@ -15,10 +15,10 @@ class TestWafDetection:
 
     def _create_client(self):
         """Crea un cliente mock para testing."""
-        with patch("senado.scrapers.shared.client.Session") as mock_session:
+        with patch("scraper_congreso.senadores.client.Session") as mock_session:
             mock_session.return_value = MagicMock()
 
-            from senado.scrapers.shared.client import SenadoLXVIClient
+            from scraper_congreso.senadores.client import SenadoLXVIClient
 
             client = SenadoLXVIClient(use_cache=False)
             return client
@@ -99,17 +99,17 @@ class TestCircuitBreaker:
     """Tests para el circuit breaker de WAFs consecutivos."""
 
     def _create_client(self):
-        with patch("senado.scrapers.shared.client.Session") as mock_session:
+        with patch("scraper_congreso.senadores.client.Session") as mock_session:
             mock_session.return_value = MagicMock()
 
-            from senado.scrapers.shared.client import SenadoLXVIClient
+            from scraper_congreso.senadores.client import SenadoLXVIClient
 
             client = SenadoLXVIClient(use_cache=False)
             return client
 
     def test_circuit_breaker_triggers_on_consecutive_wafs(self):
         """Lanza SessionBurnedError al alcanzar el umbral."""
-        from senado.scrapers.shared.client import SessionBurnedError
+        from scraper_congreso.senadores.client import SessionBurnedError
 
         client = self._create_client()
         waf_html = "<html><body>incident_id: 123</body></html>"
@@ -149,10 +149,10 @@ class TestBackoff:
 
     def test_backoff_timing(self):
         """Verifica cálculo de backoff exponencial."""
-        with patch("senado.scrapers.shared.client.Session") as mock_session:
+        with patch("scraper_congreso.senadores.client.Session") as mock_session:
             mock_session.return_value = MagicMock()
 
-            from senado.scrapers.shared.client import SenadoLXVIClient
+            from scraper_congreso.senadores.client import SenadoLXVIClient
 
             client = SenadoLXVIClient(use_cache=False)
 
