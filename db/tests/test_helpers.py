@@ -1,5 +1,5 @@
 """
-test_helpers.py — Tests unitarios para db/helpers.py.
+test_helpers.py — Tests unitarios para scraper_congreso/utils/db_helpers.py.
 
 Cubre get_or_create_organization(): creación, lookup, blocked names,
 validación de fechas, ID generation y case-insensitive lookup.
@@ -12,7 +12,7 @@ import sqlite3
 
 import pytest
 
-from db.helpers import get_or_create_organization
+from scraper_congreso.utils.db_helpers import get_or_create_organization
 
 
 @pytest.fixture

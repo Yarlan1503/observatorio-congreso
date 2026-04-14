@@ -759,6 +759,40 @@ def analyze_covotacion():
 # ===========================================================================
 
 
+def _merge_party_power(rows):
+    """Merge duplicate party entries, summing seats and averaging power weighted by seats."""
+    from collections import defaultdict
+
+    # Group by partido_norm
+    grouped = defaultdict(list)
+    for r in rows:
+        grouped[r["partido_norm"]].append(r)
+
+    merged = {}
+    for partido_norm, entries in grouped.items():
+        if len(entries) == 1:
+            merged[partido_norm] = entries[0]
+        else:
+            # Merge: sum seats, weighted average of power metrics
+            total_seats = sum(int(e.get("escanos", 0)) for e in entries)
+            # Pick the entry with most seats as base
+            base = max(entries, key=lambda e: int(e.get("escanos", 0)))
+
+            # Weighted average for power metrics
+            def weighted_avg(field):
+                weighted = sum(float(e.get(field, 0)) * int(e.get("escanos", 0)) for e in entries)
+                return weighted / total_seats if total_seats > 0 else 0
+
+            merged_entry = dict(base)  # copy base
+            merged_entry["escanos"] = total_seats
+            for field in ["nominal_pct", "shapley_shubik_pct", "banzhaf_pct", "empirico_pct"]:
+                merged_entry[field] = round(weighted_avg(field), 2)
+
+            merged[partido_norm] = merged_entry
+
+    return merged
+
+
 def analyze_poder():
     """Compara poder empírico y votaciones de mayoría calificada entre cámaras."""
     print("\n" + "=" * 80)
@@ -785,9 +819,9 @@ def analyze_poder():
             row.get("org_id", ""), norm_party(row.get("partido", ""))
         )
 
-    # --- 4b: Build power comparison ---
-    dip_power = {r["partido_norm"]: r for r in dip_poder}
-    sen_power = {r["partido_norm"]: r for r in sen_poder}
+    # --- 4b: Build power comparison (defensive merge for duplicate partidos) ---
+    dip_power = _merge_party_power(dip_poder)
+    sen_power = _merge_party_power(sen_poder)
     common = sorted(set(dip_power.keys()) & set(sen_power.keys()))
 
     poder_rows = []

@@ -1036,7 +1036,7 @@ def print_all_results(
     for a in reforma_analyses:
         ve_id = a["vote_event_id"]
         print(f"\n  {'─' * 90}")
-        print(f"  {ve_id}: {a['result'].upper()} — Requerimiento: {a['requirement']}")
+        print(f"  {ve_id}: {(a['result'] or 'N/A').upper()} — Requerimiento: {a['requirement']}")
         print(f"  {'─' * 90}")
         print(f"  Mayoria necesaria (2/3 de 500): {a['mayoria_necesaria']}")
         print(f"  A favor:   {a['a_favor_total']:>4}")
