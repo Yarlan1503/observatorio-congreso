@@ -21,8 +21,8 @@ env/
 *.db-shm
 *.db.bak
 
-# Caché del scraper (HTML descargado — se regenera)
-cache/
+# Caché del scraper (gestionado por cache/.gitignore)
+# cache/ — ahora tiene su propio .gitignore con * y !.gitignore
 
 # Cookies del scraper (curl_cffi sessions)
 *.pkl
