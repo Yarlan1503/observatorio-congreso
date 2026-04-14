@@ -16,7 +16,9 @@ import re
 import sqlite3
 from dataclasses import dataclass
 
+from scraper_congreso.utils.db_helpers import get_or_create_organization
 from scraper_congreso.utils.db_utils import match_persona_por_nombre
+from scraper_congreso.utils.id_generator import get_next_id_batch, next_id
 from scraper_congreso.utils.text_utils import (
     MESES_ES,
     determinar_requirement,
@@ -31,10 +33,6 @@ from .models import (
     NominalVotacion,
     VotacionRecord,
 )
-
-from scraper_congreso.utils.id_generator import get_next_id_batch, next_id
-
-from scraper_congreso.utils.db_helpers import get_or_create_organization
 
 logger = logging.getLogger(__name__)
 

@@ -109,7 +109,7 @@ class PerfilClient:
         cache_dir = project_root / "cache" / "senado_perfiles"
         cache_dir.mkdir(parents=True, exist_ok=True)
 
-        self._client: "SenadoLXVIClient" = SenadoLXVIClient(
+        self._client: SenadoLXVIClient = SenadoLXVIClient(
             use_cache=True,
             delay=delay,
             cache_dir=cache_dir,
