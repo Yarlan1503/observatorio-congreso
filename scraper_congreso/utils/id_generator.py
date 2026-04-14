@@ -18,7 +18,10 @@ La función next_id() consulta el MAX actual en la BD para cada prefijo
 y continúa desde ahí, garantizando unicidad even si datos previos existen.
 """
 
+import logging
 import sqlite3
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Prefijos por tipo de entidad y cámara
@@ -138,8 +141,13 @@ def _get_max_for_prefix(conn: sqlite3.Connection, table: str, prefix: str) -> in
         id_val = row[0]
         num_str = id_val[len(prefix) :].lstrip("0") or "0"
         return int(num_str)
-    except Exception:
-        # Tabla vacía o sin IDs con este prefijo
+    except sqlite3.OperationalError:
+        # Tabla no existe — escenario normal en BD nueva
+        logger.debug("Tabla '%s' no encontrada, retornando 0", table)
+        return 0
+    except sqlite3.DatabaseError as e:
+        # Error de BD — loggear pero no crashear
+        logger.warning("Error consultando tabla '%s': %s", table, e)
         return 0
 
 
