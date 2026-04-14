@@ -7,11 +7,37 @@ los módulos del scraper del Senado.
 
 from pathlib import Path
 
-# --- Paths del proyecto ---
-# scraper_congreso/senadores/config.py → scraper_congreso/ → observatorio-congreso/
-PROJECT_ROOT: Path = Path(__file__).resolve().parent.parent.parent
-DB_PATH: Path = PROJECT_ROOT / "db" / "congreso.db"
-CACHE_DIR: Path = PROJECT_ROOT / "cache" / "senado"
+from scraper_congreso.utils.config import (
+    BASE_BACKOFF,
+    DB_PATH,
+    DEFAULT_DELAY,
+    MAX_RETRIES,
+    PROJECT_ROOT,
+    REQUEST_TIMEOUT,
+)
+from scraper_congreso.utils.config import (
+    CACHE_DIR as _CACHE_DIR,
+)
+
+__all__ = [
+    "BASE_BACKOFF",
+    "BASE_URL_LXVI",
+    "CACHE_DIR",
+    "COOKIE_PATH",
+    "DB_PATH",
+    "DEFAULT_DELAY",
+    "LXVI_AJAX_URL",
+    "LXVI_VOTACION_URL_TEMPLATE",
+    "MAX_RETRIES",
+    "PROJECT_ROOT",
+    "REQUEST_TIMEOUT",
+    "SENADO_ORG_ID",
+    "WAF_MARKERS",
+    "WAF_MAX_SIZE",
+]
+
+# Paths específicos del Senado (relativos al CACHE_DIR centralizado)
+CACHE_DIR: Path = _CACHE_DIR / "senado"
 COOKIE_PATH: Path = CACHE_DIR / "senado_cookies.pkl"
 
 # --- URLs del portal LXVI ---
@@ -32,8 +58,5 @@ WAF_MARKERS: list[str] = [
 
 WAF_MAX_SIZE: int = 5 * 1024  # 5KB — respuestas menores son sospechosas
 
-# --- HTTP ---
-MAX_RETRIES: int = 3
-BASE_BACKOFF: float = 2.0  # segundos
-DEFAULT_DELAY: float = 2.0  # segundos entre requests
-REQUEST_TIMEOUT: float = 30.0
+# --- HTTP (importados de config centralizada) ---
+# MAX_RETRIES, BASE_BACKOFF, DEFAULT_DELAY, REQUEST_TIMEOUT vienen del import arriba

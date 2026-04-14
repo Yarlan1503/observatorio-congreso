@@ -5,22 +5,41 @@ Contiene constantes, paths, mapeos de partidos y datos de legislaturas
 usados por todos los módulos del scraper.
 """
 
-from pathlib import Path
+from scraper_congreso.utils.config import (
+    CACHE_DIR,
+    DB_PATH,
+    DEFAULT_DELAY,
+    MAX_RETRIES,
+    PROJECT_ROOT,
+    REQUEST_TIMEOUT,
+)
 
-# --- Paths del proyecto ---
-# parent.parent.parent: diputados/ → scraper_congreso/ → observatorio-congreso/
-PROJECT_ROOT: Path = Path(__file__).resolve().parent.parent.parent
-DB_PATH: Path = PROJECT_ROOT / "db" / "congreso.db"
-CACHE_DIR: Path = PROJECT_ROOT / "cache"
+__all__ = [
+    "BASE_URL",
+    "CACHE_DIR",
+    "CAMARA_DIPUTADOS_ID",
+    "DB_PATH",
+    "DEFAULT_DELAY",
+    "DEFAULT_HEADERS",
+    "LEGISLATURAS",
+    "MAX_RETRIES",
+    "PARTY_IMAGE_MAP",
+    "PARTY_SITL_IDS",
+    "PROJECT_ROOT",
+    "REQUEST_DELAY",
+    "REQUEST_TIMEOUT",
+    "SITL_PARTY_BY_ID",
+    "USER_AGENT",
+]
+
+# Alias para compatibilidad con imports existentes
+REQUEST_DELAY: float = DEFAULT_DELAY
 
 # --- URL base del SITL ---
 BASE_URL: str = "https://sitl.diputados.gob.mx"
 
 # --- HTTP ---
 USER_AGENT: str = "ObservatorioCongreso/1.0 (+https://github.com/observatorio-congreso)"
-REQUEST_DELAY: float = 2.0
-REQUEST_TIMEOUT: float = 30.0
-MAX_RETRIES: int = 3
 DEFAULT_HEADERS: dict[str, str] = {
     "User-Agent": USER_AGENT,
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",

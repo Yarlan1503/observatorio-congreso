@@ -14,6 +14,9 @@ build/
 venv/
 env/
 
+# Variables de entorno locales
+.env
+
 # SQLite (base de datos con datos personales — se regenera con scraper)
 *.db
 *.db-journal
