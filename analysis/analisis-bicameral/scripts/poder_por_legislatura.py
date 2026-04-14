@@ -26,21 +26,18 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import numpy as np
+
+import analysis.poder_empirico as pe
 
 # --- Importar infraestructura existente ---
 from analysis.poder_empirico import (
     analyze_vote_event,
     calc_empirical_power,
     get_seat_counts,
-    get_requirement,
 )
-import analysis.poder_empirico as pe
 from db.constants import (
-    _ORG_TO_SHORT,
     CAMARA_DIPUTADOS_ID,
     CAMARA_SENADO_ID,
-    get_total_seats,
     init_constants_from_db,
 )
 

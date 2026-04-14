@@ -6,10 +6,10 @@ Categorías:
   B. TestNominalParser: Tests unitarios del parser con mocks HTML
 """
 
-import pytest
 import sqlite3
 from pathlib import Path
-from unittest.mock import patch
+
+import pytest
 
 DB_PATH = Path(__file__).parent.parent / "db" / "congreso.db"
 

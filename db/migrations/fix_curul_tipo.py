@@ -21,7 +21,6 @@ import logging
 import re
 import sqlite3
 import unicodedata
-from pathlib import Path
 
 from scraper_congreso.diputados.client import SITLClient
 from scraper_congreso.diputados.config import DB_PATH, LEGISLATURAS
