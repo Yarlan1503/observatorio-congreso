@@ -20,17 +20,13 @@ import json
 import logging
 import re
 import sqlite3
-import sys
 from pathlib import Path
-
-# Añadir proyecto al path para imports
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from bs4 import BeautifulSoup
 
-from diputados.scraper.client import SITLClient
-from diputados.scraper.config import LEGISLATURAS
-from diputados.scraper.parsers.diputado import parse_diputado
+from scraper_congreso.diputados.client import SITLClient
+from scraper_congreso.diputados.config import LEGISLATURAS
+from scraper_congreso.diputados.parsers.diputado import parse_diputado
 
 REPO = Path(__file__).resolve().parent.parent.parent
 DB_PATH = REPO / "db" / "congreso.db"

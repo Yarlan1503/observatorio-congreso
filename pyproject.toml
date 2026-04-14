@@ -57,17 +57,12 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["senado", "diputados", "db", "utils", "analysis"]
+known-first-party = ["scraper_congreso", "db", "analysis"]
 
 [tool.ruff.lint.per-file-ignores]
-"senado/scrapers/tests/*" = ["S101"]          # allow assert in tests
 "db/migrations/*" = ["E402", "F821"]          # sys.path hack + legacy undefined refs
 "analysis/*" = ["F841", "B007", "SIM102", "RUF059", "E402", "RUF034"] # analysis scripts are exploratory
-"diputados/scraper/*" = ["E402"]             # sys.path manipulation
-"senado/scrapers/perfiles/*" = ["E402", "UP037"]       # sys.path manipulation + forward ref quotes
-"senado/scrapers/votaciones/*" = ["E402"]     # sys.path manipulation
-"senado/scrapers/scripts/*" = ["F401"]        # import-for-side-effect in verify scripts
-"diputados/scraper/parsers/*" = ["SIM102"]   # complex nested if patterns
+"tests/*" = ["S101"]                          # allow assert in tests
 
 [tool.ruff.format]
 quote-style = "double"
@@ -75,5 +70,5 @@ indent-style = "space"
 docstring-code-format = true
 
 [tool.pytest.ini_options]
-testpaths = ["senado/scrapers/tests", "senado/scrapers/votaciones/tests", "db/tests", "utils/tests"]
+testpaths = ["tests", "db/tests"]
 pythonpath = ["."]

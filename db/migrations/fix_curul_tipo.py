@@ -20,18 +20,13 @@ import json
 import logging
 import re
 import sqlite3
-import sys
 import unicodedata
 from pathlib import Path
 
-# Asegurar que el directorio del proyecto está en sys.path
-PROJECT_DIR = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_DIR))
-
-from diputados.scraper.client import SITLClient
-from diputados.scraper.config import DB_PATH, LEGISLATURAS
-from diputados.scraper.legislatura import url_curricula
-from diputados.scraper.parsers.diputado import parse_diputado
+from scraper_congreso.diputados.client import SITLClient
+from scraper_congreso.diputados.config import DB_PATH, LEGISLATURAS
+from scraper_congreso.diputados.legislatura import url_curricula
+from scraper_congreso.diputados.parsers.diputado import parse_diputado
 
 # --- Logging ---
 logging.basicConfig(

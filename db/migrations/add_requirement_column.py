@@ -15,9 +15,8 @@ from pathlib import Path
 
 # Path del proyecto: un nivel arriba de db/
 PROJECT_DIR = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_DIR))
 
-from diputados.scraper.config import DB_PATH
+from scraper_congreso.diputados.config import DB_PATH
 
 
 def get_columns(conn: sqlite3.Connection, table: str) -> list[str]:
