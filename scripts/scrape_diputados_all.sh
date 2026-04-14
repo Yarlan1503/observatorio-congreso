@@ -2,7 +2,6 @@
 # Scraper Diputados: todas las legislaturas LX-LXVI
 # Cada legislatura se scrapea con --all-periods
 cd /home/cachorro/Documentos/Proyectos/observatorio-congreso
-export PYTHONPATH="/home/cachorro/Documentos/Proyectos/observatorio-congreso"
 export PYTHONUNBUFFERED=1
 
 LOGFILE="logs/diputados_scrape_$(date +%Y%m%d_%H%M%S).log"
