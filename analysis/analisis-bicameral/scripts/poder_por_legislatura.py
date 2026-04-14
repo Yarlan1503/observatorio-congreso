@@ -14,11 +14,9 @@ Uso:
     .venv/bin/python analysis/analisis-bicameral/scripts/poder_por_legislatura.py
 """
 
-import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent.parent
-sys.path.insert(0, str(ROOT))
 
 import csv
 import sqlite3

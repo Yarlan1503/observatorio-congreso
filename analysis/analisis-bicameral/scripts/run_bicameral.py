@@ -16,12 +16,9 @@ Uso:
     .venv/bin/python analysis/analisis-bicameral/scripts/run_bicameral.py
 """
 
-import sys
 from pathlib import Path
 
-# Add project root to path
 ROOT = Path(__file__).resolve().parent.parent.parent.parent
-sys.path.insert(0, str(ROOT))
 
 import contextlib
 import csv
