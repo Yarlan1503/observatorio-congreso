@@ -161,6 +161,9 @@ LEGISLATURAS: dict[str, dict] = {
     "LXVI": {"num": 66, "periodo": "2024-2027", "start": "2024-09-01", "end": "2027-08-31"},
 }
 
+# Orden cronológico de legislaturas para visualizaciones y análisis
+LEGISLATURAS_ORDERED: list[str] = ["LX", "LXI", "LXII", "LXIII", "LXIV", "LXV", "LXVI"]
+
 
 # ===========================================================================
 # Funciones dinámicas

@@ -20,6 +20,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from analysis.constants import CAMARA_MAP
 from db.constants import _NAME_TO_ORG, _ORG_ID_TO_NAME, _PARTY_ORG_IDS, init_constants_from_db
 
 DB_PATH = Path(__file__).parent.parent / "db" / "congreso.db"
@@ -482,8 +483,6 @@ def main(camara: str = "D", output_dir: Path | None = None):
     conn.close()
     return df
 
-
-CAMARA_MAP = {"diputados": "D", "senado": "S"}
 
 if __name__ == "__main__":
     import argparse

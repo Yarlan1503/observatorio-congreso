@@ -20,6 +20,7 @@ import sqlite3
 from collections import defaultdict
 from itertools import combinations, permutations
 
+from analysis.constants import CAMARA_MAP
 from db.constants import (
     _NAME_TO_ORG,
     _ORG_ID_TO_NAME,
@@ -1294,8 +1295,6 @@ def main(camara: str | None = None, output_dir: str | None = None):
 
     conn.close()
 
-
-CAMARA_MAP = {"diputados": "D", "senado": "S"}
 
 if __name__ == "__main__":
     import argparse

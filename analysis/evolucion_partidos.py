@@ -22,11 +22,12 @@ import numpy as np
 import pandas as pd
 
 import db.constants as _dbc
-from analysis.constants import PARTY_COLORS
+from analysis.constants import CAMARA_MAP, PARTY_COLORS
 from analysis.poder_partidos import shapley_shubik
 from db.constants import (
     CAMARA_DIPUTADOS_ID,
     CAMARA_SENADO_ID,
+    LEGISLATURAS_ORDERED,
     get_total_seats,
     init_constants_from_db,
 )
@@ -36,12 +37,8 @@ logger = logging.getLogger(__name__)
 PROJECT_ROOT = Path(__file__).parent.parent
 DB_PATH = PROJECT_ROOT / "db" / "congreso.db"
 
-CAMARA_MAP = {"diputados": "D", "senado": "S"}
 CAMARA_TO_ORG = {"diputados": CAMARA_DIPUTADOS_ID, "senado": CAMARA_SENADO_ID}
 CAMARA_LABEL = {"diputados": "Cámara de Diputados", "senado": "Senado de la República"}
-
-# Legislaturas en orden cronológico
-LEG_ORDER = ["LX", "LXI", "LXII", "LXIII", "LXIV", "LXV", "LXVI"]
 
 
 # ---------------------------------------------------------------------------
@@ -138,7 +135,7 @@ def build_party_panel(camara: str, db_path: Path) -> pd.DataFrame:
 
     # Ordenar por legislatura
     agg["_leg_order"] = agg["legislatura"].map(
-        lambda x: LEG_ORDER.index(x) if x in LEG_ORDER else 99
+        lambda x: LEGISLATURAS_ORDERED.index(x) if x in LEGISLATURAS_ORDERED else 99
     )
     agg = (
         agg.sort_values(["_leg_order", "partido"])
@@ -327,7 +324,9 @@ def compute_power_by_legislatura(camara: str, db_path: Path) -> pd.DataFrame:
         return df
 
     # Ordenar
-    df["_leg_order"] = df["legislatura"].map(lambda x: LEG_ORDER.index(x) if x in LEG_ORDER else 99)
+    df["_leg_order"] = df["legislatura"].map(
+        lambda x: LEGISLATURAS_ORDERED.index(x) if x in LEGISLATURAS_ORDERED else 99
+    )
     df = (
         df.sort_values(["_leg_order", "partido"])
         .drop(columns=["_leg_order"])
@@ -368,7 +367,7 @@ def analyze_dealignment(panel: pd.DataFrame) -> pd.DataFrame:
         # Ordenar por legislatura
         grp = grp.copy()
         grp["_order"] = grp["legislatura"].map(
-            lambda x: LEG_ORDER.index(x) if x in LEG_ORDER else 99
+            lambda x: LEGISLATURAS_ORDERED.index(x) if x in LEGISLATURAS_ORDERED else 99
         )
         grp = grp.sort_values("_order")
 
@@ -440,7 +439,7 @@ def plot_disciplina_heatmap(panel: pd.DataFrame, output_dir: Path):
     )
 
     # Ordenar columnas por legislatura
-    cols_ordered = [c for c in LEG_ORDER if c in pivot.columns]
+    cols_ordered = [c for c in LEGISLATURAS_ORDERED if c in pivot.columns]
     pivot = pivot[cols_ordered]
 
     # Ordenar filas por frecuencia
@@ -503,7 +502,7 @@ def plot_power_timeline(power: pd.DataFrame, output_dir: Path):
     for party in top_parties:
         pdata = power[power["partido"] == party].copy()
         pdata["_order"] = pdata["legislatura"].map(
-            lambda x: LEG_ORDER.index(x) if x in LEG_ORDER else 99
+            lambda x: LEGISLATURAS_ORDERED.index(x) if x in LEGISLATURAS_ORDERED else 99
         )
         pdata = pdata.sort_values("_order")
         color = PARTY_COLORS.get(party)
@@ -528,7 +527,7 @@ def plot_power_timeline(power: pd.DataFrame, output_dir: Path):
     for party in top_parties:
         pdata = power[power["partido"] == party].copy()
         pdata["_order"] = pdata["legislatura"].map(
-            lambda x: LEG_ORDER.index(x) if x in LEG_ORDER else 99
+            lambda x: LEGISLATURAS_ORDERED.index(x) if x in LEGISLATURAS_ORDERED else 99
         )
         pdata = pdata.sort_values("_order")
         color = PARTY_COLORS.get(party)
@@ -573,7 +572,7 @@ def plot_nominate_ellipses(panel: pd.DataFrame, output_dir: Path):
     for party in top_parties:
         pdata = panel[panel["partido"] == party].copy()
         pdata["_order"] = pdata["legislatura"].map(
-            lambda x: LEG_ORDER.index(x) if x in LEG_ORDER else 99
+            lambda x: LEGISLATURAS_ORDERED.index(x) if x in LEGISLATURAS_ORDERED else 99
         )
         pdata = pdata.sort_values("_order")
 

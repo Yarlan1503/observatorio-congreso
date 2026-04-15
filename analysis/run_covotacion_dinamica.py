@@ -15,6 +15,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from analysis.constants import CAMARA_MAP
 from analysis.covotacion_dinamica import (
     analyze_windows,
     build_windows,
@@ -36,7 +37,6 @@ OUTPUT_DIR = Path(__file__).parent / "analisis-diputados/output/dinamica"
 
 
 # Mapa de argumento de cámara a filtro
-CAMARA_MAP = {"diputados": "D", "senado": "S"}
 
 
 def parse_args():

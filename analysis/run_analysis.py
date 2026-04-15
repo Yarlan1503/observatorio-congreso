@@ -10,6 +10,8 @@ O: python analysis/run_analysis.py --camara senado
 import logging
 from pathlib import Path
 
+from analysis.constants import CAMARA_MAP
+
 # Configurar logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -18,9 +20,6 @@ logger = logging.getLogger(__name__)
 PROJECT_ROOT = Path(__file__).parent.parent
 DB_PATH = PROJECT_ROOT / "db" / "congreso.db"
 OUTPUT_DIR = Path(__file__).parent / "analisis-diputados/output"
-
-# Mapa de argumento de cámara a filtro
-CAMARA_MAP = {"diputados": "D", "senado": "S"}
 
 
 def main(camara: str | None = None, output_dir: str | None = None):

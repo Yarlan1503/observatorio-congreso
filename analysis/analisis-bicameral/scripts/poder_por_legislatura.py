@@ -39,6 +39,7 @@ from analysis.poder_empirico import (
 from db.constants import (
     CAMARA_DIPUTADOS_ID,
     CAMARA_SENADO_ID,
+    LEGISLATURAS_ORDERED,
     init_constants_from_db,
 )
 
@@ -47,8 +48,6 @@ DB_PATH = ROOT / "db" / "congreso.db"
 BIC_OUTPUT = ROOT / "analysis" / "analisis-bicameral" / "output"
 
 # --- Colores y orden de partidos para la gráfica ---
-
-LEG_ORDER = ["LX", "LXI", "LXII", "LXIII", "LXIV", "LXV", "LXVI"]
 
 # Asientos constitucionales por cámara (para mayoría calificada)
 SEATS_CONST = {"D": 500, "S": 128}
@@ -216,10 +215,10 @@ def plot_evolution(final_rows, png_path):
         for party in COMMON_PARTIES:
             if party not in pivot:
                 continue
-            vals = [pivot[party].get(leg, None) for leg in LEG_ORDER]
+            vals = [pivot[party].get(leg, None) for leg in LEGISLATURAS_ORDERED]
             color = PARTY_COLORS.get(party, "#888888")
             ax.plot(
-                LEG_ORDER,
+                LEGISLATURAS_ORDERED,
                 vals,
                 marker="o",
                 markersize=5,
@@ -255,13 +254,15 @@ def print_summary(final_rows):
         print(f"\n  === {camara} ===")
         camara_rows = [r for r in final_rows if r["camara"] == camara]
         parties = sorted(set(r["partido"] for r in camara_rows if r["partido"] in COMMON_PARTIES))
-        header = f"  {'Partido':<10}" + "".join(f"  {leg:>6}" for leg in LEG_ORDER)
+        header = f"  {'Partido':<10}" + "".join(f"  {leg:>6}" for leg in LEGISLATURAS_ORDERED)
         print(header)
         for party in parties:
             vals = {
                 r["legislatura"]: r["poder_empirico"] for r in camara_rows if r["partido"] == party
             }
-            row_str = f"  {party:<10}" + "".join(f"  {vals.get(leg, 0):>6.1f}" for leg in LEG_ORDER)
+            row_str = f"  {party:<10}" + "".join(
+                f"  {vals.get(leg, 0):>6.1f}" for leg in LEGISLATURAS_ORDERED
+            )
             print(row_str)
 
 
@@ -283,7 +284,7 @@ def main():
 
     all_results = []
 
-    for leg in LEG_ORDER:
+    for leg in LEGISLATURAS_ORDERED:
         for camara in ["D", "S"]:
             camara_label = "Diputados" if camara == "D" else "Senado"
             ve_count = len(get_ve_ids_by_legislatura(conn, camara, leg))

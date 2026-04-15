@@ -26,7 +26,12 @@ import numpy as np
 import pandas as pd
 from scipy.linalg import svd
 
-from db.constants import _ORG_ID_TO_NAME, CAMARA_DIPUTADOS_ID, CAMARA_SENADO_ID
+from db.constants import (
+    _ORG_ID_TO_NAME,
+    CAMARA_DIPUTADOS_ID,
+    CAMARA_SENADO_ID,
+    LEGISLATURAS_ORDERED,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -37,8 +42,6 @@ CAMARA_TO_ORG_ID = {
     "diputados": CAMARA_DIPUTADOS_ID,  # O08
     "senado": CAMARA_SENADO_ID,  # O09
 }
-
-LEGISLATURAS_ORDERED = ["LX", "LXI", "LXII", "LXIII", "LXIV", "LXV", "LXVI"]
 
 
 # ---------------------------------------------------------------------------

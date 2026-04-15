@@ -27,6 +27,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from analysis.constants import CAMARA_MAP
 from analysis.nominate import (
     prepare_vote_matrix,
     run_wnominate,
@@ -52,10 +53,6 @@ OUTPUT_DIR = Path(__file__).parent / "analisis-diputados/output/nominate"
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
-
-
-# Mapa de argumento de cámara a filtro
-CAMARA_MAP = {"diputados": "D", "senado": "S"}
 
 
 def parse_args():

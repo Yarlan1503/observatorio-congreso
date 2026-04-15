@@ -5,6 +5,7 @@ Contiene constantes, paths, mapeos de partidos y datos de legislaturas
 usados por todos los módulos del scraper.
 """
 
+from db.constants import CAMARA_DIPUTADOS_ID
 from scraper_congreso.utils.config import (
     CACHE_DIR,
     DB_PATH,
@@ -45,9 +46,6 @@ DEFAULT_HEADERS: dict[str, str] = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "es-MX,es;q=0.9,en;q=0.8",
 }
-
-# --- ID de la Cámara de Diputados en la BD ---
-CAMARA_DIPUTADOS_ID: str = "O08"
 
 # --- Mapa partido → SITL partidot ID (para URLs) ---
 # Verificado contra HTML real: listados_votacionesnplxvi.php?partidot=14 (MORENA), etc.

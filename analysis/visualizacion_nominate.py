@@ -27,6 +27,7 @@ from matplotlib.patches import Ellipse
 
 from analysis.constants import ORG_TO_SHORT
 from analysis.visualizacion import DEFAULT_COLOR, PARTY_COLORS
+from db.constants import LEGISLATURAS_ORDERED
 
 logger = logging.getLogger(__name__)
 
@@ -43,8 +44,7 @@ plt.rcParams.update(
     }
 )
 
-# Orden canónico de legislaturas (temporal)
-LEG_ORDER: list[str] = ["LX", "LXI", "LXII", "LXIII", "LXIV", "LXV", "LXVI"]
+# Orden canónico de legislaturas (temporal) — importado de db.constants
 
 
 # ---------------------------------------------------------------------------
@@ -98,7 +98,7 @@ def _detect_multi_leg(results: dict) -> bool:
     if "coordinates" in results:
         return False
     # Verificar si las claves coinciden con legislaturas conocidas
-    known_legs = set(LEG_ORDER)
+    known_legs = set(LEGISLATURAS_ORDERED)
     result_keys = set(results.keys())
     overlap = result_keys & known_legs
     return len(overlap) >= 1 and all(
@@ -115,7 +115,7 @@ def _sort_legislaturas(labels: list[str]) -> list[str]:
     Returns:
         Lista ordenada cronológicamente.
     """
-    order_map = {leg: i for i, leg in enumerate(LEG_ORDER)}
+    order_map = {leg: i for i, leg in enumerate(LEGISLATURAS_ORDERED)}
     return sorted(labels, key=lambda x: order_map.get(x, 99))
 
 
@@ -192,7 +192,7 @@ def plot_nominate_scatter(
 
     if _detect_multi_leg(results):
         # Panel multi-legislatura
-        legs = _sort_legislaturas([k for k in results if k in set(LEG_ORDER)])
+        legs = _sort_legislaturas([k for k in results if k in set(LEGISLATURAS_ORDERED)])
         n = len(legs)
         if n == 0:
             logger.warning("Sin legislaturas válidas en results")
@@ -344,7 +344,7 @@ def plot_nominate_trajectory(
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
-    legs = _sort_legislaturas([k for k in results_by_leg if k in set(LEG_ORDER)])
+    legs = _sort_legislaturas([k for k in results_by_leg if k in set(LEGISLATURAS_ORDERED)])
     if len(legs) < 2:
         logger.warning("Se necesitan ≥2 legislaturas para trayectorias")
         fig, ax = plt.subplots(figsize=(8, 7))
@@ -667,7 +667,7 @@ def plot_nominate_evolution(
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
-    legs = _sort_legislaturas([k for k in results_by_leg if k in set(LEG_ORDER)])
+    legs = _sort_legislaturas([k for k in results_by_leg if k in set(LEGISLATURAS_ORDERED)])
     if len(legs) < 2:
         logger.warning("Se necesitan ≥2 legislaturas para evolución")
         fig, ax = plt.subplots(figsize=(8, 7))
@@ -862,7 +862,7 @@ def generate_all_nominate_visualizations(
 
     results: dict[str, str] = {}
 
-    legs = _sort_legislaturas([k for k in results_by_leg if k in set(LEG_ORDER)])
+    legs = _sort_legislaturas([k for k in results_by_leg if k in set(LEGISLATURAS_ORDERED)])
 
     # 1. Scatter y partidos por legislatura individual
     for leg in legs:

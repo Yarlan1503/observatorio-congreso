@@ -40,7 +40,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from db.constants import CAMARA_DIPUTADOS_ID, CAMARA_SENADO_ID
+from db.constants import CAMARA_DIPUTADOS_ID, CAMARA_SENADO_ID, LEGISLATURAS_ORDERED
 
 logger = logging.getLogger(__name__)
 
@@ -51,8 +51,6 @@ CAMARA_TO_ORG_ID = {
     "diputados": CAMARA_DIPUTADOS_ID,  # O08
     "senado": CAMARA_SENADO_ID,  # O09
 }
-
-LEGISLATURAS_ORDERED = ["LX", "LXI", "LXII", "LXIII", "LXIV", "LXV", "LXVI"]
 
 MIN_PERSONAS_PER_CELDA = 5
 
