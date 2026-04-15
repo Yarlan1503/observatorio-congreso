@@ -18,7 +18,7 @@ import math
 import os
 import sqlite3
 from collections import defaultdict
-from itertools import combinations, permutations
+from itertools import combinations
 
 from analysis.constants import CAMARA_MAP
 from db.constants import (
@@ -441,25 +441,18 @@ def calc_shapley_shubik(weights, quota):
     """
     Calcula el índice Shapley-Shubik.
 
+    Delega a la implementación O(n²W) de poder_partidos.shapley_shubik.
+    Anteriormente usaba O(n!) con itertools.permutations — validado como
+    numéricamente idéntico el 2025-04-15 (4 datasets, diff=0.0 en todos).
+
     weights: {player_id: weight}
     quota: umbral para coalición ganadora
 
     Returns: {player_id: float} donde la suma = 1.0
     """
-    players = list(weights.keys())
-    n = len(players)
-    pivotal_count = defaultdict(int)
-    total_perms = math.factorial(n)
+    from analysis.poder_partidos import shapley_shubik
 
-    for perm in permutations(players):
-        cumulative = 0
-        for player in perm:
-            cumulative += weights[player]
-            if cumulative >= quota:
-                pivotal_count[player] += 1
-                break
-
-    return {p: pivotal_count.get(p, 0) / total_perms for p in players}
+    return shapley_shubik(weights, quota)
 
 
 def calc_banzhaf(weights, quota):
