@@ -430,6 +430,11 @@ CREATE INDEX idx_membership_org ON membership(org_id);
 CREATE INDEX idx_vote_event_motion ON vote_event(motion_id);
 CREATE INDEX idx_vote_event_source ON vote_event(source_id);
 
+-- Índices sobre vote_event (filtros principales del sistema)
+CREATE INDEX idx_vote_event_legislatura ON vote_event(legislatura);
+CREATE INDEX idx_vote_event_org ON vote_event(organization_id);
+CREATE INDEX idx_vote_event_start_date ON vote_event(start_date);
+
 -- Índices sobre vote (consultas por votante y por evento)
 CREATE INDEX idx_vote_voter ON vote(voter_id);
 CREATE INDEX idx_vote_event ON vote(vote_event_id);
