@@ -13,18 +13,23 @@ Genera 6 visualizaciones:
 Uso: python3 analysis/visualizacion_poder.py
 """
 
+import logging
+
 import matplotlib
 
 matplotlib.use("Agg")  # Sin display — backend no interactivo
 
-import sqlite3
 from collections import defaultdict
 from pathlib import Path
+
+from analysis.db import get_connection
 
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 import numpy as np
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 from analysis.constants import ORG_TO_SHORT, PARTY_COLORS
 
@@ -220,7 +225,7 @@ def plot_nominal_vs_indices(poder_completo):
     filepath = OUTPUT_DIR / "poder_nominal_vs_indices.png"
     fig.savefig(filepath, dpi=150, bbox_inches="tight")
     plt.close(fig)
-    print(f"  ✓ {filepath.name}")
+    logger.info("  ✓ %s", filepath.name)
 
 
 # ---------------------------------------------------------------------------
@@ -284,7 +289,7 @@ def plot_poder_empirico(poder_empirico, comparacion):
     filepath = OUTPUT_DIR / "poder_empirico.png"
     fig.savefig(filepath, dpi=150, bbox_inches="tight")
     plt.close(fig)
-    print(f"  ✓ {filepath.name}")
+    logger.info("  ✓ %s", filepath.name)
 
 
 # ---------------------------------------------------------------------------
@@ -370,7 +375,7 @@ def plot_comparacion_triple(comparacion):
     filepath = OUTPUT_DIR / "poder_comparacion_triple.png"
     fig.savefig(filepath, dpi=150, bbox_inches="tight")
     plt.close(fig)
-    print(f"  ✓ {filepath.name}")
+    logger.info("  ✓ %s", filepath.name)
 
 
 # ---------------------------------------------------------------------------
@@ -380,9 +385,7 @@ def plot_comparacion_triple(comparacion):
 
 def plot_linea_temporal():
     """Evolución del poder empírico por partido a lo largo de las votaciones."""
-    conn = sqlite3.connect(str(DB_PATH))
-    conn.execute("PRAGMA journal_mode = WAL")
-    conn.execute("PRAGMA busy_timeout = 5000")
+    conn = get_connection(DB_PATH)
     cur = conn.cursor()
 
     # Obtener votaciones ordenadas por fecha
@@ -396,7 +399,7 @@ def plot_linea_temporal():
     ve_ids = [r[0] for r in ve_rows]
 
     if not ve_ids:
-        print("  ✗ Sin votaciones para gráfica temporal")
+        logger.warning("  ✗ Sin votaciones para gráfica temporal")
         conn.close()
         return
 
@@ -504,7 +507,7 @@ def plot_linea_temporal():
 
     # Asegurar timeline_data existe y tiene datos
     if not timeline_data:
-        print("  ✗ Sin datos para gráfica temporal")
+        logger.warning("  ✗ Sin datos para gráfica temporal")
         conn.close()
         return
 
@@ -558,7 +561,7 @@ def plot_linea_temporal():
     filepath = OUTPUT_DIR / "poder_evolucion_temporal.png"
     fig.savefig(filepath, dpi=150, bbox_inches="tight")
     plt.close(fig)
-    print(f"  ✓ {filepath.name}")
+    logger.info("  ✓ %s", filepath.name)
     conn.close()
 
 
@@ -569,9 +572,7 @@ def plot_linea_temporal():
 
 def plot_reforma_judicial():
     """Barras apiladas por partido para VE04 con línea de mayoría calificada."""
-    conn = sqlite3.connect(str(DB_PATH))
-    conn.execute("PRAGMA journal_mode = WAL")
-    conn.execute("PRAGMA busy_timeout = 5000")
+    conn = get_connection(DB_PATH)
     cur = conn.cursor()
 
     # Obtener datos de VE04 desde la BD
@@ -605,7 +606,7 @@ def plot_reforma_judicial():
     conn.close()
 
     if not party_data:
-        print("  ✗ Sin datos para Reforma Judicial")
+        logger.warning("  ✗ Sin datos para Reforma Judicial")
         return
 
     # Ordenar partidos: primero los que votaron a favor, luego en contra
@@ -724,7 +725,7 @@ def plot_reforma_judicial():
     filepath = OUTPUT_DIR / "reforma_judicial_detalle.png"
     fig.savefig(filepath, dpi=150, bbox_inches="tight")
     plt.close(fig)
-    print(f"  ✓ {filepath.name}")
+    logger.info("  ✓ %s", filepath.name)
 
 
 # ---------------------------------------------------------------------------
@@ -734,9 +735,7 @@ def plot_reforma_judicial():
 
 def plot_heatmap_votaciones():
     """Heatmap partido × votación mostrando alineamiento."""
-    conn = sqlite3.connect(str(DB_PATH))
-    conn.execute("PRAGMA journal_mode = WAL")
-    conn.execute("PRAGMA busy_timeout = 5000")
+    conn = get_connection(DB_PATH)
     cur = conn.cursor()
 
     # Obtener votaciones ordenadas por fecha
@@ -750,7 +749,7 @@ def plot_heatmap_votaciones():
     ve_ids = [r[0] for r in ve_rows]
 
     if not ve_ids:
-        print("  ✗ Sin votaciones para heatmap")
+        logger.warning("  ✗ Sin votaciones para heatmap")
         conn.close()
         return
 
@@ -840,7 +839,7 @@ def plot_heatmap_votaciones():
     filepath = OUTPUT_DIR / "heatmap_votaciones.png"
     fig.savefig(filepath, dpi=150, bbox_inches="tight")
     plt.close(fig)
-    print(f"  ✓ {filepath.name}")
+    logger.info("  ✓ %s", filepath.name)
 
 
 # ---------------------------------------------------------------------------
@@ -849,21 +848,23 @@ def plot_heatmap_votaciones():
 
 
 def main():
-    print("=" * 70)
-    print("VISUALIZACIÓN DE PODER — Observatorio del Congreso de la Unión")
-    print("LXVI Legislatura — Cámara de Diputados")
-    print("=" * 70)
+    logger.info("=" * 70)
+    logger.info("VISUALIZACIÓN DE PODER — Observatorio del Congreso de la Unión")
+    logger.info("LXVI Legislatura — Cámara de Diputados")
+    logger.info("=" * 70)
 
     # Cargar CSVs
-    print("\nCargando datos...")
+    logger.info("")
+    logger.info("Cargando datos...")
     poder_completo, comparacion, poder_empirico, disidentes = load_csvs()
-    print(f"  poder_completo: {len(poder_completo)} filas")
-    print(f"  comparacion:    {len(comparacion)} filas")
-    print(f"  poder_empirico: {len(poder_empirico)} filas")
-    print(f"  disidentes:     {len(disidentes)} filas")
+    logger.info("  poder_completo: %d filas", len(poder_completo))
+    logger.info("  comparacion:    %d filas", len(comparacion))
+    logger.info("  poder_empirico: %d filas", len(poder_empirico))
+    logger.info("  disidentes:     %d filas", len(disidentes))
 
     # Generar gráficas (con try/except individual)
-    print("\nGenerando gráficas...")
+    logger.info("")
+    logger.info("Generando gráficas...")
 
     plots = [
         (
@@ -886,18 +887,21 @@ def main():
             fn()
         except Exception as e:
             errors.append((name, str(e)))
-            print(f"  ✗ {name}: ERROR — {e}")
+            logger.error("  ✗ %s: ERROR — %s", name, e)
 
     # Resumen
-    print("\n" + "=" * 70)
-    print(f"Gráficas generadas en: {OUTPUT_DIR}")
+    logger.info("")
+    logger.info("=" * 70)
+    logger.info("Gráficas generadas en: %s", OUTPUT_DIR)
     if errors:
-        print(f"\nErrores ({len(errors)}):")
+        logger.info("")
+        logger.info("Errores (%d):", len(errors))
         for name, err in errors:
-            print(f"  - {name}: {err}")
+            logger.info("  - %s: %s", name, err)
     else:
-        print("\nTodas las gráficas generadas exitosamente.")
-    print("=" * 70)
+        logger.info("")
+        logger.info("Todas las gráficas generadas exitosamente.")
+    logger.info("=" * 70)
 
 
 if __name__ == "__main__":

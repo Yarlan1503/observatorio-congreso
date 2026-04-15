@@ -516,13 +516,14 @@ def main():
         logger.error("✗ Panel grafos falló: %s", e, exc_info=True)
 
     # Resumen
-    print(f"\n{'=' * 60}")
-    print(f"Visualizaciones generadas: {len(results)}/4")
+    logger.info("")
+    logger.info("=" * 60)
+    logger.info("Visualizaciones generadas: %d/4", len(results))
     for name, path in results.items():
-        print(f"  ✓ {name}: {path}")
+        logger.info("  ✓ %s: %s", name, path)
     if len(results) < 4:
-        print(f"  ✗ {4 - len(results)} visualizaciones fallaron (ver logs arriba)")
-    print(f"{'=' * 60}")
+        logger.info("  ✗ %d visualizaciones fallaron (ver logs arriba)", 4 - len(results))
+    logger.info("=" * 60)
 
     return 0 if len(results) == 4 else 1
 

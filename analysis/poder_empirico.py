@@ -14,11 +14,13 @@ Uso: python3 analysis/poder_empirico.py
 """
 
 import csv
+import logging
 import math
 import os
-import sqlite3
 from collections import defaultdict
 from itertools import combinations
+
+from analysis.db import get_connection
 
 from analysis.config import (
     CLOSE_VOTES_THRESHOLD,
@@ -37,6 +39,8 @@ from db.constants import (
     get_total_seats,
     init_constants_from_db,
 )
+
+logger = logging.getLogger(__name__)
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "db", "congreso.db")
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "analisis-diputados/output")
@@ -954,7 +958,7 @@ def save_results(
                 )
 
 
-def print_all_results(
+def log_all_results(
     comparison,
     quota_simple,
     reforma_analyses,
@@ -963,109 +967,158 @@ def print_all_results(
     all_analyses,
     out_dir=OUTPUT_DIR,
 ):
-    """Imprime todos los resultados numéricos."""
+    """Registra todos los resultados numéricos vía logging."""
 
     SEP = "=" * 100
 
-    print()
-    print(SEP)
-    print("PODER EMPIRICO — Observatorio del Congreso de la Union")
-    print("LXVI Legislatura - Camara de Diputados")
-    print(SEP)
+    logger.info(SEP)
+    logger.info("PODER EMPIRICO — Observatorio del Congreso de la Union")
+    logger.info("LXVI Legislatura - Camara de Diputados")
+    logger.info(SEP)
 
     # =========================================================================
     # 1. TABLA COMPARATIVA DE PODER
     # =========================================================================
-    print(f"\n{'1. TABLA COMPARATIVA DE PODER':^100}")
-    print(f"{'(Quota mayoria simple = ' + str(quota_simple) + ' escaños)':^100}")
-    print("-" * 100)
-    print(
-        f"{'Partido':<16} {'Escaños':>8} {'Nominal':>10} {'Shapley-S':>12} {'Banzhaf':>10} {'Empírico':>10} {'Emp>Shap':>10}"
+    logger.info("")
+    logger.info("1. TABLA COMPARATIVA DE PODER".center(100))
+    quota_label = "(Quota mayoria simple = %d escaños)" % quota_simple
+    logger.info(quota_label.center(100))
+    logger.info("-" * 100)
+    logger.info(
+        "%-16s %8s %10s %12s %10s %10s %10s",
+        "Partido",
+        "Escaños",
+        "Nominal",
+        "Shapley-S",
+        "Banzhaf",
+        "Empírico",
+        "Emp>Shap",
     )
-    print("-" * 100)
+    logger.info("-" * 100)
 
     for row in comparison:
         nom = row["nominal"] * 100
         ss = row["shapley_shubik"] * 100
         bz = row["banzhaf"] * 100
         emp = row["empirico"] * 100
-        ratio = f"{emp / ss:.1f}x" if ss > 0 else "N/A"
-        print(
-            f"{row['partido']:<16} {row['escanos']:>8} {nom:>9.1f}% {ss:>11.1f}% {bz:>9.1f}% {emp:>9.1f}% {ratio:>10}"
+        ratio = "%.1fx" % (emp / ss) if ss > 0 else "N/A"
+        logger.info(
+            "%-16s %8d %8.1f%% %10.1f%% %8.1f%% %8.1f%% %10s",
+            row["partido"],
+            row["escanos"],
+            nom,
+            ss,
+            bz,
+            emp,
+            ratio,
         )
 
-    print("-" * 100)
+    logger.info("-" * 100)
     total_seats = sum(r["escanos"] for r in comparison)
     total_nom = sum(r["nominal"] for r in comparison) * 100
     total_ss = sum(r["shapley_shubik"] for r in comparison) * 100
     total_bz = sum(r["banzhaf"] for r in comparison) * 100
     total_emp = sum(r["empirico"] for r in comparison) * 100
-    print(
-        f"{'TOTAL':<16} {total_seats:>8} {total_nom:>9.1f}% {total_ss:>11.1f}% {total_bz:>9.1f}% {total_emp:>9.1f}%"
+    logger.info(
+        "%-16s %8d %8.1f%% %10.1f%% %8.1f%% %8.1f%%",
+        "TOTAL",
+        total_seats,
+        total_nom,
+        total_ss,
+        total_bz,
+        total_emp,
     )
-    print()
 
     # Interpretación
-    print(f"{'INTERPRETACION':^100}")
-    print("-" * 100)
+    logger.info("")
+    logger.info("INTERPRETACION".center(100))
+    logger.info("-" * 100)
     morena_row = next((r for r in comparison if r["org_id"] == "O01"), None)
     if morena_row:
         emp_morena = morena_row["empirico"] * 100
         ss_morena = morena_row["shapley_shubik"] * 100
-        print(
-            f"  Morena tiene {morena_row['escanos']} escaños ({morena_row['nominal'] * 100:.1f}% de la Camara)."
+        logger.info(
+            "  Morena tiene %d escaños (%.1f%% de la Camara).",
+            morena_row["escanos"],
+            morena_row["nominal"] * 100,
         )
-        print(
-            f"  Shapley-Shubik = {ss_morena:.1f}%: con mayoria simple, Morena domina unilateralmente."
+        logger.info(
+            "  Shapley-Shubik = %.1f%%: con mayoria simple, Morena domina unilateralmente.",
+            ss_morena,
         )
-        print(f"  Poder empirico = {emp_morena:.1f}%: porcentaje de votaciones donde fue critica.")
-        print(
-            f"  La diferencia entre poder teorico ({ss_morena:.1f}%) y empirico ({emp_morena:.1f}%)"
+        logger.info(
+            "  Poder empirico = %.1f%%: porcentaje de votaciones donde fue critica.",
+            emp_morena,
         )
-        print("  revela donde las coaliciones reales difieren del modelo de mayoria simple.")
+        logger.info(
+            "  La diferencia entre poder teorico (%.1f%%) y empirico (%.1f%%)",
+            ss_morena,
+            emp_morena,
+        )
+        logger.info("  revela donde las coaliciones reales difieren del modelo de mayoria simple.")
 
     pt_row = next((r for r in comparison if r["org_id"] == "O02"), None)
     pvem_row = next((r for r in comparison if r["org_id"] == "O03"), None)
     if pt_row and pvem_row:
-        print(
-            f"\n  PT ({pt_row['empirico'] * 100:.1f}% empirico) y PVEM ({pvem_row['empirico'] * 100:.1f}% empirico)"
+        logger.info(
+            "  PT (%.1f%% empirico) y PVEM (%.1f%% empirico)",
+            pt_row["empirico"] * 100,
+            pvem_row["empirico"] * 100,
         )
-        print("  tienen 0% de poder Shapley-Shubik para mayoria simple, pero su poder")
-        print("  empirico proviene de votaciones que requieren mayoria calificada (2/3).")
-    print()
+        logger.info("  tienen 0%% de poder Shapley-Shubik para mayoria simple, pero su poder")
+        logger.info("  empirico proviene de votaciones que requieren mayoria calificada (2/3).")
 
     # =========================================================================
     # 2. REFORMA JUDICIAL (VE04 / VE05)
     # =========================================================================
-    print(SEP)
-    print(f"{'2. REFORMA JUDICIAL (VE04 y VE05)':^100}")
-    print(SEP)
+    logger.info("")
+    logger.info(SEP)
+    logger.info("2. REFORMA JUDICIAL (VE04 y VE05)".center(100))
+    logger.info(SEP)
 
     for a in reforma_analyses:
         ve_id = a["vote_event_id"]
-        print(f"\n  {'─' * 90}")
-        print(f"  {ve_id}: {(a['result'] or 'N/A').upper()} — Requerimiento: {a['requirement']}")
-        print(f"  {'─' * 90}")
-        print(f"  Mayoria necesaria (2/3 de 500): {a['mayoria_necesaria']}")
-        print(f"  A favor:   {a['a_favor_total']:>4}")
-        print(f"  En contra: {a['en_contra_total']:>4}")
-        print(f"  Abstencion:{a['abstencion_total']:>4}")
-        print(f"  Ausente:   {a['ausente_total']:>4}")
-        print(f"  Margen:    {a['margin']:>4} (a_favor - mayoria_necesaria)")
+        logger.info("  %s", "─" * 90)
+        result_display = (a["result"] or "N/A").upper()
+        logger.info("  %s: %s — Requerimiento: %s", ve_id, result_display, a["requirement"])
+        logger.info("  %s", "─" * 90)
+        logger.info("  Mayoria necesaria (2/3 de 500): %d", a["mayoria_necesaria"])
+        logger.info("  A favor:   %4d", a["a_favor_total"])
+        logger.info("  En contra: %4d", a["en_contra_total"])
+        logger.info("  Abstencion:%4d", a["abstencion_total"])
+        logger.info("  Ausente:   %4d", a["ausente_total"])
+        logger.info("  Margen:    %4d (a_favor - mayoria_necesaria)", a["margin"])
 
-        print(f"\n  {'Desglose por partido:':}")
-        print(
-            f"  {'Partido':<16} {'A favor':>8} {'En contra':>10} {'Abstencion':>10} {'Ausente':>8} {'Total':>6} {'Posición':>10} {'Crítico':>8}"
+        logger.info("")
+        logger.info("  Desglose por partido:")
+        logger.info(
+            "  %-16s %8s %10s %10s %8s %6s %10s %8s",
+            "Partido",
+            "A favor",
+            "En contra",
+            "Abstencion",
+            "Ausente",
+            "Total",
+            "Posición",
+            "Crítico",
         )
-        print(f"  {'─' * 88}")
+        logger.info("  %s", "─" * 88)
 
         for org in ["O01", "O02", "O03", "O04", "O05", "O06"]:
             if org in a["party_votes"]:
                 pv = a["party_votes"][org]
                 is_critical = "*** SI" if org in a["critical_parties"] else "NO"
                 pos_display = pv["position"]
-                print(
-                    f"  {get_org_name(org):<16} {pv['favor']:>8} {pv['contra']:>10} {pv['abstencion']:>10} {pv['ausente']:>8} {pv['total']:>6} {pos_display:>10} {is_critical:>8}"
+                logger.info(
+                    "  %-16s %8d %10d %10d %8d %6d %10s %8s",
+                    get_org_name(org),
+                    pv["favor"],
+                    pv["contra"],
+                    pv["abstencion"],
+                    pv["ausente"],
+                    pv["total"],
+                    pos_display,
+                    is_critical,
                 )
 
         # Coalición ganadora
@@ -1073,17 +1126,25 @@ def print_all_results(
         for org in sorted(a["party_votes"].keys()):
             pv = a["party_votes"][org]
             if pv["favor"] > 0:
-                coleccion_favor.append(f"{get_org_name(org)}({pv['favor']})")
+                coleccion_favor.append("%s(%d)" % (get_org_name(org), pv["favor"]))
         coalicion_str = " + ".join(coleccion_favor)
-        print(f"\n  Coalicion ganadora: {coalicion_str} = {a['a_favor_total']}")
+        logger.info("")
+        logger.info("  Coalicion ganadora: %s = %d", coalicion_str, a["a_favor_total"])
 
         # Verificar criticidad
-        print(f"  Partidos criticos (sin cuyo apoyo no se llegaba a {a['mayoria_necesaria']}):")
+        logger.info(
+            "  Partidos criticos (sin cuyo apoyo no se llegaba a %d):",
+            a["mayoria_necesaria"],
+        )
         for org in a["critical_parties"]:
             pv = a["party_votes"][org]
             remaining = a["a_favor_total"] - pv["favor"]
-            print(
-                f"    - {get_org_name(org)}: sin sus {pv['favor']} votos a favor → {remaining} < {a['mayoria_necesaria']} → CRITICO"
+            logger.info(
+                "    - %s: sin sus %d votos a favor → %d < %d → CRITICO",
+                get_org_name(org),
+                pv["favor"],
+                remaining,
+                a["mayoria_necesaria"],
             )
 
         # Partidos NO críticos
@@ -1095,106 +1156,171 @@ def print_all_results(
         for org in non_critical:
             pv = a["party_votes"][org]
             remaining = a["a_favor_total"] - pv["favor"]
-            print(
-                f"    - {get_org_name(org)}: sin sus {pv['favor']} votos → {remaining} >= {a['mayoria_necesaria']} → no critico"
+            logger.info(
+                "    - %s: sin sus %d votos → %d >= %d → no critico",
+                get_org_name(org),
+                pv["favor"],
+                remaining,
+                a["mayoria_necesaria"],
             )
-
-    print()
 
     # =========================================================================
     # 3. VOTACIONES CERRADAS (< 10 votos de margen)
     # =========================================================================
-    print(SEP)
-    print(f"{'3. VOTACIONES CERRADAS (margen < 10)':^100}")
-    print(SEP)
+    logger.info("")
+    logger.info(SEP)
+    logger.info("3. VOTACIONES CERRADAS (margen < 10)".center(100))
+    logger.info(SEP)
 
     close = close_votes_analysis["close_votes"]
     if close:
-        print(f"\n  Se encontraron {len(close)} votaciones cerradas:\n")
-        print(
-            f"  {'VE':<10} {'A favor':>8} {'En contra':>10} {'Margen':>8} {'Requerimiento':<20} {'Críticos':<30}"
+        logger.info("")
+        logger.info("  Se encontraron %d votaciones cerradas:", len(close))
+        logger.info("")
+        logger.info(
+            "  %-10s %8s %10s %8s %-20s %-30s",
+            "VE",
+            "A favor",
+            "En contra",
+            "Margen",
+            "Requerimiento",
+            "Críticos",
         )
-        print(f"  {'─' * 90}")
+        logger.info("  %s", "─" * 90)
         for cv in close:
             crit_names = [get_org_name(o) for o in cv["critical_parties"]]
-            print(
-                f"  {cv['vote_event_id']:<10} {cv['a_favor']:>8} {cv['en_contra']:>10} {cv['margin']:>8} {cv['requirement']:<20} {', '.join(crit_names) if crit_names else 'Ninguno'}"
+            crit_display = ", ".join(crit_names) if crit_names else "Ninguno"
+            logger.info(
+                "  %-10s %8d %10d %8d %-20s %s",
+                cv["vote_event_id"],
+                cv["a_favor"],
+                cv["en_contra"],
+                cv["margin"],
+                cv["requirement"],
+                crit_display,
             )
 
         # Swing voters
         swing = close_votes_analysis["swing_voters"]
         if swing:
-            print(f"\n  Swing voters en votaciones cerradas ({len(swing)}):")
-            print(
-                f"  {'Legislador':<35} {'Partido':<12} {'Su voto':<12} {'Pos. partido':<14} {'Podría cambiar resultado':<25}"
+            logger.info("")
+            logger.info("  Swing voters en votaciones cerradas (%d):", len(swing))
+            logger.info(
+                "  %-35s %-12s %-12s %-14s %-25s",
+                "Legislador",
+                "Partido",
+                "Su voto",
+                "Pos. partido",
+                "Podría cambiar resultado",
             )
-            print(f"  {'─' * 100}")
+            logger.info("  %s", "─" * 100)
             for sv in swing:
                 flip_str = "SI" if sv["could_flip_result"] else "No"
-                print(
-                    f"  {sv['person_name']:<35} {sv['party']:<12} {sv['their_vote']:<12} {sv['party_position']:<14} {flip_str:<25}"
+                logger.info(
+                    "  %-35s %-12s %-12s %-14s %-25s",
+                    sv["person_name"],
+                    sv["party"],
+                    sv["their_vote"],
+                    sv["party_position"],
+                    flip_str,
                 )
         else:
-            print(
-                "\n  No se encontraron swing voters (nadie voto diferente a su partido en votaciones cerradas)."
+            logger.info(
+                "  No se encontraron swing voters (nadie voto diferente a su partido en votaciones cerradas)."
             )
     else:
-        print("\n  No se encontraron votaciones cerradas (margen < 10).")
-    print()
+        logger.info("  No se encontraron votaciones cerradas (margen < 10).")
 
     # =========================================================================
     # 4. TOP 10 DISIDENTES
     # =========================================================================
-    print(SEP)
-    print(f"{'4. TOP 10 DISIDENTES (votaron diferente a su partido)':^100}")
-    print(SEP)
+    logger.info("")
+    logger.info(SEP)
+    logger.info("4. TOP 10 DISIDENTES (votaron diferente a su partido)".center(100))
+    logger.info(SEP)
 
     if dissidents:
-        print(
-            f"\n  {'#':<4} {'Legislador':<35} {'Partido':<12} {'Disidencia':>12} {'Votaciones':>12} {'Disidentes':>12}"
+        logger.info("")
+        logger.info(
+            "  %-4s %-35s %-12s %12s %12s %12s",
+            "#",
+            "Legislador",
+            "Partido",
+            "Disidencia",
+            "Votaciones",
+            "Disidentes",
         )
-        print(f"  {'─' * 90}")
+        logger.info("  %s", "─" * 90)
         for i, (pid, name, party, rate, total, dissent) in enumerate(dissidents, 1):
-            print(f"  {i:<4} {name:<35} {party:<12} {rate * 100:>11.1f}% {total:>12} {dissent:>12}")
+            logger.info(
+                "  %-4d %-35s %-12s %10.1f%% %12d %12d",
+                i,
+                name,
+                party,
+                rate * 100,
+                total,
+                dissent,
+            )
     else:
-        print("\n  No se encontraron disidentes (ningun legislador voto diferente a su partido).")
-    print()
+        logger.info(
+            "  No se encontraron disidentes (ningun legislador voto diferente a su partido)."
+        )
 
     # =========================================================================
     # 5. DETALLE POR VOTACIÓN (VE03-VE54)
     # =========================================================================
-    print(SEP)
-    print(f"{'5. DETALLE POR VOTACION (VE03-VE54)':^100}")
-    print(SEP)
-    print(
-        f"\n  {'VE':<8} {'Req.':<18} {'Asist.':>7} {'Mayoria':>8} {'Favor':>6} {'Contra':>7} {'Abst.':>6} {'Aus.':>5} {'Margen':>7} {'Críticos':<25}"
+    logger.info("")
+    logger.info(SEP)
+    logger.info("5. DETALLE POR VOTACION (VE03-VE54)".center(100))
+    logger.info(SEP)
+    logger.info("")
+    logger.info(
+        "  %-8s %-18s %7s %8s %6s %7s %6s %5s %7s %-25s",
+        "VE",
+        "Req.",
+        "Asist.",
+        "Mayoria",
+        "Favor",
+        "Contra",
+        "Abst.",
+        "Aus.",
+        "Margen",
+        "Críticos",
     )
-    print(f"  {'─' * 100}")
+    logger.info("  %s", "─" * 100)
 
     for a in all_analyses:
         crit_names = [get_org_name(o) for o in a["critical_parties"]]
         crit_str = ", ".join(crit_names) if crit_names else "Ninguno (unanime)"
-        print(
-            f"  {a['vote_event_id']:<8} {a['requirement']:<18} {a['total_asistentes']:>7} {a['mayoria_necesaria']:>8} "
-            f"{a['a_favor_total']:>6} {a['en_contra_total']:>7} {a['abstencion_total']:>6} {a['ausente_total']:>5} "
-            f"{a['margin']:>7} {crit_str:<25}"
+        logger.info(
+            "  %-8s %-18s %7d %8d %6d %7d %6d %5d %7d %s",
+            a["vote_event_id"],
+            a["requirement"],
+            a["total_asistentes"],
+            a["mayoria_necesaria"],
+            a["a_favor_total"],
+            a["en_contra_total"],
+            a["abstencion_total"],
+            a["ausente_total"],
+            a["margin"],
+            crit_str,
         )
 
     # =========================================================================
     # RESUMEN ESTADÍSTICO
     # =========================================================================
-    print()
-    print(SEP)
-    print(f"{'RESUMEN ESTADISTICO':^100}")
-    print(SEP)
-    print(f"\n  Total votaciones analizadas: {len(all_analyses)}")
-    print(f"  Todas aprobadas: {sum(1 for a in all_analyses if a['result'] == 'aprobada')}")
-    print(
-        f"  Mayoria simple: {sum(1 for a in all_analyses if a['requirement'] == 'mayoria_simple')}"
-    )
-    print(
-        f"  Mayoria calificada: {sum(1 for a in all_analyses if a['requirement'] == 'mayoria_calificada')}"
-    )
+    logger.info("")
+    logger.info(SEP)
+    logger.info("RESUMEN ESTADISTICO".center(100))
+    logger.info(SEP)
+    logger.info("")
+    logger.info("  Total votaciones analizadas: %d", len(all_analyses))
+    aprobadas = sum(1 for a in all_analyses if a["result"] == "aprobada")
+    logger.info("  Todas aprobadas: %d", aprobadas)
+    mayoria_simple = sum(1 for a in all_analyses if a["requirement"] == "mayoria_simple")
+    logger.info("  Mayoria simple: %d", mayoria_simple)
+    mayoria_calificada = sum(1 for a in all_analyses if a["requirement"] == "mayoria_calificada")
+    logger.info("  Mayoria calificada: %d", mayoria_calificada)
 
     # Partidos más críticos
     crit_counts = defaultdict(int)
@@ -1202,23 +1328,33 @@ def print_all_results(
         for org in a["critical_parties"]:
             crit_counts[org] += 1
 
-    print("\n  Veces critico por partido:")
+    logger.info("")
+    logger.info("  Veces critico por partido:")
     for org in sorted(crit_counts, key=crit_counts.get, reverse=True):
-        print(
-            f"    {get_org_name(org):<16} {crit_counts[org]:>4} / {len(all_analyses)} ({crit_counts[org] / len(all_analyses) * 100:.1f}%)"
+        logger.info(
+            "    %-16s %4d / %d (%.1f%%)",
+            get_org_name(org),
+            crit_counts[org],
+            len(all_analyses),
+            crit_counts[org] / len(all_analyses) * 100,
         )
 
     # Votaciones donde nadie fue crítico (unánimes)
     unanimous = sum(1 for a in all_analyses if len(a["critical_parties"]) == 0)
-    print(f"\n  Votaciones unanimes (sin partidos criticos): {unanimous}")
+    logger.info("")
+    logger.info("  Votaciones unanimes (sin partidos criticos): %d", unanimous)
 
     # Votaciones con algún partido crítico
     with_critical = sum(1 for a in all_analyses if len(a["critical_parties"]) > 0)
-    print(f"  Votaciones con al menos un partido critico: {with_critical}")
+    logger.info("  Votaciones con al menos un partido critico: %d", with_critical)
 
-    print()
-    print(f"Archivos CSV generados en: {out_dir}/")
-    print(SEP)
+    logger.info("")
+    logger.info("Archivos CSV generados en: %s/", out_dir)
+    logger.info(SEP)
+
+
+# Mantener compatibilidad: alias para el nombre original
+print_all_results = log_all_results
 
 
 # --- Main ---
@@ -1248,17 +1384,17 @@ def main(camara: str | None = None, output_dir: str | None = None):
     # Ajustar total de asientos según cámara
     _total_seats_for_analysis = get_total_seats(DB_PATH, camara or "D")
 
-    conn = sqlite3.connect(DB_PATH)
-    conn.execute("PRAGMA journal_mode = WAL")
-    conn.execute("PRAGMA busy_timeout = 5000")
+    conn = get_connection(DB_PATH)
 
     # Obtener votaciones con resultado
     vote_events = get_vote_events_with_results(conn, camara=camara)
     if not vote_events:
-        print("No se encontraron votaciones con resultado.")
+        logger.warning("No se encontraron votaciones con resultado.")
         conn.close()
         return
-    print(f"Votaciones con resultado: {len(vote_events)} ({vote_events[0]}-{vote_events[-1]})")
+    logger.info(
+        "Votaciones con resultado: %d (%s-%s)", len(vote_events), vote_events[0], vote_events[-1]
+    )
 
     # Analizar cada votación
     analyses = [analyze_vote_event(conn, ve_id) for ve_id in vote_events]
@@ -1286,11 +1422,11 @@ def main(camara: str | None = None, output_dir: str | None = None):
         comparison, reforma_analyses, dissidents, analyses, close_votes_analysis, output_dir=out_dir
     )
 
-    # Imprimir resultados
+    # Registrar resultados
     camara_label = (
         "Camara de Diputados" if camara == "D" else ("Senado" if camara == "S" else "Congreso")
     )
-    print_all_results(
+    log_all_results(
         comparison,
         quota_simple,
         reforma_analyses,

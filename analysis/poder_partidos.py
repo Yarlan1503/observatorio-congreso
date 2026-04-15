@@ -14,11 +14,15 @@ Uso:
 """
 
 import itertools
+import logging
 import math
-import sqlite3
 from pathlib import Path
 
+from analysis.db import get_connection
+
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 from analysis.constants import CAMARA_MAP
 from db.constants import _NAME_TO_ORG, _ORG_ID_TO_NAME, _PARTY_ORG_IDS, init_constants_from_db
@@ -272,26 +276,27 @@ def print_tabla_completa(
 ):
     """Imprime la tabla completa de resultados con formato legible."""
 
-    print("=" * 100)
-    print(f"ÍNDICES DE PODER LEGISLATIVO — LXVI LEGISLATURA, {camara_label.upper()}")
-    print("=" * 100)
+    logger.info("=" * 100)
+    logger.info("ÍNDICES DE PODER LEGISLATIVO — LXVI LEGISLATURA, %s", camara_label.upper())
+    logger.info("=" * 100)
 
     # Tabla de escaños
-    print(f"\n{'ESCAÑOS POR PARTIDO':^100}")
-    print("-" * 60)
-    print(f"{'Partido':<18} {'Org_ID':<8} {'Escaños':>8} {'Nominal %':>12}")
-    print("-" * 60)
+    logger.info("")
+    logger.info("%s", f"{'ESCAÑOS POR PARTIDO':^100}")
+    logger.info("-" * 60)
+    logger.info("%-18s %-8s %8s %12s", "Partido", "Org_ID", "Escaños", "Nominal %")
+    logger.info("-" * 60)
 
     # Ordenar por escaños descendente
     sorted_seats = sorted(seats.items(), key=lambda x: x[1], reverse=True)
     for org_id, seat_count in sorted_seats:
         name = ORG_SHORT_NAME.get(org_id, org_id)
         pct = seat_count / total_seats * 100
-        print(f"{name:<18} {org_id:<8} {seat_count:>8} {pct:>11.2f}%")
+        logger.info("%-18s %-8s %8d %11.2f%%", name, org_id, seat_count, pct)
 
-    print("-" * 60)
-    print(f"{'TOTAL':<18} {'':8} {total_seats:>8} {'100.00%':>12}")
-    print()
+    logger.info("-" * 60)
+    logger.info("%-18s %-8s %8d %12s", "TOTAL", "", total_seats, "100.00%")
+    logger.info("")
 
     # Umbrales
     thresholds = df["Umbral"].unique()
@@ -300,14 +305,20 @@ def print_tabla_completa(
         mask = df["Umbral"] == threshold_name
         sub = df[mask].sort_values("Escaños", ascending=False)
 
-        print(f"\n{'UMBRAL: ' + threshold_name.upper():^100}")
-        print("-" * 100)
-        print(
-            f"{'Partido':<18} {'Escaños':>8} {'Nominal %':>12} "
-            f"{'Shapley-Shubik %':>18} {'Banzhaf %':>12} "
-            f"{'SS/Nom':>10} {'BZ/Nom':>10}"
+        logger.info("")
+        logger.info("%s", f"{'UMBRAL: ' + threshold_name.upper():^100}")
+        logger.info("-" * 100)
+        logger.info(
+            "%-18s %8s %12s %18s %12s %10s %10s",
+            "Partido",
+            "Escaños",
+            "Nominal %",
+            "Shapley-Shubik %",
+            "Banzhaf %",
+            "SS/Nom",
+            "BZ/Nom",
         )
-        print("-" * 100)
+        logger.info("-" * 100)
 
         for _, row in sub.iterrows():
             nominal = row["Nominal_%"]
@@ -315,28 +326,41 @@ def print_tabla_completa(
             bz = row["Banzhaf_%"]
             ss_ratio = ss / nominal if nominal > 0 else 0
             bz_ratio = bz / nominal if nominal > 0 else 0
-            print(
-                f"{row['Partido']:<18} {row['Escaños']:>8} {nominal:>11.2f}% "
-                f"{ss:>17.2f}% {bz:>11.2f}% "
-                f"{ss_ratio:>9.2f}x {bz_ratio:>9.2f}x"
+            logger.info(
+                "%-18s %8d %11.2f%% %17.2f%% %11.2f%% %9.2fx %9.2fx",
+                row["Partido"],
+                row["Escaños"],
+                nominal,
+                ss,
+                bz,
+                ss_ratio,
+                bz_ratio,
             )
 
-        print("-" * 100)
+        logger.info("-" * 100)
         ss_sum = sub["Shapley_Shubik_%"].sum()
         bz_sum = sub["Banzhaf_%"].sum()
         nom_sum = sub["Nominal_%"].sum()
         seats_sum = sub["Escaños"].sum()
-        print(f"{'TOTAL':<18} {seats_sum:>8} {nom_sum:>11.2f}% {ss_sum:>17.2f}% {bz_sum:>11.2f}%")
-        print()
+        logger.info(
+            "%-18s %8d %11.2f%% %17.2f%% %11.2f%%",
+            "TOTAL",
+            seats_sum,
+            nom_sum,
+            ss_sum,
+            bz_sum,
+        )
+        logger.info("")
 
     # Análisis de coaliciones clave
-    print(f"\n{'ANÁLISIS DE COALICIONES CLAVE':^100}")
-    print("=" * 100)
+    logger.info("")
+    logger.info("%s", f"{'ANÁLISIS DE COALICIONES CLAVE':^100}")
+    logger.info("=" * 100)
     _print_coalition_analysis(seats, total_seats)
 
-    print()
-    print(f"Archivos CSV generados en: {OUTPUT_DIR}/")
-    print("=" * 100)
+    logger.info("")
+    logger.info("Archivos CSV generados en: %s/", OUTPUT_DIR)
+    logger.info("=" * 100)
 
 
 def _print_coalition_analysis(seats: dict, total_seats: int):
@@ -363,8 +387,8 @@ def _print_coalition_analysis(seats: dict, total_seats: int):
         "PAN + MC": ["O04", "O06"],
     }
 
-    print(f"{'Coalición':<45} {'Escaños':>8} {'%':>8} {'Simple':>8} {'2/3':>8} {'3/4':>8}")
-    print("-" * 95)
+    logger.info("%-45s %8s %8s %8s %8s %8s", "Coalición", "Escaños", "%", "Simple", "2/3", "3/4")
+    logger.info("-" * 95)
 
     for coal_name, org_ids in coalitions.items():
         coal_seats = sum(seats.get(org, 0) for org in org_ids)
@@ -374,15 +398,21 @@ def _print_coalition_analysis(seats: dict, total_seats: int):
         calif = "✓" if coal_seats >= calif_quota else "✗"
         tres_cuartos = "✓" if coal_seats >= tres_cuartos_quota else "✗"
 
-        print(
-            f"{coal_name:<45} {coal_seats:>8} {coal_pct:>7.1f}% "
-            f"{simple:>8} {calif:>8} {tres_cuartos:>8}"
+        logger.info(
+            "%-45s %8d %7.1f%% %8s %8s %8s",
+            coal_name,
+            coal_seats,
+            coal_pct,
+            simple,
+            calif,
+            tres_cuartos,
         )
 
-    print()
-    print(f"{'Nota: ✓ = alcanza el umbral, ✗ = no lo alcanza':^95}")
-    print(
-        f"{'Los porcentajes redondeados pueden no sumar 100.00% (los índices exactos sí suman 1.0)':^95}"
+    logger.info("")
+    logger.info("%s", f"{'Nota: ✓ = alcanza el umbral, ✗ = no lo alcanza':^95}")
+    logger.info(
+        "%s",
+        f"{'Los porcentajes redondeados pueden no sumar 100.00% (los índices exactos sí suman 1.0)':^95}",
     )
 
 
@@ -411,9 +441,7 @@ def main(camara: str = "D", output_dir: Path | None = None):
     out_dir = Path(output_dir) if output_dir else OUTPUT_DIR
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    conn = sqlite3.connect(DB_PATH)
-    conn.execute("PRAGMA journal_mode = WAL")
-    conn.execute("PRAGMA busy_timeout = 5000")
+    conn = get_connection(DB_PATH)
     seats = get_seats_per_party(conn, rol=rol)
 
     total_seats = sum(seats.values())
@@ -429,12 +457,16 @@ def main(camara: str = "D", output_dir: Path | None = None):
 
     # Verificar total de escaños
     default_total = 500 if camara == "D" else 128
-    print(f"Total escaños computados: {total_seats}")
-    print(
-        f"  (La {camara_label} tiene {default_total} curules; el exceso refleja legisladores que "
-        "sirvieron durante la legislatura pero fueron reemplazados)"
+    logger.info("Total escaños computados: %d", total_seats)
+    logger.info(
+        "  (La %s tiene %d curules; el exceso refleja legisladores que "
+        "sirvieron durante la legislatura pero fueron reemplazados)",
+        camara_label,
+        default_total,
     )
-    print(f"  (Solo se cuentan memberships con rol='{rol}'; militantes del caso cero excluidos)")
+    logger.info(
+        "  (Solo se cuentan memberships con rol='%s'; militantes del caso cero excluidos)", rol
+    )
 
     # Verificar que los índices suman exactamente 1.0
     results = []
@@ -476,8 +508,7 @@ def main(camara: str = "D", output_dir: Path | None = None):
     # Tabla completa
     df.to_csv(out_dir / "poder_completo.csv", index=False)
 
-    # Imprimir resultados
-    print()
+    logger.info("")
     print_tabla_completa(df, seats, total_seats, camara_label=camara_label)
 
     conn.close()

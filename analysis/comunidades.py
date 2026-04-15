@@ -13,7 +13,11 @@ Dependencias:
 
 from collections import Counter
 
+import logging
+
 import networkx as nx
+
+logger = logging.getLogger(__name__)
 
 
 def detect_communities(
@@ -41,10 +45,11 @@ def detect_communities(
         Diccionario node_id → community_id (entero desde 0).
         Todos los nodos del grafo están presentes en el resultado.
     """
-    print(f"[comunidades] Detectando comunidades con resolution={resolution}, seed={seed}")
-    print(
-        f"[comunidades] Grafo de entrada: {graph.number_of_nodes()} nodos, "
-        f"{graph.number_of_edges()} aristas"
+    logger.info("Detectando comunidades con resolution=%s, seed=%s", resolution, seed)
+    logger.info(
+        "Grafo de entrada: %d nodos, %d aristas",
+        graph.number_of_nodes(),
+        graph.number_of_edges(),
     )
 
     # Usar networkx.community.louvain_communities (disponible desde NX 3.2)
@@ -64,8 +69,10 @@ def detect_communities(
             partition[node] = comm_id
 
     num_communities = len(communities)
-    print(
-        f"[comunidades] Partición obtenida: {len(partition)} nodos en {num_communities} comunidades"
+    logger.info(
+        "Partición obtenida: %d nodos en %d comunidades",
+        len(partition),
+        num_communities,
     )
 
     # Verificar que todos los nodos del grafo están en la partición
@@ -73,9 +80,10 @@ def detect_communities(
     partition_nodes = set(partition.keys())
     missing = graph_nodes - partition_nodes
     if missing:
-        print(
-            f"[comunidades] ADVERTENCIA: {len(missing)} nodos del grafo "
-            f"no están en la partición: {missing}"
+        logger.warning(
+            "ADVERTENCIA: %d nodos del grafo no están en la partición: %s",
+            len(missing),
+            missing,
         )
 
     return partition
@@ -111,16 +119,16 @@ def analyze_communities(
         - sub_blocks_morena (list): sub-bloques MORENA en múltiples comunidades.
         - modularity (float): modularidad del particionamiento.
     """
-    print("[comunidades] Analizando composición de comunidades...")
+    logger.info("Analizando composición de comunidades...")
 
     # 1. Número total de comunidades
     community_ids = set(partition.values())
     num_communities = len(community_ids)
-    print(f"[comunidades] {num_communities} comunidades detectadas")
+    logger.info("%d comunidades detectadas", num_communities)
 
     # 2. Tamaño de cada comunidad
     community_sizes: dict[int, int] = dict(Counter(partition.values()))
-    print(f"[comunidades] Tamaños: {dict(sorted(community_sizes.items()))}")
+    logger.info("Tamaños: %s", dict(sorted(community_sizes.items())))
 
     # 3. Composición partidista por comunidad
     community_composition: dict[int, dict[str, int]] = {cid: {} for cid in community_ids}
@@ -152,7 +160,7 @@ def analyze_communities(
         community_party_purity[cid] = purity
         dominant_party[cid] = top_party
 
-    print(f"[comunidades] Pureza por comunidad: {dict(sorted(community_party_purity.items()))}")
+    logger.info("Pureza por comunidad: %s", dict(sorted(community_party_purity.items())))
 
     # 5. Legisladores cruzados (en comunidad donde su partido NO es dominante)
     cross_party_legislators: list[dict] = []
@@ -176,9 +184,9 @@ def analyze_communities(
                 }
             )
 
-    print(
-        f"[comunidades] {len(cross_party_legislators)} legisladores "
-        f"cruzados (fuera de su comunidad partidista dominante)"
+    logger.info(
+        "%d legisladores cruzados (fuera de su comunidad partidista dominante)",
+        len(cross_party_legislators),
     )
 
     # 6. Sub-bloques de MORENA (comunidades con ≥5 legisladores MORENA)
@@ -207,9 +215,10 @@ def analyze_communities(
 
     # Ordenar por tamaño descendente
     sub_blocks_morena.sort(key=lambda x: x["size"], reverse=True)
-    print(
-        f"[comunidades] {len(sub_blocks_morena)} sub-bloques MORENA "
-        f"(≥5 legisladores): {sub_blocks_morena}"
+    logger.info(
+        "%d sub-bloques MORENA (≥5 legisladores): %s",
+        len(sub_blocks_morena),
+        sub_blocks_morena,
     )
 
     # 7. Modularidad del particionamiento
@@ -218,7 +227,7 @@ def analyze_communities(
     for cid in sorted(set(partition.values())):
         comm_sets.append({n for n, c in partition.items() if c == cid})
     modularity_value: float = nx.community.modularity(graph, comm_sets, weight="weight")
-    print(f"[comunidades] Modularidad: {modularity_value:.4f}")
+    logger.info("Modularidad: %.4f", modularity_value)
 
     return {
         "num_communities": num_communities,
@@ -249,5 +258,5 @@ def get_partition_as_attribute(
         El mismo objeto grafo, mutado con el atributo 'community' en cada nodo.
     """
     nx.set_node_attributes(graph, partition, "community")
-    print(f"[comunidades] Atributo 'community' asignado a {len(partition)} nodos del grafo")
+    logger.info("Atributo 'community' asignado a %d nodos del grafo", len(partition))
     return graph

@@ -19,8 +19,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent.parent.parent
 
 import csv
-import sqlite3
+import logging
 from collections import defaultdict
+
+from analysis.db import get_connection
 
 import matplotlib
 
@@ -28,6 +30,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 import analysis.poder_empirico as pe
+
+logger = logging.getLogger(__name__)
 
 # --- Importar infraestructura existente ---
 from analysis.constants import COMMON_PARTIES, ORG_TO_SHORT, PARTY_COLORS
@@ -249,13 +253,15 @@ def plot_evolution(final_rows, png_path):
 
 def print_summary(final_rows):
     """Imprime tabla resumen en consola."""
-    print(f"\n  Total registros: {len(final_rows)}")
+    logger.info("")
+    logger.info("  Total registros: %d", len(final_rows))
     for camara in ["Diputados", "Senado"]:
-        print(f"\n  === {camara} ===")
+        logger.info("")
+        logger.info("  === %s ===", camara)
         camara_rows = [r for r in final_rows if r["camara"] == camara]
         parties = sorted(set(r["partido"] for r in camara_rows if r["partido"] in COMMON_PARTIES))
         header = f"  {'Partido':<10}" + "".join(f"  {leg:>6}" for leg in LEGISLATURAS_ORDERED)
-        print(header)
+        logger.info(header)
         for party in parties:
             vals = {
                 r["legislatura"]: r["poder_empirico"] for r in camara_rows if r["partido"] == party
@@ -263,11 +269,11 @@ def print_summary(final_rows):
             row_str = f"  {party:<10}" + "".join(
                 f"  {vals.get(leg, 0):>6.1f}" for leg in LEGISLATURAS_ORDERED
             )
-            print(row_str)
+            logger.info(row_str)
 
 
 def main():
-    print("  Inicializando constantes...")
+    logger.info("  Inicializando constantes...")
     init_constants_from_db(str(DB_PATH))
     import db.constants as c
 
@@ -278,9 +284,7 @@ def main():
     party_short = _build_party_short()
 
     BIC_OUTPUT.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(str(DB_PATH))
-    conn.execute("PRAGMA journal_mode = WAL")
-    conn.execute("PRAGMA busy_timeout = 5000")
+    conn = get_connection(DB_PATH)
 
     all_results = []
 
@@ -288,11 +292,11 @@ def main():
         for camara in ["D", "S"]:
             camara_label = "Diputados" if camara == "D" else "Senado"
             ve_count = len(get_ve_ids_by_legislatura(conn, camara, leg))
-            print(f"  {leg} {camara_label}: {ve_count} VEs...", end="", flush=True)
+            logger.info("  %s %s: %d VEs... %d partidos", leg, camara_label, ve_count, 0)
 
             results = calc_power_for_legislatura(conn, leg, camara, party_short)
             all_results.extend(results)
-            print(f" {len(results)} partidos")
+            logger.info("  %s %s: %d VEs... %d partidos", leg, camara_label, ve_count, len(results))
 
     conn.close()
 
@@ -302,12 +306,13 @@ def main():
     # Guardar CSV
     csv_path = BIC_OUTPUT / "poder_empirico_por_legislatura.csv"
     save_csv(final_rows, csv_path)
-    print(f"\n  → CSV guardado: {csv_path}")
+    logger.info("")
+    logger.info("  → CSV guardado: %s", csv_path)
 
     # Generar gráfica
     png_path = BIC_OUTPUT / "poder_empirico_evolucion.png"
     plot_evolution(final_rows, png_path)
-    print(f"  → Gráfica guardada: {png_path}")
+    logger.info("  → Gráfica guardada: %s", png_path)
 
     # Resumen en consola
     print_summary(final_rows)

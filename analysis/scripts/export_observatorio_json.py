@@ -9,11 +9,14 @@ Uso:
 """
 
 import json
+import logging
 from pathlib import Path
 
 import polars as pl
 
 from analysis.constants import COLORES_WEB, PARTIDO_MAP
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Rutas
@@ -189,15 +192,17 @@ EXPORTS = [
 def main() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    print("=== Observatorio: CSV -> JSON Pipeline ===\n")
+    logger.info("=== Observatorio: CSV -> JSON Pipeline ===")
+    logger.info("")
     total = 0
     for filename, func in EXPORTS:
         n = func()
         total += n
-        print(f"  {filename:<30s} {n:>5d} registros")
+        logger.info("  %-30s %5d registros", filename, n)
 
-    print(f"\n  Total: {total} registros en {len(EXPORTS)} archivos")
-    print(f"  Output: {OUTPUT_DIR}/")
+    logger.info("")
+    logger.info("  Total: %d registros en %d archivos", total, len(EXPORTS))
+    logger.info("  Output: %s/", OUTPUT_DIR)
 
 
 if __name__ == "__main__":

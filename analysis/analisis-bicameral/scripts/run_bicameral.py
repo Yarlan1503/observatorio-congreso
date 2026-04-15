@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parent.parent.parent.parent
 
 import contextlib
 import csv
+import logging
 import math
 from collections import defaultdict
 
@@ -33,6 +34,8 @@ import numpy as np
 import seaborn as sns
 
 from analysis.constants import COMMON_PARTIES, PARTY_COLORS
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Paths
@@ -151,9 +154,10 @@ def read_csv(path: Path) -> list[dict]:
 
 def analyze_nominate():
     """Compara posiciones ideológicas NOMINATE entre cámaras."""
-    print("\n" + "=" * 80)
-    print("ANÁLISIS 1: NOMINATE COMPARADO")
-    print("=" * 80)
+    logger.info("")
+    logger.info("=" * 80)
+    logger.info("ANÁLISIS 1: NOMINATE COMPARADO")
+    logger.info("=" * 80)
 
     dip_coords = read_csv(DIP_OUTPUT / "coordenadas_cross.csv")
     sen_coords = read_csv(SEN_OUTPUT / "coordenadas_cross.csv")
@@ -222,13 +226,19 @@ def analyze_nominate():
         writer.writerows(rows)
 
     # Print summary
-    print(f"\n  Centroides calculados para {len(rows)} partidos comunes:")
-    print(f"  {'Partido':<12} {'D_x':>8} {'D_y':>8} {'S_x':>8} {'S_y':>8} {'Dist':>8}")
-    print(f"  {'-' * 52}")
+    logger.info("")
+    logger.info("  Centroides calculados para %d partidos comunes:", len(rows))
+    logger.info("  %-12s %8s %8s %8s %8s %8s", "Partido", "D_x", "D_y", "S_x", "S_y", "Dist")
+    logger.info("  %s", "-" * 52)
     for r in sorted(rows, key=lambda x: -x["distancia"]):
-        print(
-            f"  {r['partido']:<12} {r['centroid_D_x']:>8.3f} {r['centroid_D_y']:>8.3f} "
-            f"{r['centroid_S_x']:>8.3f} {r['centroid_S_y']:>8.3f} {r['distancia']:>8.3f}"
+        logger.info(
+            "  %-12s %8.3f %8.3f %8.3f %8.3f %8.3f",
+            r["partido"],
+            r["centroid_D_x"],
+            r["centroid_D_y"],
+            r["centroid_S_x"],
+            r["centroid_S_y"],
+            r["distancia"],
         )
 
     # --- Plot 1: Scatter bicameral ---
@@ -276,7 +286,7 @@ def analyze_nominate():
     fig.tight_layout()
     fig.savefig(BIC_OUTPUT / "nominate_scatter_bicameral.png", dpi=150, bbox_inches="tight")
     plt.close(fig)
-    print("  → nominate_scatter_bicameral.png generado")
+    logger.info("  → nominate_scatter_bicameral.png generado")
 
     # --- Plot 2: Bar chart de distancia intra-partido ---
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -301,7 +311,7 @@ def analyze_nominate():
     fig.tight_layout()
     fig.savefig(BIC_OUTPUT / "nominate_distancia_partidos.png", dpi=150, bbox_inches="tight")
     plt.close(fig)
-    print("  → nominate_distancia_partidos.png generado")
+    logger.info("  → nominate_distancia_partidos.png generado")
 
     return rows
 
@@ -313,9 +323,10 @@ def analyze_nominate():
 
 def analyze_disciplina():
     """Compara disciplina partidista entre cámaras."""
-    print("\n" + "=" * 80)
-    print("ANÁLISIS 2: DISCIPLINA COMPARADA")
-    print("=" * 80)
+    logger.info("")
+    logger.info("=" * 80)
+    logger.info("ANÁLISIS 2: DISCIPLINA COMPARADA")
+    logger.info("=" * 80)
 
     # Read disciplina files
     dip_disc = read_csv(DIP_OUTPUT / "disciplina_partidista.csv")
@@ -392,20 +403,26 @@ def analyze_disciplina():
             writer.writerows(rows)
 
     # Print summary
-    print(f"\n  Comparaciones posibles: {len(rows)} pares (partido × legislatura)")
+    logger.info("")
+    logger.info("  Comparaciones posibles: %d pares (partido × legislatura)", len(rows))
     avg_delta = np.mean([r["delta_S_menos_D"] for r in rows]) if rows else 0
-    print(f"  Delta promedio (S-D): {avg_delta:+.4f}")
+    logger.info("  Delta promedio (S-D): %+.4f", avg_delta)
     if avg_delta > 0:
-        print("  → Senado es más disciplinado en promedio")
+        logger.info("  → Senado es más disciplinado en promedio")
     else:
-        print("  → Diputados es más disciplinado en promedio")
+        logger.info("  → Diputados es más disciplinado en promedio")
 
-    print(f"\n  {'Partido':<12} {'Legislatura':<20} {'D':>8} {'S':>8} {'Δ(S-D)':>8}")
-    print(f"  {'-' * 64}")
+    logger.info("")
+    logger.info("  %-12s %-20s %8s %8s %8s", "Partido", "Legislatura", "D", "S", "Δ(S-D)")
+    logger.info("  %s", "-" * 64)
     for r in rows:
-        print(
-            f"  {r['partido']:<12} {r['legislatura']:<20} {r['disciplina_D']:>8.4f} "
-            f"{r['disciplina_S']:>8.4f} {r['delta_S_menos_D']:>+8.4f}"
+        logger.info(
+            "  %-12s %-20s %8.4f %8.4f %+8.4f",
+            r["partido"],
+            r["legislatura"],
+            r["disciplina_D"],
+            r["disciplina_S"],
+            r["delta_S_menos_D"],
         )
 
     # --- Plot 1: Lineas bicameral ---
@@ -483,7 +500,7 @@ def analyze_disciplina():
     fig.tight_layout()
     fig.savefig(BIC_OUTPUT / "disciplina_lineas_bicameral.png", dpi=150, bbox_inches="tight")
     plt.close(fig)
-    print("  → disciplina_lineas_bicameral.png generado")
+    logger.info("  → disciplina_lineas_bicameral.png generado")
 
     # --- Plot 2: Heatmap delta ---
     if rows:
@@ -518,7 +535,7 @@ def analyze_disciplina():
         fig.tight_layout()
         fig.savefig(BIC_OUTPUT / "disciplina_delta_heatmap.png", dpi=150, bbox_inches="tight")
         plt.close(fig)
-        print("  → disciplina_delta_heatmap.png generado")
+        logger.info("  → disciplina_delta_heatmap.png generado")
 
     return rows
 
@@ -530,9 +547,10 @@ def analyze_disciplina():
 
 def analyze_covotacion():
     """Compara estructura de co-votación entre cámaras."""
-    print("\n" + "=" * 80)
-    print("ANÁLISIS 3: ESTRUCTURA DE CO-VOTACIÓN COMPARADA")
-    print("=" * 80)
+    logger.info("")
+    logger.info("=" * 80)
+    logger.info("ANÁLISIS 3: ESTRUCTURA DE CO-VOTACIÓN COMPARADA")
+    logger.info("=" * 80)
 
     # Read evolution metrics
     dip_evol = read_csv(DIP_OUTPUT / "evolucion_metricas.csv")
@@ -578,13 +596,18 @@ def analyze_covotacion():
             writer.writeheader()
             writer.writerows(metrics_rows)
 
-    print(f"\n  Métricas comparadas para {len(metrics_rows)} legislaturas:")
-    print(f"  {'Legislatura':<22} {'Mod_D':>8} {'Mod_S':>8} {'Den_D':>8} {'Den_S':>8}")
-    print(f"  {'-' * 58}")
+    logger.info("")
+    logger.info("  Métricas comparadas para %d legislaturas:", len(metrics_rows))
+    logger.info("  %-22s %8s %8s %8s %8s", "Legislatura", "Mod_D", "Mod_S", "Den_D", "Den_S")
+    logger.info("  %s", "-" * 58)
     for r in metrics_rows:
-        print(
-            f"  {r['legislatura']:<22} {r['modularidad_D']:>8.4f} {r['modularidad_S']:>8.4f} "
-            f"{r['densidad_D']:>8.4f} {r['densidad_S']:>8.4f}"
+        logger.info(
+            "  %-22s %8.4f %8.4f %8.4f %8.4f",
+            r["legislatura"],
+            r["modularidad_D"],
+            r["modularidad_S"],
+            r["densidad_D"],
+            r["densidad_S"],
         )
 
     # --- 3b: Correlation between co-votation matrices ---
@@ -625,7 +648,8 @@ def analyze_covotacion():
 
     # Find common parties
     common_parties_mat = sorted(set(dip_cov.keys()) & set(sen_cov.keys()))
-    print(f"\n  Partidos comunes en matrices de co-votación: {common_parties_mat}")
+    logger.info("")
+    logger.info("  Partidos comunes en matrices de co-votación: %s", common_parties_mat)
 
     # Calculate correlation
     dip_vals = []
@@ -639,10 +663,10 @@ def analyze_covotacion():
 
     if len(dip_vals) > 3:
         corr = np.corrcoef(dip_vals, sen_vals)[0, 1]
-        print(f"  Correlación entre matrices de co-votación: {corr:.4f}")
+        logger.info("  Correlación entre matrices de co-votación: %.4f", corr)
     else:
         corr = None
-        print("  No hay suficientes datos para correlación")
+        logger.info("  No hay suficientes datos para correlación")
 
     # --- Plot 1: Modularidad comparada ---
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -675,7 +699,7 @@ def analyze_covotacion():
     fig.tight_layout()
     fig.savefig(BIC_OUTPUT / "modularidad_comparada.png", dpi=150, bbox_inches="tight")
     plt.close(fig)
-    print("  → modularidad_comparada.png generado")
+    logger.info("  → modularidad_comparada.png generado")
 
     # --- Plot 2: Heatmaps lado a lado ---
     # Use common parties for both matrices
@@ -735,7 +759,7 @@ def analyze_covotacion():
         fig.tight_layout()
         fig.savefig(BIC_OUTPUT / "alianzas_bicameral.png", dpi=150, bbox_inches="tight")
         plt.close(fig)
-        print("  → alianzas_bicameral.png generado")
+        logger.info("  → alianzas_bicameral.png generado")
 
     return metrics_rows
 
@@ -781,9 +805,10 @@ def _merge_party_power(rows):
 
 def analyze_poder():
     """Compara poder empírico y votaciones de mayoría calificada entre cámaras."""
-    print("\n" + "=" * 80)
-    print("ANÁLISIS 4: PODER COMPARADO EN REFORMAS")
-    print("=" * 80)
+    logger.info("")
+    logger.info("=" * 80)
+    logger.info("ANÁLISIS 4: PODER COMPARADO EN REFORMAS")
+    logger.info("=" * 80)
 
     # Read power comparison tables
     dip_poder = read_csv(DIP_OUTPUT / "comparacion_poder.csv")
@@ -835,14 +860,21 @@ def analyze_poder():
             writer.writeheader()
             writer.writerows(poder_rows)
 
-    print(f"\n  Poder empírico comparado ({len(poder_rows)} partidos):")
-    print(f"  {'Partido':<14} {'Esc_D':>6} {'Esc_S':>6} {'Emp_D%':>8} {'Emp_S%':>8} {'Ratio':>8}")
-    print(f"  {'-' * 56}")
+    logger.info("")
+    logger.info("  Poder empírico comparado (%d partidos):", len(poder_rows))
+    logger.info(
+        "  %-14s %6s %6s %8s %8s %8s", "Partido", "Esc_D", "Esc_S", "Emp_D%", "Emp_S%", "Ratio"
+    )
+    logger.info("  %s", "-" * 56)
     for r in sorted(poder_rows, key=lambda x: -float(x.get("poder_empirico_D", 0))):
-        print(
-            f"  {r['partido']:<14} {r['escanos_D']:>6} {r['escanos_S']:>6} "
-            f"{r['poder_empirico_D']:>8.2f} {r['poder_empirico_S']:>8.2f} "
-            f"{r['ratio_S_D']!s:>8}"
+        logger.info(
+            "  %-14s %6s %6s %8.2f %8.2f %8s",
+            r["partido"],
+            r["escanos_D"],
+            r["escanos_S"],
+            r["poder_empirico_D"],
+            r["poder_empirico_S"],
+            str(r["ratio_S_D"]),
         )
 
     # --- 4c: Calificada analysis ---
@@ -885,34 +917,36 @@ def analyze_poder():
             writer.writeheader()
             writer.writerows(calif_rows)
 
-    print("\n  Votaciones de mayoría calificada:")
-    print(
-        f"    Diputados: {len(dip_calif)} (aprobadas: {sum(1 for r in dip_calif if r.get('result') == 'aprobada')})"
-    )
-    print(
-        f"    Senado: {len(sen_calif)} (aprobadas: {sum(1 for r in sen_calif if r.get('result') == 'aprobada')})"
-    )
+    logger.info("")
+    logger.info("  Votaciones de mayoría calificada:")
+    dip_aprobadas = sum(1 for r in dip_calif if r.get("result") == "aprobada")
+    sen_aprobadas = sum(1 for r in sen_calif if r.get("result") == "aprobada")
+    logger.info("    Diputados: %d (aprobadas: %d)", len(dip_calif), dip_aprobadas)
+    logger.info("    Senado: %d (aprobadas: %d)", len(sen_calif), sen_aprobadas)
 
-    print("\n  Partidos críticos en calificada:")
-    print(f"  {'Partido':<14} {'Crítico_D':>10} {'Crítico_S':>10}")
-    print(f"  {'-' * 38}")
+    logger.info("")
+    logger.info("  Partidos críticos en calificada:")
+    logger.info("  %-14s %10s %10s", "Partido", "Crítico_D", "Crítico_S")
+    logger.info("  %s", "-" * 38)
     for r in calif_rows:
-        print(f"  {r['partido']:<14} {r['critico_en_D']:>10} {r['critico_en_S']:>10}")
+        logger.info("  %-14s %10d %10d", r["partido"], r["critico_en_D"], r["critico_en_S"])
 
     # --- 4d: Disidentes comparison ---
-    print("\n  Top disidentes:")
-    print(f"  {'Diputados':<40} {'Senado':<40}")
-    print(f"  {'-' * 80}")
+    logger.info("")
+    logger.info("  Top disidentes:")
+    logger.info("  %-40s %-40s", "Diputados", "Senado")
+    logger.info("  %s", "-" * 80)
     for i in range(max(len(dip_disid), len(sen_disid))):
         d = dip_disid[i] if i < len(dip_disid) else None
         s = sen_disid[i] if i < len(sen_disid) else None
         d_str = f"{d['nombre'][:25]:<25} ({d['partido']}, {d['disidencia_pct']}%)" if d else ""
         s_str = f"{s['nombre'][:25]:<25} ({s['partido']}, {s['disidencia_pct']}%)" if s else ""
-        print(f"  {d_str:<40} {s_str:<40}")
+        logger.info("  %-40s %-40s", d_str, s_str)
 
     avg_d = np.mean([float(r["disidencia_pct"]) for r in dip_disid]) if dip_disid else 0
     avg_s = np.mean([float(r["disidencia_pct"]) for r in sen_disid]) if sen_disid else 0
-    print(f"\n  Disidencia promedio top-10: Diputados={avg_d:.1f}%, Senado={avg_s:.1f}%")
+    logger.info("")
+    logger.info("  Disidencia promedio top-10: Diputados=%.1f%%, Senado=%.1f%%", avg_d, avg_s)
 
     # --- Plot 1: Grouped bar chart ---
     fig, ax = plt.subplots(figsize=(12, 7))
@@ -987,7 +1021,7 @@ def analyze_poder():
     fig.tight_layout()
     fig.savefig(BIC_OUTPUT / "poder_bicameral_barras.png", dpi=150, bbox_inches="tight")
     plt.close(fig)
-    print("  → poder_bicameral_barras.png generado")
+    logger.info("  → poder_bicameral_barras.png generado")
 
     return poder_rows
 
@@ -998,13 +1032,13 @@ def analyze_poder():
 
 
 def main():
-    print("=" * 80)
-    print("ANÁLISIS BICAMERAL — Observatorio del Congreso de la Unión")
-    print(f"Proyecto: {ROOT}")
-    print(f"Diputados: {DIP_OUTPUT}")
-    print(f"Senado: {SEN_OUTPUT}")
-    print(f"Output: {BIC_OUTPUT}")
-    print("=" * 80)
+    logger.info("=" * 80)
+    logger.info("ANÁLISIS BICAMERAL — Observatorio del Congreso de la Unión")
+    logger.info("Proyecto: %s", ROOT)
+    logger.info("Diputados: %s", DIP_OUTPUT)
+    logger.info("Senado: %s", SEN_OUTPUT)
+    logger.info("Output: %s", BIC_OUTPUT)
+    logger.info("=" * 80)
 
     BIC_OUTPUT.mkdir(parents=True, exist_ok=True)
 
@@ -1030,10 +1064,12 @@ def main():
             missing.append(str(path))
 
     if missing:
-        print("\n⚠ ARCHIVOS FALTANTES:")
+        logger.error("")
+        logger.error("⚠ ARCHIVOS FALTANTES:")
         for m in missing:
-            print(f"  - {m}")
-        print("\nEjecuta primero las Fase 1 (Diputados y Senado) y el fix del prerrequisito.")
+            logger.error("  - %s", m)
+        logger.error("")
+        logger.error("Ejecuta primero las Fase 1 (Diputados y Senado) y el fix del prerrequisito.")
         return
 
     # Run 4 analyses
@@ -1043,20 +1079,24 @@ def main():
     poder_results = analyze_poder()
 
     # Final summary
-    print("\n" + "=" * 80)
-    print("RESUMEN FINAL")
-    print("=" * 80)
+    logger.info("")
+    logger.info("=" * 80)
+    logger.info("RESUMEN FINAL")
+    logger.info("=" * 80)
 
-    print(f"\n  Archivos generados en {BIC_OUTPUT}/:")
+    logger.info("")
+    logger.info("  Archivos generados en %s/:", BIC_OUTPUT)
     for f in sorted(BIC_OUTPUT.iterdir()):
-        print(f"    ✓ {f.name}")
+        logger.info("    ✓ %s", f.name)
 
-    print(f"\n  Análisis 1 (NOMINATE): {len(nominate_results)} partidos comparados")
-    print(f"  Análisis 2 (Disciplina): {len(disciplina_results)} pares comparados")
-    print(f"  Análisis 3 (Co-votación): {len(covotacion_results)} legislaturas comparadas")
-    print(f"  Análisis 4 (Poder): {len(poder_results)} partidos comparados")
+    logger.info("")
+    logger.info("  Análisis 1 (NOMINATE): %d partidos comparados", len(nominate_results))
+    logger.info("  Análisis 2 (Disciplina): %d pares comparados", len(disciplina_results))
+    logger.info("  Análisis 3 (Co-votación): %d legislaturas comparadas", len(covotacion_results))
+    logger.info("  Análisis 4 (Poder): %d partidos comparados", len(poder_results))
 
-    print("\n" + "=" * 80)
+    logger.info("")
+    logger.info("=" * 80)
 
 
 if __name__ == "__main__":
