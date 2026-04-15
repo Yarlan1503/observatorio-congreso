@@ -44,6 +44,7 @@ def create_database():
     # pero executescript no siempre aplica PRAGMAs correctamente)
     conn.execute("PRAGMA journal_mode = WAL")
     conn.execute("PRAGMA busy_timeout = 5000")
+    conn.execute("PRAGMA foreign_keys = ON")
 
     # Verificar que foreign_keys estén habilitadas
     cur = conn.execute("PRAGMA foreign_keys;")

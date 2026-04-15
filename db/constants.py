@@ -189,6 +189,7 @@ def init_constants_from_db(db_path: str) -> None:
         return
 
     conn = sqlite3.connect(str(path))
+    conn.execute("PRAGMA foreign_keys = ON")
     conn.execute("PRAGMA journal_mode = WAL")
     conn.execute("PRAGMA busy_timeout = 5000")
     try:
@@ -279,6 +280,7 @@ def get_total_seats(db_path: str, camara: str = "D") -> int:
     rol = "diputado" if camara == "D" else "senador"
 
     conn = sqlite3.connect(str(path))
+    conn.execute("PRAGMA foreign_keys = ON")
     conn.execute("PRAGMA journal_mode = WAL")
     conn.execute("PRAGMA busy_timeout = 5000")
     try:
