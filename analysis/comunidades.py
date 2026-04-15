@@ -7,49 +7,63 @@ la composición partidista de cada comunidad para identificar bloques
 de poder y legisladores cruzados.
 
 Dependencias:
-    - networkx
-    - python-louvain (community)
+    - networkx >= 3.2 (louvain_communities con seed para reproducibilidad)
     - pandas
 """
 
 from collections import Counter
 
-import community
 import networkx as nx
 
 
 def detect_communities(
     graph: nx.Graph,
     resolution: float = 1.0,
+    seed: int = 42,
 ) -> dict[str, int]:
     """
     Detecta comunidades en un grafo de co-votación usando Louvain.
 
-    Aplica el algoritmo de Louvain (python-louvain) para encontrar
-    la partición que maximiza la modularidad del grafo.
+    Aplica el algoritmo de Louvain (networkx.community.louvain_communities)
+    para encontrar la partición que maximiza la modularidad del grafo.
+
+    Usa networkx.community.louvain_communities (disponible desde NX 3.2)
+    en vez de python-louvain (community.best_partition) porque este último
+    no acepta seed, produciendo resultados no deterministas entre ejecuciones.
 
     Args:
         graph: Grafo de networkx con pesos en aristas (atributo 'weight').
         resolution: Parámetro de resolución del algoritmo. Valores > 1.0
                     producen comunidades más pequeñas; < 1.0, más grandes.
+        seed: Semilla para reproducibilidad (default: 42).
 
     Returns:
         Diccionario node_id → community_id (entero desde 0).
         Todos los nodos del grafo están presentes en el resultado.
     """
-    print(f"[comunidades] Detectando comunidades con resolution={resolution}")
+    print(f"[comunidades] Detectando comunidades con resolution={resolution}, seed={seed}")
     print(
         f"[comunidades] Grafo de entrada: {graph.number_of_nodes()} nodos, "
         f"{graph.number_of_edges()} aristas"
     )
 
-    partition: dict[str, int] = community.best_partition(
+    # Usar networkx.community.louvain_communities (disponible desde NX 3.2)
+    # para reproducibilidad vía seed. python-louvain (community.best_partition)
+    # no acepta seed, produciendo resultados no deterministas.
+    communities: list[frozenset[str]] = nx.community.louvain_communities(
         graph,
-        resolution=resolution,
         weight="weight",
+        resolution=resolution,
+        seed=seed,
     )
 
-    num_communities = len(set(partition.values()))
+    # Convertir frozensets → dict {node: community_id}
+    partition: dict[str, int] = {}
+    for comm_id, nodes in enumerate(communities):
+        for node in nodes:
+            partition[node] = comm_id
+
+    num_communities = len(communities)
     print(
         f"[comunidades] Partición obtenida: {len(partition)} nodos en {num_communities} comunidades"
     )
@@ -199,7 +213,11 @@ def analyze_communities(
     )
 
     # 7. Modularidad del particionamiento
-    modularity_value: float = community.modularity(partition, graph, weight="weight")
+    # Convertir partition dict → lista de sets para nx.community.modularity
+    comm_sets: list[set[str]] = []
+    for cid in sorted(set(partition.values())):
+        comm_sets.append({n for n, c in partition.items() if c == cid})
+    modularity_value: float = nx.community.modularity(graph, comm_sets, weight="weight")
     print(f"[comunidades] Modularidad: {modularity_value:.4f}")
 
     return {
