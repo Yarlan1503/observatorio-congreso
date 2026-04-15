@@ -12,14 +12,13 @@ import logging
 import os
 from logging.handlers import RotatingFileHandler
 
+from .config import LOG_DIR
+
 LOG_FORMAT = "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
 LOG_DATE_FORMAT = "%H:%M:%S"
-LOG_DIR = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "logs"
-)
 
 
-def setup_logging(name: str, log_dir: str | None = None) -> logging.Logger:
+def setup_logging(name: str, log_dir: str | os.PathLike | None = None) -> logging.Logger:
     """Configura logging con RotatingFileHandler y console handler.
 
     Args:

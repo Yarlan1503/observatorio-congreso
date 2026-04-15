@@ -19,6 +19,7 @@ from typing import ClassVar
 
 from scraper_congreso.senadores.config import LXVI_VOTACION_URL_TEMPLATE, SENADO_ORG_ID
 from scraper_congreso.utils.base_loader import BaseLoader
+from scraper_congreso.utils.config import DB_PATH
 from scraper_congreso.utils.db_helpers import get_or_create_organization
 from scraper_congreso.utils.db_utils import match_persona_por_nombre
 from scraper_congreso.utils.id_generator import next_id
@@ -96,7 +97,7 @@ class CongresoLoader(BaseLoader):
         "vote",
     ]
 
-    def __init__(self, db_path: str = "db/congreso.db") -> None:
+    def __init__(self, db_path: str = str(DB_PATH)) -> None:
         super().__init__(self._resolve_db_path(db_path))
 
     def _resolve_db_path(self, db_path: str) -> Path:

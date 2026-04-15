@@ -56,3 +56,10 @@ Thumbs.db
 *.log
 *_log.txt
 batch_*.txt
+
+# Outputs regenerables de análisis
+analysis/*/output/
+
+# Backups manuales de BD (pre-migration snapshots)
+db/*.bak
+db/*.bak.*
