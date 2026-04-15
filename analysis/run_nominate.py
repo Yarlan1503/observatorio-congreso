@@ -19,10 +19,11 @@ Uso:
 """
 
 import argparse
-import sqlite3
 import sys
 import time
 from pathlib import Path
+
+from analysis.db import get_connection
 
 import pandas as pd
 
@@ -126,9 +127,7 @@ def _get_legislaturas(db_path: str, camara: str | None = None) -> list[str]:
     Returns:
         Lista de nombres de legislatura ordenados.
     """
-    conn = sqlite3.connect(db_path)
-    conn.execute("PRAGMA journal_mode = WAL")
-    conn.execute("PRAGMA busy_timeout = 5000")
+    conn = get_connection(db_path)
     try:
         if camara is not None:
             camara_org = "O08" if camara == "D" else "O09"
@@ -233,9 +232,7 @@ def _run_cross_legislatura(
     )
 
     # Determinar legislatura principal de cada legislador
-    conn = sqlite3.connect(db_path)
-    conn.execute("PRAGMA journal_mode = WAL")
-    conn.execute("PRAGMA busy_timeout = 5000")
+    conn = get_connection(db_path)
     try:
         placeholders = ",".join(["?"] * len(data["legislators"]))
         query = (

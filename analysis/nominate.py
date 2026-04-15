@@ -23,10 +23,11 @@ Funciones principales:
 """
 
 import logging
-import sqlite3
 from collections import Counter
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
+
+from analysis.db import get_connection
 
 import numpy as np
 import pandas as pd
@@ -106,9 +107,7 @@ def prepare_vote_matrix(
     if not path.exists():
         raise FileNotFoundError(f"Base de datos no encontrada: {db_path}")
 
-    conn = sqlite3.connect(str(path))
-    conn.execute("PRAGMA journal_mode = WAL")
-    conn.execute("PRAGMA busy_timeout = 5000")
+    conn = get_connection(path)
     try:
         # ------------------------------------------------------------------
         # 1. Cargar votos con filtro de legislatura y/o cámara
@@ -1135,9 +1134,7 @@ def nominate_by_legislatura(
         de ``run_wnominate``. Legislaturas sin datos suficientes se omiten
         con un warning en el log.
     """
-    conn = sqlite3.connect(db_path)
-    conn.execute("PRAGMA journal_mode = WAL")
-    conn.execute("PRAGMA busy_timeout = 5000")
+    conn = get_connection(db_path)
     try:
         legs_df = pd.read_sql_query(
             "SELECT DISTINCT legislatura FROM vote_event "
@@ -1217,9 +1214,7 @@ def nominate_cross_legislatura(
     resultado = run_wnominate(data, dimensions=dimensions, seed=_SEED)
 
     # Determinar legislatura principal de cada legislador
-    conn = sqlite3.connect(db_path)
-    conn.execute("PRAGMA journal_mode = WAL")
-    conn.execute("PRAGMA busy_timeout = 5000")
+    conn = get_connection(db_path)
     try:
         # Obtener la legislatura principal por votación
         leg_labels_query = """

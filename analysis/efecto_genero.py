@@ -28,8 +28,9 @@ Usage:
 
 import contextlib
 import logging
-import sqlite3
 from pathlib import Path
+
+from analysis.db import get_connection
 
 import matplotlib
 
@@ -409,9 +410,7 @@ def compute_gender_covotacion(camara: str, db_path: Path) -> pd.DataFrame:
     GROUP BY ve.legislatura, v.vote_event_id, p.genero, v.option
     """
 
-    conn = sqlite3.connect(str(db_path))
-    conn.execute("PRAGMA journal_mode = WAL")
-    conn.execute("PRAGMA busy_timeout = 5000")
+    conn = get_connection(db_path)
     try:
         df = pd.read_sql_query(query, conn, params=(org_id,))
     finally:
