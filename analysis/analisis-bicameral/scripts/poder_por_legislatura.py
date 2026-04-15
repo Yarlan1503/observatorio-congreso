@@ -30,6 +30,7 @@ import matplotlib.pyplot as plt
 import analysis.poder_empirico as pe
 
 # --- Importar infraestructura existente ---
+from analysis.constants import COMMON_PARTIES, ORG_TO_SHORT, PARTY_COLORS
 from analysis.poder_empirico import (
     analyze_vote_event,
     calc_empirical_power,
@@ -46,16 +47,6 @@ DB_PATH = ROOT / "db" / "congreso.db"
 BIC_OUTPUT = ROOT / "analysis" / "analisis-bicameral" / "output"
 
 # --- Colores y orden de partidos para la gráfica ---
-PARTY_COLORS = {
-    "MORENA": "#8B0000",
-    "PAN": "#003399",
-    "PRI": "#00A650",
-    "PVEM": "#006633",
-    "PT": "#CC0000",
-    "MC": "#FF6600",
-    "PRD": "#FFD700",
-}
-COMMON_PARTIES = ["MORENA", "PAN", "PRI", "PVEM", "PT", "MC", "PRD"]
 
 LEG_ORDER = ["LX", "LXI", "LXII", "LXIII", "LXIV", "LXV", "LXVI"]
 
@@ -64,27 +55,11 @@ SEATS_CONST = {"D": 500, "S": 128}
 
 
 def _build_party_short():
-    """Construye mapeo completo org_id → sigla, incluyendo IDs legacy (O01-O07).
-
-    Después de init_constants_from_db(), _ORG_TO_SHORT solo tiene los IDs de
-    la tabla organization (O11+). Los IDs legacy O01-O07 usados en LXVI
-    también necesitan mapearse manualmente.
-    """
+    """Construye mapeo completo org_id → sigla, incluyendo IDs legacy (O01-O07)."""
     import db.constants as c
 
-    mapping = dict(c._ORG_TO_SHORT)  # DB-based: O11=MORENA, O12=PAN, etc.
-    # Legacy IDs (hardcoded en constants.py, usados en votos de LXVI)
-    mapping.update(
-        {
-            "O01": "MORENA",
-            "O02": "PT",
-            "O03": "PVEM",
-            "O04": "PAN",
-            "O05": "PRI",
-            "O06": "MC",
-            "O07": "PRD",
-        }
-    )
+    mapping = dict(c._ORG_TO_SHORT)
+    mapping.update(ORG_TO_SHORT)
     return mapping
 
 

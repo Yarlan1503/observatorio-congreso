@@ -15,20 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-# --- Esquema de colores por partido ---
-
-PARTY_COLORS: dict[str, str] = {
-    "MORENA": "#8B0000",  # rojo oscuro
-    "PT": "#FF6600",  # naranja
-    "PVEM": "#228B22",  # verde
-    "PAN": "#003399",  # azul
-    "PRI": "#008833",  # verde PRI
-    "MC": "#FF8C00",  # naranja MC
-    "PRD": "#FFD700",  # amarillo
-    "Independientes": "#808080",  # gris
-}
-
-DEFAULT_COLOR: str = "#CCCCCC"
+from analysis.constants import DEFAULT_COLOR, PARTY_COLORS
 
 
 def _get_party_color(party_name: str | None) -> str:

@@ -22,6 +22,7 @@ import numpy as np
 import pandas as pd
 
 import db.constants as _dbc
+from analysis.constants import PARTY_COLORS
 from analysis.poder_partidos import shapley_shubik
 from db.constants import (
     CAMARA_DIPUTADOS_ID,
@@ -41,17 +42,6 @@ CAMARA_LABEL = {"diputados": "Cámara de Diputados", "senado": "Senado de la Rep
 
 # Legislaturas en orden cronológico
 LEG_ORDER = ["LX", "LXI", "LXII", "LXIII", "LXIV", "LXV", "LXVI"]
-
-# Colores consistentes para partidos
-PARTY_COLORS = {
-    "MORENA": "#8B0000",
-    "PT": "#FF6600",
-    "PVEM": "#228B22",
-    "PAN": "#0066CC",
-    "PRI": "#00AA00",
-    "MC": "#FF8C00",
-    "PRD": "#FFD700",
-}
 
 
 # ---------------------------------------------------------------------------

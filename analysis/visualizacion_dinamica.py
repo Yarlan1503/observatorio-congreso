@@ -17,24 +17,10 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 
+from analysis.constants import ORG_TO_SHORT, PARTY_ORDER
 from analysis.visualizacion import PARTY_COLORS
 
 logger = logging.getLogger(__name__)
-
-# Mapeo org_id → nombre corto (consistente con PARTY_COLORS)
-_ORG_TO_SHORT: dict[str, str] = {
-    "O01": "MORENA",
-    "O02": "PT",
-    "O03": "PVEM",
-    "O04": "PAN",
-    "O05": "PRI",
-    "O06": "MC",
-    "O07": "PRD",
-    "O11": "Independientes",
-}
-
-# Orden canónico de partidos para visualizaciones
-_PARTY_ORDER: list[str] = ["MORENA", "PT", "PVEM", "PRI", "PAN", "MC", "PRD"]
 
 
 def _get_party_color(party_name: str) -> str:
@@ -79,9 +65,9 @@ def plot_disciplina_timeline(evolution: dict, output_dir: str) -> str:
         all_parties.update(period_data.keys())
 
     # Orden canónico
-    parties = [p for p in _PARTY_ORDER if p in all_parties]
+    parties = [p for p in PARTY_ORDER if p in all_parties]
     # Añadir partidos extra que no estén en el orden canónico
-    parties.extend(sorted(all_parties - set(_PARTY_ORDER)))
+    parties.extend(sorted(all_parties - set(PARTY_ORDER)))
 
     fig, ax = plt.subplots(figsize=(max(10, n_ventanas * 2), 6))
 
@@ -273,18 +259,18 @@ def plot_heatmap_alianzas(window_results: dict, output_dir: str) -> str:
         # intra_party_avg está indexado por org_id
         intra = metrics.get("intra_party_avg", {})
         for org_id in intra:
-            short = _ORG_TO_SHORT.get(org_id, org_id)
+            short = ORG_TO_SHORT.get(org_id, org_id)
             parties_present.add(short)
         # inter_party_avg tiene tuplas (org_id, org_id)
         inter = metrics.get("inter_party_avg", {})
         for pair in inter:
             for org_id in pair:
-                short = _ORG_TO_SHORT.get(org_id, org_id)
+                short = ORG_TO_SHORT.get(org_id, org_id)
                 parties_present.add(short)
 
     # Orden canónico
-    party_order = [p for p in _PARTY_ORDER if p in parties_present]
-    party_order.extend(sorted(parties_present - set(_PARTY_ORDER)))
+    party_order = [p for p in PARTY_ORDER if p in parties_present]
+    party_order.extend(sorted(parties_present - set(PARTY_ORDER)))
 
     # Construir matriz: para cada (partido, ventana), co-votación promedio
     # = promedio de: intra_party_avg del partido + todos los inter_party_avg del partido
@@ -298,7 +284,7 @@ def plot_heatmap_alianzas(window_results: dict, output_dir: str) -> str:
         for i, party_short in enumerate(party_order):
             # Encontrar org_id correspondiente al nombre corto
             org_id = None
-            for oid, sname in _ORG_TO_SHORT.items():
+            for oid, sname in ORG_TO_SHORT.items():
                 if sname == party_short:
                     org_id = oid
                     break

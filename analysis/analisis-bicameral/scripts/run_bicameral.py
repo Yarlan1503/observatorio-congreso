@@ -32,6 +32,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
+from analysis.constants import COMMON_PARTIES, PARTY_COLORS
+
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
@@ -42,19 +44,6 @@ BIC_OUTPUT = ROOT / "analysis" / "analisis-bicameral" / "output"
 # ---------------------------------------------------------------------------
 # Party config
 # ---------------------------------------------------------------------------
-PARTY_COLORS = {
-    "MORENA": "#8B0000",
-    "PAN": "#003399",
-    "PRI": "#00A650",
-    "PVEM": "#006633",
-    "PT": "#CC0000",
-    "MC": "#FF6600",
-    "PRD": "#FFD700",
-    "Independientes": "#808080",
-}
-
-# Common parties for comparison
-COMMON_PARTIES = ["MORENA", "PAN", "PRI", "PVEM", "PT", "MC", "PRD"]
 
 # Party name normalization: various forms → canonical short name
 PARTY_NORM = {

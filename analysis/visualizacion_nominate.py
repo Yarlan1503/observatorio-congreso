@@ -25,6 +25,7 @@ import matplotlib.transforms as transforms
 import numpy as np
 from matplotlib.patches import Ellipse
 
+from analysis.constants import ORG_TO_SHORT
 from analysis.visualizacion import DEFAULT_COLOR, PARTY_COLORS
 
 logger = logging.getLogger(__name__)
@@ -42,18 +43,6 @@ plt.rcParams.update(
     }
 )
 
-# Mapeo org_id → nombre corto (consistente con PARTY_COLORS)
-_ORG_TO_SHORT: dict[str, str] = {
-    "O01": "MORENA",
-    "O02": "PT",
-    "O03": "PVEM",
-    "O04": "PAN",
-    "O05": "PRI",
-    "O06": "MC",
-    "O07": "PRD",
-    "O11": "Independientes",
-}
-
 # Orden canónico de legislaturas (temporal)
 LEG_ORDER: list[str] = ["LX", "LXI", "LXII", "LXIII", "LXIV", "LXV", "LXVI"]
 
@@ -67,7 +56,7 @@ def _get_color(party_id: str) -> str:
     """Retorna el color asociado a un partido, con fallback gris.
 
     Acepta tanto org_ids (``"O01"``) como nombres cortos (``"MORENA"``).
-    Convierte org_id → nombre corto vía ``_ORG_TO_SHORT`` antes de buscar
+    Convierte org_id → nombre corto vía ``ORG_TO_SHORT`` antes de buscar
     en ``PARTY_COLORS``.
 
     Args:
@@ -76,7 +65,7 @@ def _get_color(party_id: str) -> str:
     Returns:
         Hex color del partido o gris por defecto.
     """
-    short_name = _ORG_TO_SHORT.get(party_id, party_id)
+    short_name = ORG_TO_SHORT.get(party_id, party_id)
     return PARTY_COLORS.get(short_name, DEFAULT_COLOR)
 
 
@@ -89,7 +78,7 @@ def _short_name(party_id: str) -> str:
     Returns:
         Nombre corto legible (ej: ``"MORENA"``) o el valor original.
     """
-    return _ORG_TO_SHORT.get(party_id, party_id)
+    return ORG_TO_SHORT.get(party_id, party_id)
 
 
 def _detect_multi_leg(results: dict) -> bool:

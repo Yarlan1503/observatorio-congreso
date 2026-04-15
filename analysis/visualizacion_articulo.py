@@ -17,6 +17,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from analysis.constants import ORG_TO_SHORT, PARTY_ORDER
+
 logger = logging.getLogger(__name__)
 
 # Directorios
@@ -24,21 +26,6 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "analysis" / "output" / "dinamica"
 OUTPUT_DIR = PROJECT_ROOT / "docs" / "images"
 GRAFOS_DIR = DATA_DIR / "grafos"
-
-# Mapeo org_id → nombre corto (copiar localmente, NO importar de visualizacion_dinamica)
-_ORG_TO_SHORT = {
-    "O01": "MORENA",
-    "O02": "PT",
-    "O03": "PVEM",
-    "O04": "PAN",
-    "O05": "PRI",
-    "O06": "MC",
-    "O07": "PRD",
-    "O11": "Independientes",
-}
-
-# Orden canónico de partidos
-PARTY_ORDER = ["MORENA", "PT", "PVEM", "PRI", "PAN", "MC", "PRD"]
 
 
 # ---------------------------------------------------------------------------
@@ -218,13 +205,13 @@ def _get_inter_party_data():
             # Convertir keys de (org_id_a, org_id_b) a (short_name_a, short_name_b)
             converted_inter = {}
             for (org_a, org_b), avg in inter_avg.items():
-                short_a = _ORG_TO_SHORT.get(org_a, org_a)
-                short_b = _ORG_TO_SHORT.get(org_b, org_b)
+                short_a = ORG_TO_SHORT.get(org_a, org_a)
+                short_b = ORG_TO_SHORT.get(org_b, org_b)
                 converted_inter[tuple(sorted([short_a, short_b]))] = avg
 
             converted_intra = {}
             for org_id, avg in intra_avg.items():
-                short = _ORG_TO_SHORT.get(org_id, org_id)
+                short = ORG_TO_SHORT.get(org_id, org_id)
                 converted_intra[short] = avg
 
             data[label] = {"inter": converted_inter, "intra": converted_intra}

@@ -13,6 +13,8 @@ from pathlib import Path
 
 import polars as pl
 
+from analysis.constants import COLORES_WEB, PARTIDO_MAP
+
 # ---------------------------------------------------------------------------
 # Rutas
 # ---------------------------------------------------------------------------
@@ -22,27 +24,6 @@ OUTPUT_DIR = Path("/home/cachorro/Documentos/CachorroSpace/public/data/observato
 # ---------------------------------------------------------------------------
 # Constantes
 # ---------------------------------------------------------------------------
-PARTIDO_MAP = {
-    "Partido Acci\u00f3n Nacional (PAN)": "PAN",
-    "Partido Revolucionario Institucional (PRI)": "PRI",
-    "Partido de la Revoluci\u00f3n Democr\u00e1tica (PRD)": "PRD",
-    "Partido del Trabajo (PT)": "PT",
-    "Partido Verde Ecologista de M\u00e9xico (PVEM)": "PVEM",
-    "Movimiento Ciudadano (MC)": "MC",
-    "Morena": "Morena",
-    "Independientes": "Independientes",
-}
-
-COLORES = {
-    "PAN": "#0055A4",
-    "PRI": "#00A651",
-    "PRD": "#F7B219",
-    "PT": "#D8272E",
-    "PVEM": "#579E33",
-    "MC": "#F47920",
-    "Morena": "#8B2D8B",
-    "Independientes": "#888888",
-}
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -90,7 +71,7 @@ def export_nominate() -> int:
 
     data = {
         "legislaturas": legislaturas,
-        "colores": COLORES,
+        "colores": COLORES_WEB,
         "legisladores": legislators,
     }
     write_json(data, OUTPUT_DIR / "nominate.json")
@@ -107,7 +88,7 @@ def export_nominate_cross() -> int:
 
     data = {
         "legislaturas": legislaturas,
-        "colores": COLORES,
+        "colores": COLORES_WEB,
         "legisladores": legislators,
     }
     write_json(data, OUTPUT_DIR / "nominate_cross.json")

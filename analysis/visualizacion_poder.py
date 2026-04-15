@@ -26,6 +26,8 @@ import matplotlib.ticker as mtick
 import numpy as np
 import pandas as pd
 
+from analysis.constants import ORG_TO_SHORT, PARTY_COLORS
+
 # ---------------------------------------------------------------------------
 # Configuración global
 # ---------------------------------------------------------------------------
@@ -33,30 +35,6 @@ import pandas as pd
 DB_PATH = Path(__file__).parent.parent / "db" / "congreso.db"
 OUTPUT_DIR = Path(__file__).parent / "analisis-diputados/output"
 OUTPUT_DIR.mkdir(exist_ok=True)
-
-# Colores por partido (coherentes con visualizacion.py)
-PARTY_COLORS = {
-    "Morena": "#8B0000",
-    "PT": "#FF6600",
-    "PVEM": "#228B22",
-    "PAN": "#003399",
-    "PRI": "#006633",
-    "MC": "#FF8C00",
-    "PRD": "#FFD700",
-    "Independientes": "#808080",
-}
-
-# Mapeo org_id → nombre corto
-ORG_SHORT_NAME = {
-    "O01": "Morena",
-    "O02": "PT",
-    "O03": "PVEM",
-    "O04": "PAN",
-    "O05": "PRI",
-    "O06": "MC",
-    "O07": "PRD",
-    "O11": "Independientes",
-}
 
 # Normalizar nombres de grupo a org_id
 GROUP_TO_ORG = {
@@ -106,7 +84,7 @@ def normalize_group(group_val):
 
 def get_org_name(org_id):
     """Retorna nombre corto del partido."""
-    return ORG_SHORT_NAME.get(org_id, org_id)
+    return ORG_TO_SHORT.get(org_id, org_id)
 
 
 def clean_pct_column(series):
@@ -511,7 +489,7 @@ def plot_linea_temporal():
             org_crit_count[org] += 1
 
         # Asegurar todos los partidos activos están en el diccionario
-        all_orgs = set(ORG_SHORT_NAME.keys())
+        all_orgs = set(ORG_TO_SHORT.keys())
         for org in all_orgs:
             if org not in org_crit_count:
                 org_crit_count[org] = 0
