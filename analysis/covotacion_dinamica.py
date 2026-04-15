@@ -32,6 +32,7 @@ from analysis.comunidades import (
     detect_communities,
     get_partition_as_attribute,
 )
+from analysis.config import MIN_EVENTS_PER_WINDOW, TOP_DISSIDENTS_PER_WINDOW
 from analysis.covotacion import (
     _PARTY_ORG_IDS,
     build_covotacion_matrix,
@@ -140,7 +141,7 @@ def _compute_top_dissidents(
     graph: nx.Graph,
     party_map: dict[str, str],
     org_map: dict[str, str],
-    n: int = 5,
+    n: int = TOP_DISSIDENTS_PER_WINDOW,
 ) -> list[dict]:
     """Calcular top N legisladores más disidentes (menor co-votación intra-partido)."""
     # Para cada legislador, calcular co-votación promedio con miembros de su partido
@@ -345,7 +346,7 @@ def load_data_by_window(
 def build_windows(
     db_path: str,
     strategy: str = "legislatura",
-    min_events: int = 30,
+    min_events: int = MIN_EVENTS_PER_WINDOW,
     window_size: int | None = None,
     overlap: int | None = None,
     camara: str | None = None,

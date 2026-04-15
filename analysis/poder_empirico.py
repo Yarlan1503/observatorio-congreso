@@ -20,6 +20,11 @@ import sqlite3
 from collections import defaultdict
 from itertools import combinations
 
+from analysis.config import (
+    CLOSE_VOTES_THRESHOLD,
+    REFORMA_JUDICIAL_VE_IDS,
+    TOP_DISSENTERS_GLOBAL,
+)
 from analysis.constants import CAMARA_MAP
 from db.constants import (
     _NAME_TO_ORG,
@@ -773,7 +778,7 @@ def find_top_dissidents(conn, min_votes=MIN_VOTES, camara: str | None = None):
     # Ordenar por tasa de disidencia (desc), luego por votos de disidencia (desc)
     dissidents.sort(key=lambda x: (-x[3], -x[5]))
 
-    return dissidents[:10]
+    return dissidents[:TOP_DISSENTERS_GLOBAL]
 
 
 # --- Output ---
@@ -1267,11 +1272,11 @@ def main(camara: str | None = None, output_dir: str | None = None):
     )
 
     # Análisis Reforma Judicial (solo para Diputados)
-    reforma_ve_ids = ["VE04", "VE05"] if camara != "S" else []
+    reforma_ve_ids = REFORMA_JUDICIAL_VE_IDS if camara != "S" else []
     reforma_analyses = analyze_reforma_judicial(conn, reforma_ve_ids) if reforma_ve_ids else []
 
     # Votaciones cerradas
-    close_votes_analysis = analyze_close_votes(conn, analyses, threshold=10)
+    close_votes_analysis = analyze_close_votes(conn, analyses, threshold=CLOSE_VOTES_THRESHOLD)
 
     # Top disidentes
     dissidents = find_top_dissidents(conn, min_votes=10, camara=camara)

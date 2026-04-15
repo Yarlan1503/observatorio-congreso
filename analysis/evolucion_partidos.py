@@ -21,6 +21,7 @@ import numpy as np
 import pandas as pd
 
 import db.constants as _dbc
+from analysis.config import DEALIGNMENT_THRESHOLD
 from analysis.constants import CAMARA_MAP, PARTY_COLORS
 from analysis.db import get_connection
 from analysis.poder_partidos import shapley_shubik
@@ -388,7 +389,7 @@ def analyze_dealignment(panel: pd.DataFrame) -> pd.DataFrame:
         delta = last_disc - first_disc
 
         # Dealignment: caída > 5 puntos porcentuales
-        es_dealignment = delta < -0.05
+        es_dealignment = delta < DEALIGNMENT_THRESHOLD
 
         rows.append(
             {
