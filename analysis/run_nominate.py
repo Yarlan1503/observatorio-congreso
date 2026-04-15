@@ -19,7 +19,6 @@ Uso:
 """
 
 import argparse
-import logging
 import sqlite3
 import sys
 import time
@@ -32,22 +31,20 @@ from analysis.nominate import (
     prepare_vote_matrix,
     run_wnominate,
 )
+from analysis.runner_utils import (
+    DB_PATH,
+    PROJECT_ROOT,
+    add_common_args,
+    setup_logging,
+)
 from analysis.visualizacion_nominate import (
     generate_all_nominate_visualizations,
     plot_nominate_scatter,
 )
 
-# Configurar logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
-)
-logger = logging.getLogger(__name__)
+logger = setup_logging()
 
-# Raíz del proyecto
-PROJECT_ROOT = Path(__file__).parent.parent
-DB_PATH = PROJECT_ROOT / "db" / "congreso.db"
-OUTPUT_DIR = Path(__file__).parent / "analisis-diputados/output/nominate"
+OUTPUT_DIR = PROJECT_ROOT / "analisis-diputados" / "output" / "nominate"
 
 
 # ---------------------------------------------------------------------------
@@ -60,11 +57,9 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Análisis W-NOMINATE de puntos ideales del Congreso de la Unión",
     )
-    parser.add_argument(
-        "--camara",
-        choices=["diputados", "senado"],
-        default=None,
-        help="Filtrar por cámara (diputados o senado)",
+    add_common_args(
+        parser,
+        output_help="Directorio de salida (default: analysis/output/nominate)",
     )
     parser.add_argument(
         "--legislatura",
@@ -100,11 +95,6 @@ def parse_args():
         type=float,
         default=0.975,
         help="Umbral para filtrar lopsided votes (0=deshabilitado, default: 0.975)",
-    )
-    parser.add_argument(
-        "--output-dir",
-        default=None,
-        help="Directorio de salida (default: analysis/output/nominate)",
     )
     parser.add_argument(
         "--n-workers",

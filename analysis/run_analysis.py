@@ -7,19 +7,20 @@ O: python analysis/run_analysis.py --camara diputados
 O: python analysis/run_analysis.py --camara senado
 """
 
-import logging
+import argparse
 from pathlib import Path
 
 from analysis.constants import CAMARA_MAP
+from analysis.runner_utils import (
+    DB_PATH,
+    add_common_args,
+    setup_logging,
+)
+from analysis.runner_utils import (
+    DEFAULT_OUTPUT_DIR as OUTPUT_DIR,
+)
 
-# Configurar logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
-
-# Raíz del proyecto
-PROJECT_ROOT = Path(__file__).parent.parent
-DB_PATH = PROJECT_ROOT / "db" / "congreso.db"
-OUTPUT_DIR = Path(__file__).parent / "analisis-diputados/output"
+logger = setup_logging()
 
 
 def main(camara: str | None = None, output_dir: str | None = None):
@@ -232,19 +233,10 @@ def main(camara: str | None = None, output_dir: str | None = None):
 
 
 if __name__ == "__main__":
-    import argparse
-
     parser = argparse.ArgumentParser(description="Análisis de co-votación")
-    parser.add_argument(
-        "--camara",
-        choices=["diputados", "senado"],
-        default=None,
-        help="Filtrar por cámara (diputados o senado)",
-    )
-    parser.add_argument(
-        "--output-dir",
-        default=None,
-        help="Directorio de salida (default: analysis/analisis-diputados/output)",
+    add_common_args(
+        parser,
+        output_help="Directorio de salida (default: analysis/analisis-diputados/output)",
     )
     args = parser.parse_args()
 

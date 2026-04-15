@@ -9,7 +9,6 @@ Ejecuta:
 """
 
 import argparse
-import logging
 import sys
 from pathlib import Path
 
@@ -21,19 +20,17 @@ from analysis.covotacion_dinamica import (
     build_windows,
     compute_evolution_metrics,
 )
+from analysis.runner_utils import (
+    DB_PATH,
+    PROJECT_ROOT,
+    add_common_args,
+    setup_logging,
+)
 from analysis.visualizacion_dinamica import generate_all_dynamic_visualizations
 
-# Configurar logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
-)
-logger = logging.getLogger(__name__)
+logger = setup_logging()
 
-# Raíz del proyecto
-PROJECT_ROOT = Path(__file__).parent.parent
-DB_PATH = PROJECT_ROOT / "db" / "congreso.db"
-OUTPUT_DIR = Path(__file__).parent / "analisis-diputados/output/dinamica"
+OUTPUT_DIR = PROJECT_ROOT / "analisis-diputados" / "output" / "dinamica"
 
 
 # Mapa de argumento de cámara a filtro
@@ -44,11 +41,9 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Análisis dinámico cross-legislatura de grafos de co-votación",
     )
-    parser.add_argument(
-        "--camara",
-        choices=["diputados", "senado"],
-        default=None,
-        help="Filtrar por cámara (diputados o senado)",
+    add_common_args(
+        parser,
+        output_help="Directorio de salida (default: analysis/analisis-diputados/output/dinamica)",
     )
     parser.add_argument(
         "--strategy",
@@ -79,11 +74,6 @@ def parse_args():
         type=int,
         default=None,
         help="Overlap entre ventanas (solo sliding)",
-    )
-    parser.add_argument(
-        "--output-dir",
-        default=None,
-        help="Directorio de salida (default: analysis/analisis-diputados/output/dinamica)",
     )
     parser.add_argument(
         "--exclude-legislatura",

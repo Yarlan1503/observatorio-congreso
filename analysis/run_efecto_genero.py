@@ -8,55 +8,31 @@ Usage:
     python -m analysis.run_efecto_genero --camara ambas
 """
 
-import argparse
-import logging
 import time
-from pathlib import Path
 
 from analysis.efecto_genero import run_efecto_genero
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+from analysis.runner_utils import (
+    build_simple_parser,
+    log_elapsed,
+    run_for_cameras,
+    setup_logging,
 )
-logger = logging.getLogger(__name__)
 
-PROJECT_ROOT = Path(__file__).parent.parent
+logger = setup_logging()
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Análisis de Efecto Género en el Congreso",
-    )
-    parser.add_argument(
-        "--camara",
-        choices=["diputados", "senado", "ambas"],
-        default="ambas",
-        help="Cámara a analizar (default: ambas)",
-    )
-    parser.add_argument(
-        "--output-dir",
-        default=None,
-        help="Directorio de salida (default: analysis/analisis-{camara}/output/)",
+    parser = build_simple_parser(
+        "Análisis de Efecto Género en el Congreso",
+        camara_choices=["diputados", "senado", "ambas"],
+        camara_default="ambas",
+        output_help="Directorio de salida (default: analysis/analisis-{camara}/output/)",
     )
     args = parser.parse_args()
 
     t_start = time.time()
-
-    if args.camara == "ambas":
-        for camara in ["diputados", "senado"]:
-            logger.info("\n" + "=" * 60)
-            logger.info("=== EFECTO GÉNERO — %s ===", camara.upper())
-            logger.info("=" * 60)
-            run_efecto_genero(camara, args.output_dir)
-    else:
-        logger.info("=" * 60)
-        logger.info("=== EFECTO GÉNERO — %s ===", args.camara.upper())
-        logger.info("=" * 60)
-        run_efecto_genero(args.camara, args.output_dir)
-
-    elapsed = time.time() - t_start
-    logger.info("\nTiempo total: %.1f segundos", elapsed)
+    run_for_cameras(args.camara, run_efecto_genero, args.output_dir, logger, "EFECTO GÉNERO")
+    log_elapsed(logger, t_start)
 
 
 if __name__ == "__main__":
