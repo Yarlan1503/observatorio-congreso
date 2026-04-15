@@ -19,7 +19,9 @@ from analysis.constants import COLORES_WEB, PARTIDO_MAP
 # Rutas
 # ---------------------------------------------------------------------------
 BASE_DIR = Path(__file__).parent.parent.parent  # Project root
-OUTPUT_DIR = Path("/home/cachorro/Documentos/CachorroSpace/public/data/observatorio")
+# Ruta relativa al repo hermano CachorroSpace (mismo nivel que este proyecto)
+# Permite funcionar en cualquier máquina con la misma estructura de directorios.
+OUTPUT_DIR = BASE_DIR.parent / "CachorroSpace" / "public" / "data" / "observatorio"
 
 # ---------------------------------------------------------------------------
 # Constantes
