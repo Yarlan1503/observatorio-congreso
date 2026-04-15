@@ -117,12 +117,12 @@ CREATE TABLE person (
 
     -- Corriente interna del partido (para análisis de lealtades)
     corriente_interna TEXT CHECK(
-        corriente_interna IN ('Monreal', 'AMLO', 'Sheinbaum', 'institucionalista', NULL)
+        corriente_interna IS NULL OR corriente_interna IN ('Monreal', 'AMLO', 'Sheinbaum', 'institucionalista')
     ),
 
     -- Nivel de vulnerabilidad estimado (para teoría de juegos)
     vulnerabilidad TEXT CHECK(
-        vulnerabilidad IN ('alta', 'media', 'baja', NULL)
+        vulnerabilidad IS NULL OR vulnerabilidad IN ('alta', 'media', 'baja')
     ),
 
     -- Observaciones libres sobre el legislador
@@ -214,7 +214,7 @@ CREATE TABLE motion (
 
     -- Resultado de la votación (nullable si aún no se vota)
     result TEXT CHECK(
-        result IN ('aprobada', 'rechazada', 'pendiente', 'retirada', NULL)
+        result IS NULL OR result IN ('aprobada', 'rechazada', 'pendiente', 'retirada')
     ),
 
     -- Fecha de la votación
@@ -247,7 +247,7 @@ CREATE TABLE vote_event (
 
     -- Resultado de la votación
     result TEXT CHECK(
-        result IN ('aprobada', 'rechazada', 'empate', NULL)
+        result IS NULL OR result IN ('aprobada', 'rechazada', 'empate')
     ),
 
     -- Identificador de la votación en el SITL (votaciont parameter)
@@ -261,7 +261,7 @@ CREATE TABLE vote_event (
 
     -- Tipo de mayoría requerida para aprobación (copiado de motion)
     requirement TEXT CHECK(
-        requirement IN ('mayoria_simple', 'mayoria_calificada', 'unanime', NULL)
+        requirement IS NULL OR requirement IN ('mayoria_simple', 'mayoria_calificada', 'unanime')
     ),
 
     -- ID original del portal de origen (senado.gob.mx ID o SITL ID)
