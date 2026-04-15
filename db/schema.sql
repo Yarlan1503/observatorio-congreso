@@ -434,9 +434,15 @@ CREATE INDEX idx_vote_event_source ON vote_event(source_id);
 CREATE INDEX idx_vote_voter ON vote(voter_id);
 CREATE INDEX idx_vote_event ON vote(vote_event_id);
 
+-- Índice único: un votante solo puede votar una vez por evento (deduplicación)
+CREATE UNIQUE INDEX idx_vote_unique ON vote(vote_event_id, voter_id);
+
 -- Índices sobre count (consultas por evento y por grupo)
 CREATE INDEX idx_count_event ON count(vote_event_id);
 CREATE INDEX idx_count_group ON count(group_id);
+
+-- Índice único: un conteo por (evento, opción, grupo) (deduplicación)
+CREATE UNIQUE INDEX idx_count_unique ON count(vote_event_id, option, group_id);
 
 -- Índices sobre relacion_poder (consultas por origen, destino y tipo)
 CREATE INDEX idx_relacion_source ON relacion_poder(source_type, source_id);
