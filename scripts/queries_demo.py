@@ -12,9 +12,10 @@ import os
 import sqlite3
 import sys
 
-# Ruta a la base de datos
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "congreso.db")
+# Ruta a la base de datos (db/congreso.db relativo a scripts/)
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+DB_PATH = os.path.join(PROJECT_ROOT, "db", "congreso.db")
 
 
 def format_table(headers, rows):
