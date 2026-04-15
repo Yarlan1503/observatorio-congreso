@@ -11,7 +11,6 @@ Usage:
 
 import logging
 import math
-import sqlite3
 from pathlib import Path
 
 import matplotlib
@@ -23,6 +22,7 @@ import pandas as pd
 
 import db.constants as _dbc
 from analysis.constants import CAMARA_MAP, PARTY_COLORS
+from analysis.db import get_connection
 from analysis.poder_partidos import shapley_shubik
 from db.constants import (
     CAMARA_DIPUTADOS_ID,
@@ -108,9 +108,7 @@ def build_party_panel(camara: str, db_path: Path) -> pd.DataFrame:
         agg[col] = agg[col].fillna(0)
 
     # Contar votaciones por legislatura desde la BD
-    conn = sqlite3.connect(str(db_path))
-    conn.execute("PRAGMA journal_mode = WAL")
-    conn.execute("PRAGMA busy_timeout = 5000")
+    conn = get_connection(db_path)
     org_id = CAMARA_TO_ORG[camara]
     try:
         n_votaciones = pd.read_sql_query(
@@ -164,9 +162,7 @@ def compute_power_by_legislatura(camara: str, db_path: Path) -> pd.DataFrame:
         legislatura, partido, org_id, n_seats, shapley_shubik, banzhaf_pct,
         n_calificadas, n_critical
     """
-    conn = sqlite3.connect(str(db_path))
-    conn.execute("PRAGMA journal_mode = WAL")
-    conn.execute("PRAGMA busy_timeout = 5000")
+    conn = get_connection(db_path)
 
     camara_code = CAMARA_MAP[camara]
     org_id = CAMARA_TO_ORG[camara]

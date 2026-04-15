@@ -23,7 +23,6 @@ Funciones principales:
 """
 
 import logging
-import sqlite3
 from collections import Counter
 from pathlib import Path
 
@@ -53,6 +52,7 @@ from analysis.covotacion import (
     load_data,
     normalize_party,
 )
+from analysis.db import get_connection
 from analysis.visualizacion import PARTY_COLORS
 
 logger = logging.getLogger(__name__)
@@ -113,9 +113,7 @@ def get_time_windows(
     if not path.exists():
         raise FileNotFoundError(f"Base de datos no encontrada: {db_path}")
 
-    conn = sqlite3.connect(str(path))
-    conn.execute("PRAGMA journal_mode = WAL")
-    conn.execute("PRAGMA busy_timeout = 5000")
+    conn = get_connection(db_path)
     try:
         query = (
             "SELECT id, start_date FROM vote_event "
@@ -1213,9 +1211,7 @@ def load_data_by_window(
     if not path.exists():
         raise FileNotFoundError(f"Base de datos no encontrada: {db_path}")
 
-    conn = sqlite3.connect(str(path))
-    conn.execute("PRAGMA journal_mode = WAL")
-    conn.execute("PRAGMA busy_timeout = 5000")
+    conn = get_connection(db_path)
     try:
         # Obtener vote_event_ids filtrados según window_type
         if window_type == "legislatura":
@@ -1337,9 +1333,7 @@ def build_windows(
     if not path.exists():
         raise FileNotFoundError(f"Base de datos no encontrada: {db_path}")
 
-    conn = sqlite3.connect(str(path))
-    conn.execute("PRAGMA journal_mode = WAL")
-    conn.execute("PRAGMA busy_timeout = 5000")
+    conn = get_connection(db_path)
     try:
         base_query = (
             "SELECT id, start_date, legislatura FROM vote_event "

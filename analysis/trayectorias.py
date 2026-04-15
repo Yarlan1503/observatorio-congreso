@@ -14,7 +14,6 @@ Usage:
 """
 
 import logging
-import sqlite3
 from pathlib import Path
 
 import matplotlib
@@ -26,6 +25,7 @@ import numpy as np
 import pandas as pd
 from scipy.linalg import svd
 
+from analysis.db import get_connection
 from db.constants import (
     _ORG_ID_TO_NAME,
     CAMARA_DIPUTADOS_ID,
@@ -109,9 +109,7 @@ def compute_individual_discipline(db_path: Path, camara: str) -> pd.DataFrame:
     HAVING n_votos >= 10
     """
 
-    conn = sqlite3.connect(str(db_path))
-    conn.execute("PRAGMA journal_mode = WAL")
-    conn.execute("PRAGMA busy_timeout = 5000")
+    conn = get_connection(db_path)
     try:
         df = pd.read_sql_query(query, conn, params=(org_id,))
     finally:
@@ -145,9 +143,7 @@ def build_panel(coords: pd.DataFrame, discipline: pd.DataFrame, db_path: Path) -
     )
 
     # Query person table for genero, curul_tipo
-    conn = sqlite3.connect(str(db_path))
-    conn.execute("PRAGMA journal_mode = WAL")
-    conn.execute("PRAGMA busy_timeout = 5000")
+    conn = get_connection(db_path)
     try:
         persons = pd.read_sql_query(
             "SELECT id as voter_id, nombre, genero, curul_tipo FROM person",

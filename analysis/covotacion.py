@@ -15,7 +15,6 @@ Funciones principales:
 """
 
 import logging
-import sqlite3
 from collections import Counter
 from pathlib import Path
 
@@ -23,6 +22,7 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 
+from analysis.db import get_connection
 from db.constants import _NAME_TO_ORG, _ORG_ID_TO_NAME, _PARTY_ORG_IDS, MIN_VOTES
 
 logger = logging.getLogger(__name__)
@@ -82,9 +82,7 @@ def load_data(
     if not path.exists():
         raise FileNotFoundError(f"Base de datos no encontrada: {db_path}")
 
-    conn = sqlite3.connect(str(path))
-    conn.execute("PRAGMA journal_mode = WAL")
-    conn.execute("PRAGMA busy_timeout = 5000")
+    conn = get_connection(db_path)
     try:
         # Determinar filtro de cámara
         camara_filter = ""
