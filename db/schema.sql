@@ -16,7 +16,19 @@
 PRAGMA foreign_keys = ON;
 PRAGMA encoding = "UTF-8";
 PRAGMA journal_mode = WAL;
-PRAGMA busy_timeout = 5000;
+PRAGMA busy_timeout = 5000; 
+
+-- ============================================================
+-- Convención de Foreign Keys
+-- ============================================================
+-- ON DELETE/ON UPDATE se declaran explícitamente en cada FK:
+--   CASCADE  → Tablas hijas (registros que no existen sin su padre)
+--              Ej: vote.vote_event_id (borrar votación → borrar votos)
+--   RESTRICT → Tablas de lookup/padre (no borrar si tiene hijos)
+--              Ej: vote_event.motion_id (no borrar motion con vote_events)
+-- Los triggers de validación de fechas complementan pero no reemplazan
+-- la integridad referencial declarativa.
+-- ============================================================
 
 -- ============================================================
 -- Tabla 1: area — Divisiones geográficas del país
@@ -36,7 +48,7 @@ CREATE TABLE area (
     ),
 
     -- Referencia al área padre (ej: distrito dentro de un estado)
-    parent_id TEXT REFERENCES area(id),
+    parent_id TEXT REFERENCES area(id) ON DELETE RESTRICT ON UPDATE RESTRICT,
 
     -- Geometría GeoJSON opcional para visualización en mapas
     geometry TEXT
@@ -130,10 +142,10 @@ CREATE TABLE membership (
     id TEXT PRIMARY KEY,
 
     -- Referencia a la persona (eliminación en cascada)
-    person_id TEXT NOT NULL REFERENCES person(id) ON DELETE CASCADE,
+    person_id TEXT NOT NULL REFERENCES person(id) ON DELETE CASCADE ON UPDATE CASCADE,
 
     -- Referencia a la organización (eliminación en cascada)
-    org_id TEXT NOT NULL REFERENCES organization(id) ON DELETE CASCADE,
+    org_id TEXT NOT NULL REFERENCES organization(id) ON DELETE CASCADE ON UPDATE CASCADE,
 
     -- Rol dentro de la organización: diputado, senador, suplente, etc.
     rol TEXT NOT NULL,
@@ -148,7 +160,7 @@ CREATE TABLE membership (
     end_date TEXT,
 
     -- Organización en representación de la cual se ejerce (ej: coalición)
-    on_behalf_of TEXT REFERENCES organization(id)
+    on_behalf_of TEXT REFERENCES organization(id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 
 -- ============================================================
@@ -161,10 +173,10 @@ CREATE TABLE post (
     id TEXT PRIMARY KEY,
 
     -- Organización (cámara) a la que pertenece el cargo
-    org_id TEXT NOT NULL REFERENCES organization(id),
+    org_id TEXT NOT NULL REFERENCES organization(id) ON DELETE RESTRICT ON UPDATE RESTRICT,
 
     -- Área geográfica asociada al cargo (estado/distrito)
-    area_id TEXT REFERENCES area(id),
+    area_id TEXT REFERENCES area(id) ON DELETE RESTRICT ON UPDATE RESTRICT,
 
     -- Descripción legible del cargo
     label TEXT NOT NULL,
@@ -225,13 +237,13 @@ CREATE TABLE vote_event (
     id TEXT PRIMARY KEY,
 
     -- Referencia a la iniciativa votada
-    motion_id TEXT NOT NULL REFERENCES motion(id),
+    motion_id TEXT NOT NULL REFERENCES motion(id) ON DELETE RESTRICT ON UPDATE RESTRICT,
 
     -- Fecha de inicio del evento de votación
     start_date TEXT NOT NULL,
 
     -- Cámara que realizó la votación
-    organization_id TEXT NOT NULL REFERENCES organization(id),
+    organization_id TEXT NOT NULL REFERENCES organization(id) ON DELETE RESTRICT ON UPDATE RESTRICT,
 
     -- Resultado de la votación
     result TEXT CHECK(
@@ -270,10 +282,10 @@ CREATE TABLE vote (
     id TEXT PRIMARY KEY,
 
     -- Referencia al evento de votación
-    vote_event_id TEXT NOT NULL REFERENCES vote_event(id),
+    vote_event_id TEXT NOT NULL REFERENCES vote_event(id) ON DELETE CASCADE ON UPDATE CASCADE,
 
     -- Referencia al legislador que votó
-    voter_id TEXT NOT NULL REFERENCES person(id),
+    voter_id TEXT NOT NULL REFERENCES person(id) ON DELETE RESTRICT ON UPDATE RESTRICT,
 
     -- Opción de voto: a_favor, en_contra, abstención o ausente
     option TEXT NOT NULL CHECK(
@@ -293,7 +305,7 @@ CREATE TABLE count (
     id TEXT PRIMARY KEY,
 
     -- Referencia al evento de votación
-    vote_event_id TEXT NOT NULL REFERENCES vote_event(id),
+    vote_event_id TEXT NOT NULL REFERENCES vote_event(id) ON DELETE CASCADE ON UPDATE CASCADE,
 
     -- Opción de voto conteada
     option TEXT NOT NULL CHECK(
@@ -304,7 +316,7 @@ CREATE TABLE count (
     value INTEGER NOT NULL CHECK(value >= 0),
 
     -- Partido que aporta estos votos
-    group_id TEXT REFERENCES organization(id)
+    group_id TEXT REFERENCES organization(id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 
 -- ============================================================
@@ -328,7 +340,7 @@ CREATE TABLE actor_externo (
     ),
 
     -- Área geográfica de influencia (nullable)
-    area_id TEXT REFERENCES area(id),
+    area_id TEXT REFERENCES area(id) ON DELETE RESTRICT ON UPDATE RESTRICT,
 
     -- Fecha de inicio del cargo o relevancia
     start_date TEXT,
@@ -415,7 +427,7 @@ CREATE TABLE evento_politico (
     fuente_url TEXT,
 
     -- Referencia a la iniciativa legislativa relacionada (nullable)
-    motion_id TEXT REFERENCES motion(id)
+    motion_id TEXT REFERENCES motion(id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 
 -- ============================================================
