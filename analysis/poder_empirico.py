@@ -447,7 +447,9 @@ def calc_shapley_shubik(weights, quota):
 
     weights: dict {player_id: weight} o list de weights
         Si es list, se convierte a {i: w for i, w in enumerate(weights)}.
-    quota: int — umbral para coalición ganadora
+    quota: int o list — umbral para coalición ganadora
+        Si es list (votos por jugador), se deriva mayoría simple:
+        sum(weights) // 2 + 1.
 
     Returns: {player_id: float} donde la suma = 1.0
     """
@@ -455,6 +457,9 @@ def calc_shapley_shubik(weights, quota):
 
     if isinstance(weights, list):
         weights = dict(enumerate(weights))
+
+    if isinstance(quota, list):
+        quota = sum(weights.values()) // 2 + 1
 
     return shapley_shubik(weights, quota)
 
