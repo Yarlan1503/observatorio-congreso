@@ -445,12 +445,16 @@ def calc_shapley_shubik(weights, quota):
     Anteriormente usaba O(n!) con itertools.permutations — validado como
     numéricamente idéntico el 2025-04-15 (4 datasets, diff=0.0 en todos).
 
-    weights: {player_id: weight}
-    quota: umbral para coalición ganadora
+    weights: dict {player_id: weight} o list de weights
+        Si es list, se convierte a {i: w for i, w in enumerate(weights)}.
+    quota: int — umbral para coalición ganadora
 
     Returns: {player_id: float} donde la suma = 1.0
     """
     from analysis.poder_partidos import shapley_shubik
+
+    if isinstance(weights, list):
+        weights = dict(enumerate(weights))
 
     return shapley_shubik(weights, quota)
 
