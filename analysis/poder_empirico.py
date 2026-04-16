@@ -20,14 +20,14 @@ import os
 from collections import defaultdict
 from itertools import combinations
 
-from analysis.db import get_connection
-
 from analysis.config import (
     CLOSE_VOTES_THRESHOLD,
     REFORMA_JUDICIAL_VE_IDS,
     TOP_DISSENTERS_GLOBAL,
 )
 from analysis.constants import CAMARA_MAP
+from analysis.db import DEFAULT_DB_PATH as DB_PATH
+from analysis.db import get_connection
 from db.constants import (
     _NAME_TO_ORG,
     _ORG_ID_TO_NAME,
@@ -42,7 +42,6 @@ from db.constants import (
 
 logger = logging.getLogger(__name__)
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "..", "db", "congreso.db")
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "analisis-diputados/output")
 
 # --- Constantes ---

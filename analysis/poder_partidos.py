@@ -18,16 +18,16 @@ import logging
 import math
 from pathlib import Path
 
-from analysis.db import get_connection
-
 import pandas as pd
+
+from analysis.db import DEFAULT_DB_PATH as DB_PATH
+from analysis.db import get_connection
 
 logger = logging.getLogger(__name__)
 
 from analysis.constants import CAMARA_MAP
 from db.constants import _NAME_TO_ORG, _ORG_ID_TO_NAME, _PARTY_ORG_IDS, init_constants_from_db
 
-DB_PATH = Path(__file__).parent.parent / "db" / "congreso.db"
 OUTPUT_DIR = Path(__file__).parent / "analisis-diputados/output"
 OUTPUT_DIR.mkdir(exist_ok=True)
 

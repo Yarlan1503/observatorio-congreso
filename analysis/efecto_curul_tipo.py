@@ -28,7 +28,6 @@ from db.constants import LEGISLATURAS_ORDERED
 logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).parent.parent
-DB_PATH = PROJECT_ROOT / "db" / "congreso.db"
 CAMARAS = ["diputados", "senado"]
 CURUL_TIPOS_ANALISIS = ["mayoria_relativa", "plurinominal"]  # excluir suplentes
 MIN_PERSONAS_CELDA = 5  # mínimo para incluir en análisis agregado

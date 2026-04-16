@@ -22,12 +22,13 @@ matplotlib.use("Agg")  # Sin display — backend no interactivo
 from collections import defaultdict
 from pathlib import Path
 
-from analysis.db import get_connection
-
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 import numpy as np
 import pandas as pd
+
+from analysis.db import DEFAULT_DB_PATH as DB_PATH
+from analysis.db import get_connection
 
 logger = logging.getLogger(__name__)
 
@@ -36,8 +37,6 @@ from analysis.constants import ORG_TO_SHORT, PARTY_COLORS
 # ---------------------------------------------------------------------------
 # Configuración global
 # ---------------------------------------------------------------------------
-
-DB_PATH = Path(__file__).parent.parent / "db" / "congreso.db"
 OUTPUT_DIR = Path(__file__).parent / "analisis-diputados/output"
 OUTPUT_DIR.mkdir(exist_ok=True)
 

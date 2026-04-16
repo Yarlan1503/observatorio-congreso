@@ -30,9 +30,10 @@ import contextlib
 import logging
 from pathlib import Path
 
-from analysis.db import get_connection
-
 import matplotlib
+
+from analysis.db import DEFAULT_DB_PATH as DB_PATH
+from analysis.db import get_connection
 
 matplotlib.use("Agg")
 
@@ -46,7 +47,6 @@ from db.constants import CAMARA_DIPUTADOS_ID, CAMARA_SENADO_ID, LEGISLATURAS_ORD
 logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).parent.parent
-DB_PATH = PROJECT_ROOT / "db" / "congreso.db"
 
 CAMARA_TO_ORG_ID = {
     "diputados": CAMARA_DIPUTADOS_ID,  # O08

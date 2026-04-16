@@ -22,9 +22,10 @@ import csv
 import logging
 from collections import defaultdict
 
-from analysis.db import get_connection
-
 import matplotlib
+
+from analysis.db import DEFAULT_DB_PATH as DB_PATH
+from analysis.db import get_connection
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -48,7 +49,6 @@ from db.constants import (
 )
 
 # --- Rutas ---
-DB_PATH = ROOT / "db" / "congreso.db"
 BIC_OUTPUT = ROOT / "analysis" / "analisis-bicameral" / "output"
 
 # --- Colores y orden de partidos para la gráfica ---

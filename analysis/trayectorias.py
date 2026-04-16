@@ -25,6 +25,7 @@ import numpy as np
 import pandas as pd
 from scipy.linalg import svd
 
+from analysis.db import DEFAULT_DB_PATH as DB_PATH
 from analysis.db import get_connection
 from db.constants import (
     _ORG_ID_TO_NAME,
@@ -36,7 +37,6 @@ from db.constants import (
 logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).parent.parent
-DB_PATH = PROJECT_ROOT / "db" / "congreso.db"
 
 CAMARA_TO_ORG_ID = {
     "diputados": CAMARA_DIPUTADOS_ID,  # O08

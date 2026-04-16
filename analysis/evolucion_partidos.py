@@ -23,6 +23,7 @@ import pandas as pd
 import db.constants as _dbc
 from analysis.config import DEALIGNMENT_THRESHOLD
 from analysis.constants import CAMARA_MAP, PARTY_COLORS
+from analysis.db import DEFAULT_DB_PATH as DB_PATH
 from analysis.db import get_connection
 from analysis.poder_partidos import shapley_shubik
 from db.constants import (
@@ -36,7 +37,6 @@ from db.constants import (
 logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).parent.parent
-DB_PATH = PROJECT_ROOT / "db" / "congreso.db"
 
 CAMARA_TO_ORG = {"diputados": CAMARA_DIPUTADOS_ID, "senado": CAMARA_SENADO_ID}
 CAMARA_LABEL = {"diputados": "Cámara de Diputados", "senado": "Senado de la República"}
