@@ -41,7 +41,7 @@ El dataset completo (7 legislaturas, ambas cámaras) permite contrastar estos ha
 | **Scraping** | curl_cffi (Senado, evasión WAF), httpx (Diputados), BeautifulSoup4, lxml |
 | **Datos** | SQLite (WAL mode), Pydantic v2 |
 | **Análisis** | NumPy, SciPy, NetworkX, pandas, polars |
-| **Comunidades** | python-louvain (Louvain) |
+| **Comunidades** | NetworkX (nx.community.louvain) |
 | **Visualización** | Matplotlib |
 | **Gestor de paquetes** | [uv](https://docs.astral.sh/uv/) (uv.lock) |
 | **Linter** | ruff |
@@ -116,8 +116,7 @@ bash scripts/backup_db.sh                      # Backup con rotación
 │   ├── schema.sql            # Schema completo (12 tablas)
 │   ├── backups/              # Backups automáticos
 │   ├── constants.py          # Constantes del schema
-│   ├── migrations/           # Scripts de migración históricos
-│   └── tests/                # Tests del schema
+│   └── migrations/           # Scripts de migración históricos
 ├── analysis/                 # Análisis cuantitativo (exploratorio)
 ├── tests/                    # Tests (scraping + validación)
 ├── scripts/                  # Shell scripts de operación
@@ -160,7 +159,7 @@ Convenciones del schema:
 ## Tests
 
 ```bash
-uv run pytest tests/ db/tests/ -v
+uv run pytest tests/ -v
 ```
 
 Los tests cubren transformers de Diputados y Senado, validación de scraping, schema de la base de datos y utilidades.
