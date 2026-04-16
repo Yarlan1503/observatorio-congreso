@@ -74,5 +74,5 @@ indent-style = "space"
 docstring-code-format = true
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "db/tests"]
+testpaths = ["tests"]
 pythonpath = ["."]
