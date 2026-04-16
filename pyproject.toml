@@ -1,6 +1,6 @@
 [build-system]
 requires = ["hatchling"]
-build-backend = "hatchling.backends"
+build-backend = "hatchling.build"
 
 [project]
 name = "observatorio-congreso"
@@ -67,6 +67,9 @@ known-first-party = ["scraper_congreso", "db", "analysis"]
 "db/archived/*" = ["E402", "F821"]            # archived scripts, no longer maintained
 "analysis/*" = ["F841", "B007", "SIM102", "RUF059", "E402", "RUF034"] # analysis scripts are exploratory
 "tests/*" = ["S101"]                          # allow assert in tests
+
+[tool.hatch.build.targets.wheel]
+packages = ["scraper_congreso"]
 
 [tool.ruff.format]
 quote-style = "double"

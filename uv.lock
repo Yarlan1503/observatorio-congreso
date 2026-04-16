@@ -654,7 +654,6 @@ analysis = [
     { name = "numpy" },
     { name = "pandas" },
     { name = "polars" },
-    { name = "python-louvain" },
     { name = "scipy" },
 ]
 dev = [
@@ -678,7 +677,6 @@ analysis = [
     { name = "numpy", specifier = ">=1.26" },
     { name = "pandas", specifier = ">=2.2" },
     { name = "polars", specifier = ">=0.20" },
-    { name = "python-louvain", specifier = ">=0.16" },
     { name = "scipy", specifier = ">=1.12" },
 ]
 dev = [
@@ -993,16 +991,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/66/c0/0c8b6ad9f17a802ee
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ec/57/56b9bcc3c9c6a792fcbaf139543cee77261f3651ca9da0c93f5c1221264b/python_dateutil-2.9.0.post0-py2.py3-none-any.whl", hash = "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427", size = 229892, upload-time = "2024-03-01T18:36:18.57Z" },
 ]
-
-[[package]]
-name = "python-louvain"
-version = "0.16"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "networkx" },
-    { name = "numpy" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/7c/0d/8787b021d52eb8764c0bb18ab95f720cf554902044c6a5cb1865daf45763/python-louvain-0.16.tar.gz", hash = "sha256:b7ba2df5002fd28d3ee789a49532baad11fe648e4f2117cf0798e7520a1da56b", size = 204641, upload-time = "2022-01-29T15:53:03.532Z" }
 
 [[package]]
 name = "rich"
