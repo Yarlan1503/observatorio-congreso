@@ -192,9 +192,7 @@ def init_constants_from_db(db_path: str) -> None:
         return
 
     conn = sqlite3.connect(str(path))
-    conn.execute("PRAGMA foreign_keys = ON")
-    conn.execute("PRAGMA journal_mode = WAL")
-    conn.execute("PRAGMA busy_timeout = 5000")
+    apply_pragmas(conn)
     try:
         rows = conn.execute("SELECT id, nombre, abbr, clasificacion FROM organization").fetchall()
 
@@ -256,43 +254,13 @@ def init_constants_from_db(db_path: str) -> None:
         conn.close()
 
 
-def get_total_seats(db_path: str, camara: str = "D") -> int:
-    """Cuenta personas únicas con membership activa en una cámara.
-
-    Para Diputados (D): cuenta personas con rol='diputado' y membership activa.
-    Para Senado (S): cuenta personas con rol='senador' y membership activa.
-
-    Si la BD no existe o no hay datos, retorna el valor por defecto:
-    - Diputados: 500
-    - Senado: 128
+def apply_pragmas(conn: sqlite3.Connection, busy_timeout: int = 5000) -> None:
+    """Aplica PRAGMAs estándar a una conexión SQLite.
 
     Args:
-        db_path: Ruta a la BD SQLite.
-        camara: 'D' para Diputados, 'S' para Senado.
-
-    Returns:
-        Número de personas únicas con membership activa.
+        conn: Conexión SQLite activa.
+        busy_timeout: Timeout en ms para espera de lock (default 5000).
     """
-    defaults = {"D": 500, "S": 128}
-    default = defaults.get(camara, 500)
-
-    path = Path(db_path)
-    if not path.exists():
-        return default
-
-    rol = "diputado" if camara == "D" else "senador"
-
-    conn = sqlite3.connect(str(path))
     conn.execute("PRAGMA foreign_keys = ON")
     conn.execute("PRAGMA journal_mode = WAL")
-    conn.execute("PRAGMA busy_timeout = 5000")
-    try:
-        row = conn.execute(
-            """SELECT COUNT(DISTINCT person_id) FROM membership
-               WHERE rol = ?""",
-            (rol,),
-        ).fetchone()
-        count = row[0] if row and row[0] > 0 else default
-        return count
-    finally:
-        conn.close()
+    conn.execute(f"PRAGMA busy_timeout = {busy_timeout}")

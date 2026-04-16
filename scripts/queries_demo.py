@@ -12,6 +12,8 @@ import os
 import sqlite3
 import sys
 
+from db.constants import apply_pragmas
+
 # Ruta a la base de datos (db/congreso.db relativo a scripts/)
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
@@ -95,9 +97,7 @@ def main():
     print(f"Base de datos: {DB_PATH}")
 
     conn = sqlite3.connect(DB_PATH)
-    conn.execute("PRAGMA foreign_keys = ON;")
-    conn.execute("PRAGMA journal_mode = WAL")
-    conn.execute("PRAGMA busy_timeout = 5000")
+    apply_pragmas(conn)
 
     queries = [
         (

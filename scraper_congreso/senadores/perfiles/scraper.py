@@ -26,6 +26,7 @@ import sqlite3
 import time
 from pathlib import Path
 
+from db.constants import apply_pragmas
 from scraper_congreso.senadores.config import (
     BASE_URL_LXVI,
     COOKIE_PATH,
@@ -207,9 +208,7 @@ class PerfilEnricher:
     def _get_conn(self) -> sqlite3.Connection:
         """Obtiene conexión a la BD."""
         conn = sqlite3.connect(self.db_path, timeout=30.0)
-        conn.execute("PRAGMA foreign_keys = ON")
-        conn.execute("PRAGMA journal_mode = WAL")
-        conn.execute("PRAGMA busy_timeout = 5000")
+        apply_pragmas(conn, busy_timeout=30000)
         return conn
 
     def _build_name_cache(self, conn: sqlite3.Connection) -> None:

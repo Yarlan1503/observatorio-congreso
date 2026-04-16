@@ -16,6 +16,7 @@ import sqlite3
 
 from bs4 import BeautifulSoup
 
+from db.constants import apply_pragmas
 from scraper_congreso.utils.logging_config import setup_logging
 
 from .client import SITLClient
@@ -159,9 +160,7 @@ class ScraperPipeline:
 
         # 3. Transformar (conexión para lookup de IDs + creación de orgs)
         conn = sqlite3.connect(str(DB_PATH))
-        conn.execute("PRAGMA foreign_keys = ON")
-        conn.execute("PRAGMA journal_mode = WAL")
-        conn.execute("PRAGMA busy_timeout = 5000")
+        apply_pragmas(conn)
         try:
             votacion_completa = transformar_votacion(
                 votacion, desglose, nominales, conn, self.legislatura

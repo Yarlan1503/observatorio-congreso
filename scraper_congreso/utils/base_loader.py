@@ -5,6 +5,8 @@ import sqlite3
 from pathlib import Path
 from typing import ClassVar
 
+from db.constants import apply_pragmas
+
 
 class BaseLoader:
     """Base class for Popolo-Graph loaders.
@@ -23,9 +25,7 @@ class BaseLoader:
     def _get_conn(self) -> sqlite3.Connection:
         """Obtiene conexión a la BD con foreign keys y WAL mode."""
         conn = sqlite3.connect(str(self.db_path), timeout=30.0)
-        conn.execute("PRAGMA foreign_keys = ON")
-        conn.execute("PRAGMA journal_mode = WAL")
-        conn.execute("PRAGMA busy_timeout = 5000")
+        apply_pragmas(conn, busy_timeout=30000)
         return conn
 
     def verificar_integridad(self) -> bool:
